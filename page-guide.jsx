@@ -464,7 +464,7 @@ const PageGuide = ({ portal, route }) => {
     <>
       <style>{`
         .page-guide-fab {
-          position: fixed; top: 16px; right: 16px; z-index: 200;
+          position: fixed; top: 72px; right: 16px; z-index: 200;
           background: var(--burgundy-800); color: #fff;
           border: none; border-radius: 999px;
           padding: 10px 18px; font-size: 13px; font-weight: 600;

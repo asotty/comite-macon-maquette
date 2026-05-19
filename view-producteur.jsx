@@ -1621,11 +1621,14 @@ const CommandeConfirmation = ({ order, onNavigate }) => (
             <div key={l.wine.id}>
               <div style={{ fontSize: 13.5, fontWeight: 500 }}>{l.wine.name}</div>
               <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>
-                {[
-                  l.qty.autocollants > 0 && `${l.qty.autocollants} autocollant${l.qty.autocollants > 1 ? 's' : ''}`,
-                  l.qty.plaques > 0      && `${l.qty.plaques} plaque${l.qty.plaques > 1 ? 's' : ''}`,
-                  l.qty.boites > 0       && `${l.qty.boites} boîte${l.qty.boites > 1 ? 's' : ''}`,
-                ].filter(Boolean).join(' · ')} <span style={{ color: 'var(--fg-subtle)' }}>·</span> <span className="tnum" style={{ color: 'var(--fg)', fontWeight: 500 }}>{l.units} unités</span>
+                {ALL_FORMAT_KEYS
+                  .filter(k => (l.qty[k] || 0) > 0)
+                  .map(k => {
+                    const n = l.qty[k];
+                    const lbl = FORMAT_LABELS[k];
+                    return `${n} ${n > 1 ? lbl.plural : lbl.label}`;
+                  })
+                  .join(' · ')} <span style={{ color: 'var(--fg-subtle)' }}>·</span> <span className="tnum" style={{ color: 'var(--fg)', fontWeight: 500 }}>{l.units} unités</span>
               </div>
             </div>
           ))}
@@ -1764,7 +1767,7 @@ const ProducteurCommandeDetail = ({ commande, onBack }) => {
     livree:      { label: 'Livrée',         cls: 'badge badge-success' },
   }[c.status];
 
-  const itemLabels = { autocollants: 'autocollant', plaques: 'plaque', boites: 'boîte' };
+  const itemLabels = { autocollants: 'autocollant rond', autocollants_rect: 'autocollant rect.', plaques: 'plaque métal', diplomes: 'certificat', boites: 'boîte vrac' };
 
   return (
     <div>
@@ -1920,7 +1923,15 @@ const ProducteurCommandesHistorique = ({ onNavigate }) => {
   return <ProducteurCommandesListe onOpenCommande={setViewing} onOpenNew={() => onNavigate('p-commandes')}/>;
 };
 
-const UNIT_PER = { autocollants: 1, plaques: 10, boites: 100 };
+const UNIT_PER = { autocollants: 1, autocollants_rect: 1, plaques: 10, diplomes: 5, boites: 100 };
+const ALL_FORMAT_KEYS = Object.keys(UNIT_PER);
+const FORMAT_LABELS = {
+  autocollants:      { label: 'autocollant rond',       plural: 'autocollants ronds'         },
+  autocollants_rect: { label: 'autocollant rectangulaire', plural: 'autocollants rectangulaires' },
+  plaques:           { label: 'plaque métal',           plural: 'plaques métal'              },
+  diplomes:          { label: 'certificat',             plural: 'certificats'                },
+  boites:            { label: 'boîte vrac',             plural: 'boîtes vrac'                },
+};
 
 const ProducteurCommandes = ({ onNavigate }) => {
   // Wine id passé via navigation (clic depuis "Mes médailles")
@@ -1941,7 +1952,7 @@ const ProducteurCommandes = ({ onNavigate }) => {
 
   // État panier : { wineId: { autocollants, plaques, boites } }
   const [cart, setCart] = React.useState(() =>
-    medailles.reduce((acc, m) => { acc[m.id] = { autocollants: 0, plaques: 0, boites: 0 }; return acc; }, {})
+    medailles.reduce((acc, m) => { acc[m.id] = { autocollants: 0, autocollants_rect: 0, plaques: 0, diplomes: 0, boites: 0 }; return acc; }, {})
   );
 
   const unitsOrdered = (wineId) => {
@@ -1959,7 +1970,7 @@ const ProducteurCommandes = ({ onNavigate }) => {
   const cartLines = medailles
     .map(m => ({ wine: m, qty: cart[m.id], units: unitsOrdered(m.id) }))
     .filter(l => l.units > 0);
-  const totalItems = cartLines.reduce((s, l) => s + (l.qty.autocollants > 0 ? 1 : 0) + (l.qty.plaques > 0 ? 1 : 0) + (l.qty.boites > 0 ? 1 : 0), 0);
+  const totalItems = cartLines.reduce((s, l) => s + ALL_FORMAT_KEYS.filter(k => (l.qty[k] || 0) > 0).length, 0);
   const totalUnits = cartLines.reduce((s, l) => s + l.units, 0);
   const hasOverflow = medailles.some(m => remainingAfter(m) < 0);
 
@@ -2037,9 +2048,46 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
   }[wine.medal];
 
   const itemTypes = [
-    { key: 'autocollants', label: 'Autocollants', sub: 'Macarons à apposer sur les bouteilles' },
-    { key: 'plaques',      label: 'Plaques',      sub: '10 unités équivalent · vitrines et présentoirs' },
-    { key: 'boites',       label: 'Boîtes',       sub: '100 unités équivalent · stock cave' },
+    {
+      key: 'autocollants',
+      label: 'Autocollants ronds',
+      sub: 'Macaron Ø 35 mm · à coller sur les bouteilles',
+      icon: 'Medal',
+      equiv: '1 unité / autocollant',
+      color: '#f59e0b',
+    },
+    {
+      key: 'autocollants_rect',
+      label: 'Autocollants rectangulaires',
+      sub: 'Format col 80 × 30 mm · version horizontale sur étiquette',
+      icon: 'Layers',
+      equiv: '1 unité / autocollant',
+      color: '#8b5cf6',
+    },
+    {
+      key: 'plaques',
+      label: 'Plaques métal',
+      sub: 'Aluminium brossé · vitrines, présentoirs et caves',
+      icon: 'Award',
+      equiv: '10 unités équivalent par plaque',
+      color: '#0ea5e9',
+    },
+    {
+      key: 'diplomes',
+      label: 'Certificats / Diplômes',
+      sub: 'Format A4 encadrable · attestation officielle du concours',
+      icon: 'FileText',
+      equiv: '5 unités équivalent par certificat',
+      color: '#16a34a',
+    },
+    {
+      key: 'boites',
+      label: 'Boîtes vrac',
+      sub: 'Conditionnement cave · pour les grands volumes de stock',
+      icon: 'Package',
+      equiv: '100 unités équivalent par boîte',
+      color: '#64748b',
+    },
   ];
 
   const itemsActive = itemTypes.filter(t => counts[t.key] > 0).length;
@@ -2153,35 +2201,58 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
       {open && !isExhausted && (
         <div className="slide-up" style={{ padding: '4px 20px 20px', borderTop: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
-            {itemTypes.map(row => (
-              <div key={row.key} style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '10px 12px',
-                background: counts[row.key] > 0 ? 'var(--burgundy-50)' : 'var(--surface-2)',
-                border: '1px solid ' + (counts[row.key] > 0 ? 'var(--burgundy-200)' : 'var(--border)'),
-                borderRadius: 8,
-                transition: 'all .12s',
-              }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 500 }}>{row.label}</div>
-                  <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>{row.sub}</div>
-                </div>
-                <Stepper
-                  value={counts[row.key]}
-                  onChange={(v) => onChange(row.key, v)}
-                  disabled={isExhausted}
-                  max={Math.max(0, Math.floor((wine.quota - wine.used - (unitsOrdered - counts[row.key] * UNIT_PER[row.key])) / UNIT_PER[row.key]))}
-                />
-                <div className="tnum" style={{
-                  fontSize: 12, color: 'var(--fg-muted)',
-                  minWidth: 78, textAlign: 'right',
+            {itemTypes.map(row => {
+              const IcoComp = Icon[row.icon] || Icon.Package;
+              const active = (counts[row.key] || 0) > 0;
+              const maxForType = Math.max(0, Math.floor((wine.quota - wine.used - (unitsOrdered - (counts[row.key] || 0) * UNIT_PER[row.key])) / UNIT_PER[row.key]));
+              const unitsForType = (counts[row.key] || 0) * UNIT_PER[row.key];
+              return (
+                <div key={row.key} style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '11px 14px',
+                  background: active ? 'var(--burgundy-50)' : 'var(--surface-2)',
+                  border: '1px solid ' + (active ? 'var(--burgundy-200)' : 'var(--border)'),
+                  borderRadius: 8,
+                  transition: 'all .12s',
                 }}>
-                  = <span style={{ color: counts[row.key] > 0 ? 'var(--burgundy-800)' : 'var(--fg-muted)', fontWeight: counts[row.key] > 0 ? 600 : 400 }}>
-                    {counts[row.key] * UNIT_PER[row.key]}
-                  </span> unité{counts[row.key] * UNIT_PER[row.key] > 1 ? 's' : ''}
+                  {/* Icône colorée */}
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                    background: active ? row.color + '22' : 'var(--surface)',
+                    border: '1px solid ' + (active ? row.color + '44' : 'var(--border)'),
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: active ? row.color : 'var(--fg-muted)',
+                    transition: 'all .12s',
+                  }}>
+                    <IcoComp size={16}/>
+                  </div>
+                  {/* Texte */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 600, color: active ? 'var(--burgundy-900)' : 'var(--fg)' }}>{row.label}</div>
+                    <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 1 }}>{row.sub}</div>
+                    <div style={{ fontSize: 11, color: active ? row.color : 'var(--fg-subtle)', marginTop: 3, fontWeight: active ? 500 : 400 }}>
+                      {row.equiv}
+                    </div>
+                  </div>
+                  {/* Stepper */}
+                  <Stepper
+                    value={counts[row.key] || 0}
+                    onChange={(v) => onChange(row.key, v)}
+                    disabled={isExhausted}
+                    max={maxForType}
+                  />
+                  {/* Équivalent unités */}
+                  <div className="tnum" style={{
+                    fontSize: 12, color: 'var(--fg-muted)',
+                    minWidth: 82, textAlign: 'right',
+                  }}>
+                    = <span style={{ color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)', fontWeight: active ? 600 : 400 }}>
+                      {unitsForType}
+                    </span> unité{unitsForType !== 1 ? 's' : ''}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
