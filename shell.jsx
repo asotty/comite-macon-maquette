@@ -433,7 +433,7 @@ const Shell = ({ portal, route, onNavigate, onLogout, children }) => {
 
       {/* MAIN */}
       <main style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <Topbar portal={portal} onLogout={onLogout}/>
+        <Topbar portal={portal} onLogout={onLogout} onNavigate={onNavigate}/>
         <div style={{ flex: 1, padding: '32px 40px 56px', maxWidth: 1440, width: '100%', alignSelf: 'flex-start' }}>
           <div className="fade-in" key={route}>
             {children}
@@ -444,8 +444,257 @@ const Shell = ({ portal, route, onNavigate, onLogout, children }) => {
   );
 };
 
-const Topbar = ({ portal, onLogout }) => {
-  const [searchOpen, setSearchOpen] = React.useState(false);
+// ── Notifications dropdown ────────────────────────────────────────
+const NOTIFS = [
+  { id: 1, type: 'warning', icon: <Icon.AlertCircle size={14}/>, title: 'Virement en attente depuis 8 jours', sub: 'Château Pied-de-Rieux · INS-2026-0183', time: 'Il y a 8 j', unread: true },
+  { id: 2, type: 'info',    icon: <Icon.FileText size={14}/>,    title: 'Nouvelle inscription soumise',        sub: 'Château Dubreuil · INS-2026-0174',     time: 'Il y a 12 min', unread: true },
+  { id: 3, type: 'success', icon: <Icon.Check size={14}/>,       title: 'Paiement reçu',                      sub: 'Domaine des 3 Pierres · 540 €',          time: 'Il y a 1h',  unread: true },
+  { id: 4, type: 'warning', icon: <Icon.AlertCircle size={14}/>, title: 'Dérogation en attente de traitement', sub: 'Domaine de la Chevalière · DER-2026-0032', time: 'Il y a 2h', unread: false },
+  { id: 5, type: 'info',    icon: <Icon.Users size={14}/>,       title: 'Nouveau dégustateur inscrit',         sub: 'Pierre Moreau · Bordeaux',               time: 'Il y a 3h',  unread: false },
+  { id: 6, type: 'success', icon: <Icon.Check size={14}/>,       title: 'Palmarès Concours France publié',     sub: 'Édition 2025 · 847 médailles attribuées', time: 'Il y a 2 j', unread: false },
+];
+
+const notifColors = {
+  warning: { bg: 'var(--warning-bg)', fg: '#92400e' },
+  info:    { bg: '#eff6ff',           fg: '#1e40af' },
+  success: { bg: 'var(--success-bg)', fg: '#166534' },
+};
+
+const NotifDropdown = ({ onClose }) => {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [onClose]);
+
+  return (
+    <div ref={ref} style={{
+      position: 'absolute', top: 48, right: 0, zIndex: 50,
+      width: 380,
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
+      borderRadius: 14,
+      boxShadow: '0 12px 40px rgba(15,23,42,0.14)',
+      overflow: 'hidden',
+      animation: 'slideDown .15s ease-out',
+    }}>
+      {/* Header */}
+      <div style={{ padding: '16px 18px 12px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: 14, fontWeight: 600 }}>Notifications</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 11.5, color: 'var(--burgundy-800)', fontWeight: 500 }}>3 non lues</span>
+          <button style={{ fontSize: 11.5, color: 'var(--fg-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Tout marquer lu</button>
+        </div>
+      </div>
+      {/* Liste */}
+      <div style={{ maxHeight: 380, overflowY: 'auto' }}>
+        {NOTIFS.map((n, i) => (
+          <div key={n.id} style={{
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+            padding: '13px 18px',
+            borderBottom: i < NOTIFS.length - 1 ? '1px solid var(--border)' : 'none',
+            background: n.unread ? 'var(--burgundy-50)' : 'transparent',
+            cursor: 'pointer',
+            transition: 'background .1s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = n.unread ? '#f5eef2' : 'var(--surface-2)'}
+          onMouseLeave={e => e.currentTarget.style.background = n.unread ? 'var(--burgundy-50)' : 'transparent'}
+          >
+            <div style={{
+              width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+              background: notifColors[n.type].bg,
+              color: notifColors[n.type].fg,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>{n.icon}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: n.unread ? 600 : 500, color: 'var(--fg)', lineHeight: 1.3 }}>{n.title}</div>
+              <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.sub}</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+              <span style={{ fontSize: 11, color: 'var(--fg-muted)', whiteSpace: 'nowrap' }}>{n.time}</span>
+              {n.unread && <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--burgundy-800)' }}/>}
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Footer */}
+      <div style={{ padding: '10px 18px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+        <button style={{ fontSize: 12.5, color: 'var(--burgundy-800)', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}>
+          Voir toutes les notifications
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ── Aide contextuelle / Documentation panel ───────────────────────
+const HELP_SECTIONS = [
+  {
+    title: 'Démarrage rapide',
+    icon: <Icon.Sparkles size={14}/>,
+    items: [
+      { label: 'Créer une nouvelle édition de concours', route: 'param-concours' },
+      { label: 'Lancer le contrôle automatique des dossiers', route: 'fr-controle' },
+      { label: 'Publier le palmarès', route: 'fr-palmares' },
+      { label: 'Inviter un nouvel administrateur', route: 'param-utilisateurs' },
+    ],
+  },
+  {
+    title: 'Inscriptions & dossiers',
+    icon: <Icon.FileText size={14}/>,
+    items: [
+      { label: 'Comprendre les statuts d'inscription', info: 'Brouillon → Soumis → Validé → Payé. Les statuts "Att. virement" et "Att. chèque" indiquent un paiement en attente de confirmation manuelle.' },
+      { label: 'Confirmer un paiement virement / chèque', route: 'fr-inscriptions' },
+      { label: 'Traiter une dérogation', route: 'fr-derogations' },
+      { label: 'Exporter les dossiers en CSV', route: 'fr-inscriptions' },
+    ],
+  },
+  {
+    title: 'Paramètres & configuration',
+    icon: <Icon.Settings size={14}/>,
+    items: [
+      { label: 'Configurer les tarifs et dates du concours', route: 'param-concours' },
+      { label: 'Gérer les coordonnées bancaires (virement)', route: 'param-paiements' },
+      { label: 'Modifier les templates d'email', route: 'param-emails' },
+      { label: 'Tester les connexions API (Paybox, Sage…)', route: 'param-api' },
+    ],
+  },
+  {
+    title: 'Raccourcis clavier',
+    icon: <Icon.Command size={14}/>,
+    items: [
+      { label: '⌘K — Recherche globale', info: 'Accès rapide à n'importe quel producteur, dossier ou commande.' },
+      { label: '⌘/ — Aide contextuelle', info: 'Ouvre ce panneau depuis n'importe quelle page.' },
+      { label: 'Échap — Fermer les modales', info: 'Ferme les dialogues ouverts sans perdre les données.' },
+    ],
+  },
+];
+
+const HelpPanel = ({ onClose, onNavigate }) => {
+  const [search, setSearch] = React.useState('');
+  const [expandedSection, setExpandedSection] = React.useState(0);
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [onClose]);
+
+  const filtered = search.trim()
+    ? HELP_SECTIONS.map(s => ({
+        ...s,
+        items: s.items.filter(it => it.label.toLowerCase().includes(search.toLowerCase())),
+      })).filter(s => s.items.length > 0)
+    : HELP_SECTIONS;
+
+  return (
+    <div ref={ref} style={{
+      position: 'absolute', top: 48, right: 0, zIndex: 50,
+      width: 380,
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
+      borderRadius: 14,
+      boxShadow: '0 12px 40px rgba(15,23,42,0.14)',
+      overflow: 'hidden',
+      animation: 'slideDown .15s ease-out',
+    }}>
+      {/* Header */}
+      <div style={{ padding: '16px 18px 14px', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>Aide & documentation</div>
+          <button onClick={onClose} className="btn btn-icon btn-sm btn-ghost"><Icon.X size={14}/></button>
+        </div>
+        <div className="input-with-icon">
+          <Icon.Search size={13} className="input-icon"/>
+          <input
+            className="input"
+            placeholder="Rechercher dans l'aide…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ fontSize: 13 }}
+            autoFocus
+          />
+        </div>
+      </div>
+
+      {/* Sections */}
+      <div style={{ maxHeight: 420, overflowY: 'auto' }}>
+        {filtered.map((section, si) => {
+          const isOpen = search.trim() ? true : expandedSection === si;
+          return (
+            <div key={si} style={{ borderBottom: si < filtered.length - 1 ? '1px solid var(--border)' : 'none' }}>
+              <button
+                onClick={() => setExpandedSection(isOpen ? -1 : si)}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '12px 18px',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  textAlign: 'left',
+                }}
+              >
+                <span style={{ color: 'var(--burgundy-800)' }}>{section.icon}</span>
+                <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>{section.title}</span>
+                <Icon.ChevronDown size={13} style={{ color: 'var(--fg-muted)', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}/>
+              </button>
+              {isOpen && (
+                <div style={{ padding: '0 18px 12px' }}>
+                  {section.items.map((item, ii) => (
+                    <div
+                      key={ii}
+                      onClick={() => { if (item.route && onNavigate) { onNavigate(item.route); onClose(); } }}
+                      style={{
+                        display: 'flex', alignItems: 'flex-start', gap: 10,
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        cursor: item.route ? 'pointer' : 'default',
+                        marginBottom: 2,
+                      }}
+                      onMouseEnter={e => { if (item.route) e.currentTarget.style.background = 'var(--burgundy-50)'; }}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      {item.route
+                        ? <Icon.ArrowRight size={12} style={{ color: 'var(--burgundy-800)', marginTop: 3, flexShrink: 0 }}/>
+                        : <Icon.Info size={12} style={{ color: 'var(--fg-muted)', marginTop: 3, flexShrink: 0 }}/>
+                      }
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, color: item.route ? 'var(--fg)' : 'var(--fg-muted)', fontWeight: item.route ? 500 : 400, lineHeight: 1.3 }}>{item.label}</div>
+                        {item.info && <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 3, lineHeight: 1.4 }}>{item.info}</div>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <div style={{ padding: '32px 18px', textAlign: 'center', color: 'var(--fg-muted)', fontSize: 13 }}>
+            <Icon.Search size={20} style={{ marginBottom: 8, opacity: 0.4 }}/>
+            <div>Aucun résultat pour «&nbsp;{search}&nbsp;»</div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '10px 18px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>Extranet Comité Mâcon v2.0</span>
+        <button style={{ fontSize: 12, color: 'var(--burgundy-800)', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}>
+          Contacter le support →
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ── Topbar ────────────────────────────────────────────────────────
+const Topbar = ({ portal, onLogout, onNavigate }) => {
+  const [notifOpen, setNotifOpen] = React.useState(false);
+  const [helpOpen,  setHelpOpen]  = React.useState(false);
+  const unreadCount = NOTIFS.filter(n => n.unread).length;
+
   return (
     <header style={{
       height: 60,
@@ -467,18 +716,51 @@ const Topbar = ({ portal, onLogout }) => {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        {/* Badge "dossiers à contrôler" — cliquable */}
         {portal === 'admin' && (
-          <span className="badge badge-warning" style={{ marginRight: 8 }}>
+          <button
+            onClick={() => onNavigate && onNavigate('fr-inscriptions')}
+            className="badge badge-warning"
+            style={{ marginRight: 8, cursor: 'pointer', background: 'none', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            title="Aller aux dossiers à contrôler"
+          >
             <Icon.AlertCircle size={12}/> 3 dossiers à contrôler
-          </span>
+          </button>
         )}
-        <button className="btn btn-icon btn-ghost" title="Notifications" style={{ position: 'relative' }}>
-          <Icon.Bell size={16}/>
-          <span style={{ position: 'absolute', top: 8, right: 8, width: 7, height: 7, background: 'var(--burgundy-800)', borderRadius: '50%' }}/>
-        </button>
-        <button className="btn btn-icon btn-ghost" title="Aide">
-          <Icon.Info size={16}/>
-        </button>
+
+        {/* Cloche notifications */}
+        <div style={{ position: 'relative' }}>
+          <button
+            className="btn btn-icon btn-ghost"
+            title="Notifications"
+            onClick={() => { setNotifOpen(o => !o); setHelpOpen(false); }}
+            style={{ position: 'relative' }}
+          >
+            <Icon.Bell size={16}/>
+            {unreadCount > 0 && (
+              <span style={{
+                position: 'absolute', top: 7, right: 7,
+                minWidth: 7, height: 7,
+                background: 'var(--burgundy-800)', borderRadius: '50%',
+                border: '1.5px solid #fff',
+              }}/>
+            )}
+          </button>
+          {notifOpen && <NotifDropdown onClose={() => setNotifOpen(false)}/>}
+        </div>
+
+        {/* Aide contextuelle */}
+        <div style={{ position: 'relative' }}>
+          <button
+            className="btn btn-icon btn-ghost"
+            title="Aide & documentation"
+            onClick={() => { setHelpOpen(o => !o); setNotifOpen(false); }}
+            style={{ background: helpOpen ? 'var(--burgundy-50)' : undefined, color: helpOpen ? 'var(--burgundy-800)' : undefined }}
+          >
+            <Icon.Info size={16}/>
+          </button>
+          {helpOpen && <HelpPanel onClose={() => setHelpOpen(false)} onNavigate={onNavigate}/>}
+        </div>
       </div>
     </header>
   );
