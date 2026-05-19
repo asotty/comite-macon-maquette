@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comité Mâcon — Extranet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<template id="__bundler_thumbnail" data-bg-color="#531442">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#531442"/>
+    <g transform="translate(600 400)" fill="none" stroke="#D4A017" stroke-width="6">
+      <circle r="120"/>
+      <path d="M-60 -60 Q 0 0 60 -60 M -60 60 Q 0 0 60 60" stroke-linecap="round"/>
+      <path d="M0 -120 L0 -180 M-30 -180 L30 -180" stroke-linecap="round"/>
+    </g>
+    <text x="600" y="600" text-anchor="middle" fill="#D4A017" font-family="serif" font-size="36" font-style="italic">Comité Mâcon</text>
+  </svg>
+</template>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="components-shared.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="view-login.jsx"></script>
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="view-admin.jsx"></script>
+<script type="text/babel" src="view-producteur.jsx"></script>
+<script type="text/babel" src="view-degustateur.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "kpiVariant": "default",
+  "density": "comfort",
+  "showKpiIcons": false
+}/*EDITMODE-END*/;
+
+const initialRoute = { admin: 'dashboard', producteur: 'p-dashboard', degustateur: 'd-dashboard' };
+
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [portal, setPortal] = React.useState(null); // null = login screen
+  const [route, setRoute] = React.useState('dashboard');
+
+  // Apply density to root
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--density', tweaks.density === 'compact' ? '0.85' : '1');
+  }, [tweaks.density]);
+
+  const handleLogin = (p) => { setPortal(p); setRoute(initialRoute[p]); };
+  const handleLogout = () => { setPortal(null); };
+
+  if (!portal) {
+    return <Login onLogin={handleLogin}/>;
+  }
+
+  // Producteur inscription wizard takes over the layout
+  if (portal === 'producteur' && route === 'p-inscription') {
+    return (
+      <Shell portal={portal} route={route} onNavigate={setRoute} onLogout={handleLogout}>
+        <ProducteurInscription onExit={() => setRoute('p-dashboard')}/>
+      </Shell>
+    );
+  }
+
+  let view = null;
+  if (portal === 'admin') {
+    // Concours France sub-routes
+    if (route === 'dashboard') view = <AdminDashboard kpiVariant={tweaks.kpiVariant} showKpiIcons={tweaks.showKpiIcons}/>;
+    else if (route === 'inscriptions-fr' || route === 'fr-inscriptions') view = <AdminInscriptions concours="France"/>;
+    else if (route === 'fr-echantillons') view = <AdminGeneric title="Échantillons — Concours France" sub="2 184 échantillons reçus · 1 940 contrôlés" icon={<Icon.Wine size={26}/>} breadcrumb={['Administration', 'Concours France', 'Échantillons']}/>;
+    else if (route === 'fr-controle') view = <AdminInscriptions concours="France"/>;
+    else if (route === 'fr-palmares' || route === 'palmares') view = <AdminPalmares/>;
+    else if (route === 'fr-derogations') view = <AdminGeneric title="Dérogations — Concours France" sub="Demandes de dérogation à instruire" icon={<Icon.ShieldCheck size={26}/>} breadcrumb={['Administration', 'Concours France', 'Dérogations']}/>;
+    // Concours Monde sub-routes
+    else if (route === 'inscriptions-monde' || route === 'monde-inscriptions') view = <AdminInscriptions concours="Monde"/>;
+    else if (route === 'monde-echantillons') view = <AdminGeneric title="Échantillons — Concours Monde" sub="Première édition complète · 312 producteurs" icon={<Icon.Wine size={26}/>} breadcrumb={['Administration', 'Concours Monde', 'Échantillons']}/>;
+    else if (route === 'monde-controle') view = <AdminInscriptions concours="Monde"/>;
+    else if (route === 'monde-palmares') view = <AdminPalmares/>;
+    else if (route === 'monde-derogations') view = <AdminGeneric title="Dérogations — Concours Monde" sub="Demandes de dérogation à instruire" icon={<Icon.ShieldCheck size={26}/>} breadcrumb={['Administration', 'Concours Monde', 'Dérogations']}/>;
+    // Commandes
+    else if (route === 'commandes' || route === 'cmd-liste') view = <AdminGeneric title="Commandes producteurs" sub="Suivi des commandes médailles" icon={<Icon.Package size={26}/>} breadcrumb={['Administration', 'Logistique', 'Commandes']}/>;
+    else if (route === 'cmd-stocks') view = <AdminGeneric title="Stocks médailles" sub="Or · Argent · Bronze · Mises à jour quotidiennes" icon={<Icon.Package size={26}/>} breadcrumb={['Administration', 'Logistique', 'Stocks']}/>;
+    else if (route === 'cmd-fournisseurs') view = <AdminGeneric title="Transmissions fournisseurs" sub="Fichiers envoyés · Statuts d'expédition" icon={<Icon.Send size={26}/>} breadcrumb={['Administration', 'Logistique', 'Fournisseurs']}/>;
+    // Salons
+    else if (route === 'salons' || route === 'salons-events') view = <AdminGeneric title="Événements & salons" sub="Salon des Vins · Marché des Plaisirs Gourmands" icon={<Icon.Building size={26}/>} breadcrumb={['Administration', 'Salons', 'Événements']}/>;
+    else if (route === 'salons-exposants') view = <AdminGeneric title="Inscriptions exposants" sub="Demandes & validations" icon={<Icon.Users size={26}/>} breadcrumb={['Administration', 'Salons', 'Exposants']}/>;
+    else if (route === 'salons-stands') view = <AdminGeneric title="Plan des stands" sub="Attribution & gestion des emplacements" icon={<Icon.Building size={26}/>} breadcrumb={['Administration', 'Salons', 'Stands']}/>;
+    // Utilisateurs
+    else if (route === 'producteurs') view = <AdminGeneric title="Producteurs" sub="1 240 comptes producteurs" icon={<Icon.Wine size={26}/>} breadcrumb={['Administration', 'Utilisateurs', 'Producteurs']}/>;
+    else if (route === 'degustateurs' || route === 'deg-liste') view = <AdminGeneric title="Dégustateurs" sub="86 jurys actifs" icon={<Icon.Users size={26}/>} breadcrumb={['Administration', 'Utilisateurs', 'Dégustateurs']}/>;
+    else if (route === 'deg-formations') view = <AdminGeneric title="Formations dégustateurs" sub="Programme & inscriptions" icon={<Icon.ListChecks size={26}/>} breadcrumb={['Administration', 'Dégustateurs', 'Formations']}/>;
+    else if (route === 'deg-repas') view = <AdminGeneric title="Repas dégustateurs" sub="Réservations & traiteur" icon={<Icon.Calendar size={26}/>} breadcrumb={['Administration', 'Dégustateurs', 'Repas']}/>;
+    else if (route === 'deg-jurys') view = <AdminGeneric title="Composition des jurys" sub="Affectation par session" icon={<Icon.Users size={26}/>} breadcrumb={['Administration', 'Dégustateurs', 'Jurys']}/>;
+    else if (route === 'deg-dispos') view = <AdminGeneric title="Disponibilités jurys" sub="Calendrier des disponibilités déclarées" icon={<Icon.Activity size={26}/>} breadcrumb={['Administration', 'Dégustateurs', 'Disponibilités']}/>;
+    // Finances
+    else if (route === 'finances' || route === 'fin-paiements') view = <AdminGeneric title="Paiements" sub="Encaissements Paybox & virements" icon={<Icon.Receipt size={26}/>} breadcrumb={['Administration', 'Finances', 'Paiements']}/>;
+    else if (route === 'fin-factures') view = <AdminGeneric title="Factures" sub="Émission & relances" icon={<Icon.FileText size={26}/>} breadcrumb={['Administration', 'Finances', 'Factures']}/>;
+    else if (route === 'fin-exports') view = <AdminGeneric title="Exports comptables" sub="Sage · Quadra · CSV" icon={<Icon.Download size={26}/>} breadcrumb={['Administration', 'Finances', 'Exports']}/>;
+    // Paramètres
+    else if (route === 'parametres' || route === 'param-concours') view = <AdminGeneric title="Configuration concours" sub="Frais, périodes, règlements, médailles" icon={<Icon.Settings size={26}/>} breadcrumb={['Administration', 'Paramètres', 'Concours']}/>;
+    else if (route === 'param-appellations') view = <AdminGeneric title="Appellations & régions" sub="Référentiel viticole" icon={<Icon.Wine size={26}/>} breadcrumb={['Administration', 'Paramètres', 'Appellations']}/>;
+    else if (route === 'param-emails') view = <AdminGeneric title="Templates emails" sub="Notifications producteurs & dégustateurs" icon={<Icon.Send size={26}/>} breadcrumb={['Administration', 'Paramètres', 'Emails']}/>;
+    else if (route === 'param-api') view = <AdminGeneric title="Configuration API" sub="Paybox · Sage · webhooks" icon={<Icon.Settings size={26}/>} breadcrumb={['Administration', 'Paramètres', 'API']}/>;
+    else if (route === 'param-utilisateurs') view = <AdminGeneric title="Utilisateurs & droits" sub="Comptes admin · rôles · permissions" icon={<Icon.Users size={26}/>} breadcrumb={['Administration', 'Paramètres', 'Utilisateurs']}/>;
+  } else if (portal === 'producteur') {
+    if (route === 'p-dashboard') view = <ProducteurDashboard kpiVariant={tweaks.kpiVariant} showKpiIcons={tweaks.showKpiIcons} onNavigate={setRoute}/>;
+    else if (route === 'p-inscriptions' || route === 'p-ins-cours') view = <ProducteurGeneric title="Inscriptions en cours" sub="Dossiers en attente de soumission ou de validation" icon={<Icon.FileText size={26}/>}/>;
+    else if (route === 'p-ins-historique') view = <ProducteurGeneric title="Historique des inscriptions" sub="Toutes mes éditions" icon={<Icon.FileText size={26}/>}/>;
+    else if (route === 'p-medailles') view = <ProducteurMedailles/>;
+    else if (route === 'p-commandes' || route === 'p-cmd-nouvelle') view = <ProducteurCommandes/>;
+    else if (route === 'p-cmd-historique') view = <ProducteurGeneric title="Historique des commandes" sub="Mes commandes médailles passées" icon={<Icon.Package size={26}/>}/>;
+    else if (route === 'p-derogations' || route === 'p-der-nouvelle') view = <ProducteurGeneric title="Demande de dérogation" sub="Cas particuliers" icon={<Icon.ShieldCheck size={26}/>}/>;
+    else if (route === 'p-der-mes') view = <ProducteurGeneric title="Mes demandes de dérogation" sub="Suivi des demandes" icon={<Icon.ShieldCheck size={26}/>}/>;
+    else if (route === 'p-compte' || route === 'p-compte-infos') view = <ProducteurGeneric title="Mes informations" sub="Coordonnées du domaine" icon={<Icon.User size={26}/>}/>;
+    else if (route === 'p-compte-facturation') view = <ProducteurGeneric title="Facturation" sub="Adresse, TVA, factures" icon={<Icon.Receipt size={26}/>}/>;
+    else if (route === 'p-compte-mdp') view = <ProducteurGeneric title="Mot de passe" sub="Sécurité du compte" icon={<Icon.ShieldCheck size={26}/>}/>;
+  } else if (portal === 'degustateur') {
+    if (route === 'd-dashboard') view = <DegustateurDashboard kpiVariant={tweaks.kpiVariant} showKpiIcons={tweaks.showKpiIcons}/>;
+    else if (route === 'd-formations') view = <DegustateurGeneric title="Formations" sub="Sessions disponibles" icon={<Icon.ListChecks size={26}/>}/>;
+    else if (route === 'd-repas' || route === 'd-repas-venir') view = <DegustateurGeneric title="Repas à venir" sub="Calendrier des repas" icon={<Icon.Calendar size={26}/>}/>;
+    else if (route === 'd-repas-mes') view = <DegustateurGeneric title="Mes réservations repas" sub="Repas réservés" icon={<Icon.Calendar size={26}/>}/>;
+    else if (route === 'd-concours') view = <DegustateurGeneric title="Prochains concours" sub="Sessions de dégustation à venir" icon={<Icon.Trophy size={26}/>}/>;
+    else if (route === 'd-disponibilites') view = <DegustateurGeneric title="Mes disponibilités" sub="Déclarez vos disponibilités jurys" icon={<Icon.Activity size={26}/>}/>;
+    else if (route === 'd-compte' || route === 'd-compte-infos') view = <DegustateurGeneric title="Mes informations" sub="Profil dégustateur" icon={<Icon.User size={26}/>}/>;
+    else if (route === 'd-compte-prefs') view = <DegustateurGeneric title="Préférences de dégustation" sub="Couleurs, régions, types de vin" icon={<Icon.Wine size={26}/>}/>;
+    else if (route === 'd-compte-mdp') view = <DegustateurGeneric title="Mot de passe" sub="Sécurité du compte" icon={<Icon.ShieldCheck size={26}/>}/>;
+  }
+  // Fallback for any unmapped route
+  if (!view) view = <AdminGeneric title="Module" sub={`Route : ${route}`} icon={<Icon.Settings size={26}/>} breadcrumb={[route]}/>;
+
+  return (
+    <>
+      <Shell portal={portal} route={route} onNavigate={setRoute} onLogout={handleLogout}>
+        <div data-screen-label={`${portal}-${route}`}>{view}</div>
+      </Shell>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Cartes KPI" subtitle="Style des indicateurs">
+          <TweakRadio
+            value={tweaks.kpiVariant}
+            onChange={v => setTweak('kpiVariant', v)}
+            options={[
+              { value: 'default', label: 'Standard' },
+              { value: 'minimal', label: 'Minimal' },
+              { value: 'accent', label: 'Accent' },
+              { value: 'editorial', label: 'Éditorial' },
+            ]}
+          />
+          <TweakToggle
+            label="Afficher les pictos décoratifs"
+            value={tweaks.showKpiIcons}
+            onChange={v => setTweak('showKpiIcons', v)}
+          />
+        </TweakSection>
+        <TweakSection title="Densité" subtitle="Espacement général de l'interface">
+          <TweakRadio
+            value={tweaks.density}
+            onChange={v => setTweak('density', v)}
+            options={[
+              { value: 'comfort', label: 'Confort' },
+              { value: 'compact', label: 'Compact' },
+            ]}
+          />
+        </TweakSection>
+        <TweakSection title="Navigation rapide">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <button className="tweak-btn" onClick={() => { setPortal('admin'); setRoute('dashboard'); }}>→ Dashboard Admin</button>
+            <button className="tweak-btn" onClick={() => { setPortal('producteur'); setRoute('p-inscription'); }}>→ Wizard inscription</button>
+            <button className="tweak-btn" onClick={() => { setPortal('degustateur'); setRoute('d-dashboard'); }}>→ Dashboard Dégustateur</button>
+            <button className="tweak-btn" onClick={() => setPortal(null)}>→ Écran de connexion</button>
+          </div>
+          <style>{`.tweak-btn { padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-size: 12.5px; text-align: left; cursor: pointer; color: var(--fg); font-family: inherit; }
+          .tweak-btn:hover { background: var(--burgundy-50); border-color: var(--burgundy-300); color: var(--burgundy-800); }`}</style>
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

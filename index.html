@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comité Mâcon — Extranet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="components-shared.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="view-login.jsx"></script>
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="view-admin.jsx"></script>
+<script type="text/babel" src="view-admin-email.jsx"></script>
+<script type="text/babel" src="view-admin-dossier.jsx"></script>
+<script type="text/babel" src="view-admin-controle.jsx"></script>
+<script type="text/babel" src="view-admin-derogations.jsx"></script>
+<script type="text/babel" src="view-admin-commandes.jsx"></script>
+<script type="text/babel" src="view-admin-salons.jsx"></script>
+<script type="text/babel" src="view-admin-exposant-detail.jsx"></script>
+<script type="text/babel" src="view-admin-producteurs.jsx"></script>
+<script type="text/babel" src="view-admin-degustateurs.jsx"></script>
+<script type="text/babel" src="view-admin-finances.jsx"></script>
+<script type="text/babel" src="view-admin-parametres.jsx"></script>
+<script type="text/babel" src="view-producteur.jsx"></script>
+<script type="text/babel" src="view-degustateur.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "kpiVariant": "default",
+  "density": "comfort",
+  "showKpiIcons": false
+}/*EDITMODE-END*/;
+
+const initialRoute = { admin: 'dashboard', producteur: 'p-dashboard', degustateur: 'd-dashboard' };
+
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [portal, setPortal] = React.useState(null); // null = login screen
+  const [route, setRoute] = React.useState('dashboard');
+
+  // Apply density to root
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--density', tweaks.density === 'compact' ? '0.85' : '1');
+  }, [tweaks.density]);
+
+  const handleLogin = (p) => { setPortal(p); setRoute(initialRoute[p]); };
+  const handleLogout = () => { setPortal(null); };
+
+  if (!portal) {
+    return <Login onLogin={handleLogin}/>;
+  }
+
+  // Producteur inscription wizard takes over the layout
+  if (portal === 'producteur' && route === 'p-inscription') {
+    return (
+      <Shell portal={portal} route={route} onNavigate={setRoute} onLogout={handleLogout}>
+        <ProducteurInscription onExit={() => setRoute('p-dashboard')}/>
+      </Shell>
+    );
+  }
+
+  let view = null;
+  if (portal === 'admin') {
+    // Concours France sub-routes
+    if (route === 'dashboard') view = <AdminDashboard kpiVariant={tweaks.kpiVariant} showKpiIcons={tweaks.showKpiIcons}/>;
+    else if (route === 'fr-dashboard') view = <AdminConcoursDashboard concours="France"/>;
+    else if (route === 'monde-dashboard') view = <AdminConcoursDashboard concours="Monde"/>;
+    else if (route === 'fr-dossier') view = <AdminDossierDetail onBack={() => setRoute('fr-inscriptions')}/>;
+    else if (route === 'inscriptions-fr' || route === 'fr-inscriptions') view = <AdminInscriptions concours="France" onOpenDossier={() => setRoute('fr-dossier')}/>;
+    else if (route === 'fr-echantillons') view = <AdminGeneric title="Échantillons — Concours France" sub="2 184 échantillons reçus · 1 940 contrôlés" icon={<Icon.Wine size={26}/>} breadcrumb={['Administration', 'Concours France', 'Échantillons']}/>;
+    else if (route === 'fr-controle') view = <AdminControleOptimise concours="France" onOpenDossier={() => setRoute('fr-dossier')}/>;
+    else if (route === 'fr-palmares' || route === 'palmares') view = <AdminPalmares/>;
+    else if (route === 'fr-derogations') view = <AdminDerogations concours="France" onOpenDossier={() => setRoute('fr-dossier')}/>; else if (route === 'fr-derogations-legacy') view = <AdminGeneric title="Dérogations — Concours France" sub="Demandes de dérogation à instruire" icon={<Icon.ShieldCheck size={26}/>} breadcrumb={['Administration', 'Concours France', 'Dérogations']}/>;
+    // Concours Monde sub-routes
+    else if (route === 'inscriptions-monde' || route === 'monde-inscriptions') view = <AdminInscriptions concours="Monde"/>;
+    else if (route === 'monde-echantillons') view = <AdminGeneric title="Échantillons — Concours Monde" sub="Première édition complète · 312 producteurs" icon={<Icon.Wine size={26}/>} breadcrumb={['Administration', 'Concours Monde', 'Échantillons']}/>;
+    else if (route === 'monde-controle') view = <AdminControleOptimise concours="Monde" onOpenDossier={() => setRoute('fr-dossier')}/>;
+    else if (route === 'monde-palmares') view = <AdminPalmares/>;
+    else if (route === 'monde-derogations') view = <AdminDerogations concours="Monde" onOpenDossier={() => setRoute('fr-dossier')}/>; else if (route === 'monde-derogations-legacy') view = <AdminGeneric title="Dérogations — Concours Monde" sub="Demandes de dérogation à instruire" icon={<Icon.ShieldCheck size={26}/>} breadcrumb={['Administration', 'Concours Monde', 'Dérogations']}/>;
+    // Commandes
+    else if (route === 'commandes' || route === 'cmd-liste') view = <AdminCommandesMedailles/>;
+    else if (route === 'cmd-stocks') view = <AdminStocks/>;
+    else if (route === 'cmd-fournisseurs') view = <AdminTransmissions/>;
+    // Salons
+    else if (route === 'salons' || route === 'salons-events') view = <AdminEvenements/>;
+    else if (route === 'salons-exposants') view = <AdminInscriptionsExposants onOpenDetail={() => setRoute('salons-exposant-detail')}/>;
+    else if (route === 'salons-exposant-detail') view = <AdminInscriptionExposantDetail onBack={() => setRoute('salons-exposants')}/>;
+    else if (route === 'salons-stands') view = <AdminPlanStands/>;
+    // Utilisateurs
+    else if (route === 'producteurs') view = <AdminProducteursList onOpenDetail={() => setRoute('producteur-detail')}/>;
+    else if (route === 'producteur-detail') view = <AdminProducteurDetail onBack={() => setRoute('producteurs')} onOpenDossier={() => setRoute('fr-dossier')} onOpenDerog={() => setRoute('fr-dossier')}/>;
+    else if (route === 'degustateurs' || route === 'deg-liste') view = <AdminDegustateursList onOpenDetail={() => setRoute('degustateur-detail')}/>;
+    else if (route === 'degustateur-detail') view = <AdminDegustateurDetail onBack={() => setRoute('deg-liste')}/>;
+    else if (route === 'deg-formations') view = <AdminFormations/>;
+    else if (route === 'deg-repas') view = <AdminRepas/>;
+    else if (route === 'deg-jurys') view = <AdminJurys/>;
+    else if (route === 'deg-dispos') view = <AdminDisponibilites/>;
+    // Finances
+    else if (route === 'finances' || route === 'fin-paiements') view = <AdminPaiements/>;
+    else if (route === 'fin-factures') view = <AdminFactures/>;
+    else if (route === 'fin-exports') view = <AdminExportsComptables/>;
+    // Paramètres
+    else if (route === 'parametres' || route === 'param-concours') view = <AdminParamConcours/>;
+    else if (route === 'param-appellations') view = <AdminParamAppellations/>;
+    else if (route === 'param-fournisseurs') view = <AdminParamFournisseurs/>;
+    else if (route === 'param-emails') view = <AdminParamEmails/>;
+    else if (route === 'param-api') view = <AdminParamAPI/>;
+    else if (route === 'param-utilisateurs') view = <AdminParamUtilisateurs/>;
+  } else if (portal === 'producteur') {
+    if (route === 'p-dashboard') view = <ProducteurDashboard kpiVariant={tweaks.kpiVariant} showKpiIcons={tweaks.showKpiIcons} onNavigate={setRoute}/>;
+    else if (route === 'p-inscriptions' || route === 'p-ins-cours' || route === 'p-ins-historique') view = <ProducteurInscriptionsList onOpenWizard={() => setRoute('p-inscription')}/>;
+    else if (route === 'p-medailles') view = <ProducteurMedailles onNavigate={setRoute}/>;
+    else if (route === 'p-commandes' || route === 'p-cmd-nouvelle') view = <ProducteurCommandes onNavigate={setRoute}/>;
+    else if (route === 'p-cmd-historique') view = <ProducteurCommandesHistorique onNavigate={setRoute}/>;
+    else if (route === 'p-derogations' || route === 'p-der-mes') view = <ProducteurDerogations initialView="list"/>;
+    else if (route === 'p-der-nouvelle') view = <ProducteurDerogations initialView="form"/>;
+    else if (route === 'p-compte' || route === 'p-compte-infos') view = <ProducteurCompte initial="infos"/>;
+    else if (route === 'p-compte-facturation') view = <ProducteurCompte initial="facturation"/>;
+    else if (route === 'p-compte-mdp') view = <ProducteurCompte initial="mdp"/>;
+  } else if (portal === 'degustateur') {
+    if (route === 'd-dashboard') view = <DegustateurDashboard onNavigate={setRoute}/>;
+    else if (route === 'd-formations') view = <DegustateurFormationsWrapper/>;
+    else if (route === 'd-repas' || route === 'd-repas-venir') view = <DegustateurRepas onNavigate={setRoute}/>;
+    else if (route === 'd-repas-mes') view = <DegustateurReservations onNavigate={setRoute}/>;
+    else if (route === 'd-concours') view = <DegustateurConcours/>;
+    else if (route === 'd-disponibilites') view = <DegustateurDisponibilites/>;
+    else if (route === 'd-compte' || route === 'd-compte-infos') view = <DegustateurCompte initial="infos"/>;
+    else if (route === 'd-compte-prefs') view = <DegustateurCompte initial="prefs"/>;
+    else if (route === 'd-compte-mdp') view = <DegustateurCompte initial="mdp"/>;
+  }
+  // Fallback for any unmapped route
+  if (!view) view = <AdminGeneric title="Module" sub={`Route : ${route}`} icon={<Icon.Settings size={26}/>} breadcrumb={[route]}/>;
+
+  return (
+    <>
+      <Shell portal={portal} route={route} onNavigate={setRoute} onLogout={handleLogout}>
+        <div data-screen-label={`${portal}-${route}`}>{view}</div>
+      </Shell>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Cartes KPI" subtitle="Style des indicateurs">
+          <TweakRadio
+            value={tweaks.kpiVariant}
+            onChange={v => setTweak('kpiVariant', v)}
+            options={[
+              { value: 'default', label: 'Standard' },
+              { value: 'minimal', label: 'Minimal' },
+              { value: 'accent', label: 'Accent' },
+              { value: 'editorial', label: 'Éditorial' },
+            ]}
+          />
+          <TweakToggle
+            label="Afficher les pictos décoratifs"
+            value={tweaks.showKpiIcons}
+            onChange={v => setTweak('showKpiIcons', v)}
+          />
+        </TweakSection>
+        <TweakSection title="Densité" subtitle="Espacement général de l'interface">
+          <TweakRadio
+            value={tweaks.density}
+            onChange={v => setTweak('density', v)}
+            options={[
+              { value: 'comfort', label: 'Confort' },
+              { value: 'compact', label: 'Compact' },
+            ]}
+          />
+        </TweakSection>
+        <TweakSection title="Navigation rapide">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <button className="tweak-btn" onClick={() => { setPortal('admin'); setRoute('dashboard'); }}>→ Dashboard Admin</button>
+            <button className="tweak-btn" onClick={() => { setPortal('producteur'); setRoute('p-inscription'); }}>→ Wizard inscription</button>
+            <button className="tweak-btn" onClick={() => { setPortal('degustateur'); setRoute('d-dashboard'); }}>→ Dashboard Dégustateur</button>
+            <button className="tweak-btn" onClick={() => setPortal(null)}>→ Écran de connexion</button>
+          </div>
+          <style>{`.tweak-btn { padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-size: 12.5px; text-align: left; cursor: pointer; color: var(--fg); font-family: inherit; }
+          .tweak-btn:hover { background: var(--burgundy-50); border-color: var(--burgundy-300); color: var(--burgundy-800); }`}</style>
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
