@@ -8,6 +8,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+
+<!-- Userback — retours client sur la maquette -->
+<script>
+  window.Userback = window.Userback || {};
+  Userback.access_token = "A-ETu5mgKJIOeBlp0cyNyzHdu7Y";
+  Userback.custom_data = { portal: 'login', route: 'login', app: 'Extranet Comité Mâcon — Maquette' };
+  (function(d) {
+    var s = d.createElement('script'); s.async = true;
+    s.src = 'https://static.userback.io/widget/v1.js';
+    (d.head || d.body).appendChild(s);
+  })(document);
+</script>
 </head>
 <body>
 <div id="root"></div>
@@ -35,6 +47,7 @@
 <script type="text/babel" src="view-admin-parametres.jsx"></script>
 <script type="text/babel" src="view-producteur.jsx"></script>
 <script type="text/babel" src="view-degustateur.jsx"></script>
+<script type="text/babel" src="page-guide.jsx"></script>
 
 <script type="text/babel" data-presets="react">
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -54,6 +67,19 @@ function App() {
   React.useEffect(() => {
     document.documentElement.style.setProperty('--density', tweaks.density === 'compact' ? '0.85' : '1');
   }, [tweaks.density]);
+
+  // Userback — mise à jour des metadata à chaque navigation
+  React.useEffect(() => {
+    if (window.Userback) {
+      const portalLabels = { admin: 'Administration', producteur: 'Producteur', degustateur: 'Dégustateur' };
+      window.Userback.custom_data = {
+        app: 'Extranet Comité Mâcon — Maquette',
+        portal: portal ? portalLabels[portal] : 'Connexion',
+        route: route || 'login',
+        page: document.title,
+      };
+    }
+  }, [portal, route]);
 
   const handleLogin = (p) => { setPortal(p); setRoute(initialRoute[p]); };
   const handleLogout = () => { setPortal(null); };
@@ -149,6 +175,8 @@ function App() {
       <Shell portal={portal} route={route} onNavigate={setRoute} onLogout={handleLogout}>
         <div data-screen-label={`${portal}-${route}`}>{view}</div>
       </Shell>
+
+      <PageGuide portal={portal} route={route}/>
 
       <TweaksPanel title="Tweaks">
         <TweakSection title="Cartes KPI" subtitle="Style des indicateurs">
