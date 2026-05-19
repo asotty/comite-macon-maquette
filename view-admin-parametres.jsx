@@ -1532,7 +1532,7 @@ const AdminParamPaiements = () => {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         {/* Virement */}
-        <ParamCard title="Virement bancaire" icon={<Icon.Bank size={14}/>} sub="Coordonnées affichées sur la page de confirmation virement">
+        <ParamCard title="Virement bancaire" icon={<Icon.CreditCard size={14}/>} sub="Coordonnées affichées sur la page de confirmation virement">
           <ParamRow label="Titulaire du compte" hint="Nom exact tel qu'il apparaît sur le RIB">
             <input className="input" defaultValue="Comité des Salons et Concours de Mâcon" onChange={markDirty} style={{ maxWidth: 480 }}/>
           </ParamRow>

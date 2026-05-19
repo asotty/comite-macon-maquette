@@ -562,7 +562,7 @@ const HELP_SECTIONS = [
   },
   {
     title: 'Raccourcis clavier',
-    icon: <Icon.Command size={14}/>,
+    icon: <Icon.Sliders size={14}/>,
     items: [
       { label: '⌘K — Recherche globale', info: 'Accès rapide à n'importe quel producteur, dossier ou commande.' },
       { label: '⌘/ — Aide contextuelle', info: 'Ouvre ce panneau depuis n'importe quelle page.' },

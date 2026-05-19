@@ -931,7 +931,7 @@ const InscriptionConfirmation = ({ nbVins, payMethod = 'carte', onExit, onViewDo
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>Et maintenant ?</div>
             {[
               { icon: <Icon.Check size={16}/>, label: 'Dossier soumis',               meta: 'Statut actuel', current: true },
-              { icon: <Icon.Bank size={16}/>, label: 'Effectuez votre virement',      meta: 'Dans les 10 jours ouvrés' },
+              { icon: <Icon.CreditCard size={16}/>, label: 'Effectuez votre virement',      meta: 'Dans les 10 jours ouvrés' },
               { icon: <Icon.Check size={16}/>, label: 'Confirmation de réception',    meta: 'Par email dès validation admin' },
               { icon: <Icon.Trophy size={16}/>, label: 'Résultats publiés',           meta: 'Palmarès · 02 juin 2026' },
             ].map((s, i, arr) => (
