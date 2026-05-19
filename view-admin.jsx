@@ -1778,4 +1778,12 @@ const Spinner = () => (
   </svg>
 );
 
-Object.assign(window, { ControlConfirmModal, ControlBanner });
+Object.assign(window, {
+  AdminDashboard,
+  AdminInscriptions,
+  AdminPalmares,
+  AdminGeneric,
+  AdminConcoursDashboard,
+  ControlConfirmModal,
+  ControlBanner,
+});

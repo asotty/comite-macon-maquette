@@ -544,7 +544,7 @@ const HELP_SECTIONS = [
     title: 'Inscriptions & dossiers',
     icon: <Icon.FileText size={14}/>,
     items: [
-      { label: 'Comprendre les statuts d'inscription', info: 'Brouillon → Soumis → Validé → Payé. Les statuts "Att. virement" et "Att. chèque" indiquent un paiement en attente de confirmation manuelle.' },
+      { label: "Comprendre les statuts d'inscription", info: "Brouillon → Soumis → Validé → Payé. Les statuts «Att. virement» et «Att. chèque» indiquent un paiement en attente de confirmation manuelle." },
       { label: 'Confirmer un paiement virement / chèque', route: 'fr-inscriptions' },
       { label: 'Traiter une dérogation', route: 'fr-derogations' },
       { label: 'Exporter les dossiers en CSV', route: 'fr-inscriptions' },
@@ -556,7 +556,7 @@ const HELP_SECTIONS = [
     items: [
       { label: 'Configurer les tarifs et dates du concours', route: 'param-concours' },
       { label: 'Gérer les coordonnées bancaires (virement)', route: 'param-paiements' },
-      { label: 'Modifier les templates d'email', route: 'param-emails' },
+      { label: "Modifier les templates d'email", route: 'param-emails' },
       { label: 'Tester les connexions API (Paybox, Sage…)', route: 'param-api' },
     ],
   },
@@ -564,8 +564,8 @@ const HELP_SECTIONS = [
     title: 'Raccourcis clavier',
     icon: <Icon.Sliders size={14}/>,
     items: [
-      { label: '⌘K — Recherche globale', info: 'Accès rapide à n'importe quel producteur, dossier ou commande.' },
-      { label: '⌘/ — Aide contextuelle', info: 'Ouvre ce panneau depuis n'importe quelle page.' },
+      { label: '⌘K — Recherche globale', info: "Accès rapide à n'importe quel producteur, dossier ou commande." },
+      { label: '⌘/ — Aide contextuelle', info: "Ouvre ce panneau depuis n'importe quelle page." },
       { label: 'Échap — Fermer les modales', info: 'Ferme les dialogues ouverts sans perdre les données.' },
     ],
   },
