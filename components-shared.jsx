@@ -133,6 +133,8 @@ const StatusBadge = ({ status }) => {
     'or':          { cls: 'badge badge-gold', label: 'Or', dot: '#d4a017' },
     'argent':      { cls: 'badge', label: 'Argent', dot: '#94a3b8' },
     'bronze':      { cls: 'badge', label: 'Bronze', dot: '#a16207' },
+    'attente-virement': { cls: 'badge badge-warning', label: 'En attente virement', dot: '#d97706' },
+    'attente-cheque':   { cls: 'badge badge-warning', label: 'En attente chèque',   dot: '#d97706' },
   };
   const it = map[status] || { cls: 'badge', label: status };
   return (

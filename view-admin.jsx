@@ -378,7 +378,7 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
   }, [ctrlState]);
   const ALL_ROWS = [
     ['INS-2026-0184', 'Domaine de la Chevalière', 'Mâconnais', 8, 'a-controler', 480, '12/04/26'],
-    ['INS-2026-0183', 'Château Pied-de-Rieux', 'Beaujolais', 4, 'soumis', 240, '11/04/26'],
+    ['INS-2026-0183', 'Château Pied-de-Rieux', 'Beaujolais', 4, 'attente-virement', 240, '11/04/26'],
     ['INS-2026-0182', 'Maison Joseph Drouhin', 'Côte de Beaune', 22, 'soumis', 1320, '11/04/26'],
     ['INS-2026-0181', 'Domaine des 3 Pierres', 'Mâconnais', 9, 'paye', 540, '10/04/26'],
     ['INS-2026-0180', 'Cellier de Solutré', 'Mâconnais', 6, 'valide', 360, '10/04/26'],
@@ -387,7 +387,7 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
     ['INS-2026-0177', 'Domaine Sainte-Anne', 'Mâconnais', 5, 'paye', 300, '08/04/26'],
     ['INS-2026-0176', 'Château de Pierreclos', 'Mâconnais', 14, 'valide', 840, '08/04/26'],
     ['INS-2026-0175', 'Domaine Bouchard Père', 'Côte de Beaune', 18, 'paye', 1080, '07/04/26'],
-    ['INS-2026-0174', 'Château Dubreuil',     'Côte de Beaune',  11, 'soumis',     660, '07/04/26'],
+    ['INS-2026-0174', 'Château Dubreuil',     'Côte de Beaune',  11, 'attente-cheque', 660, '07/04/26'],
     ['INS-2026-0173', 'Domaine Servan',       'Beaujolais',      7,  'a-controler',420, '06/04/26'],
     ['INS-2026-0172', 'Cave de Lugny',        'Mâconnais',       16, 'valide',     960, '06/04/26'],
     ['INS-2026-0171', 'Domaine Bouland',      'Beaujolais',      9,  'paye',       540, '05/04/26'],
@@ -456,9 +456,9 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 24, borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
-        {['Tous', 'Brouillon', 'Soumis', 'À contrôler', 'Validés', 'Payés', 'Rejetés'].map(t => {
+        {['Tous', 'Brouillon', 'Soumis', 'Att. virement', 'Att. chèque', 'À contrôler', 'Validés', 'Payés', 'Rejetés'].map(t => {
           const active = filter === t;
-          const counts = { 'Tous': 847, 'Brouillon': 24, 'Soumis': 142, 'À contrôler': 47, 'Validés': 386, 'Payés': 240, 'Rejetés': 8 };
+          const counts = { 'Tous': 847, 'Brouillon': 24, 'Soumis': 142, 'Att. virement': 18, 'Att. chèque': 7, 'À contrôler': 47, 'Validés': 386, 'Payés': 240, 'Rejetés': 8 };
           return (
             <button key={t} onClick={() => setFilter(t)} style={{
               padding: '12px 0',

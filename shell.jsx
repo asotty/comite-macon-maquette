@@ -47,6 +47,7 @@ const navAdmin = [
     { id: 'param-emails', label: 'Templates emails' },
     { id: 'param-api', label: 'Configuration API' },
     { id: 'param-utilisateurs', label: 'Utilisateurs & droits' },
+    { id: 'param-paiements', label: 'Configuration paiements' },
   ]},
 ];
 

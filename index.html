@@ -118,6 +118,7 @@ function App() {
     else if (route === 'param-emails') view = <AdminParamEmails/>;
     else if (route === 'param-api') view = <AdminParamAPI/>;
     else if (route === 'param-utilisateurs') view = <AdminParamUtilisateurs/>;
+    else if (route === 'param-paiements') view = <AdminParamPaiements/>;
   } else if (portal === 'producteur') {
     if (route === 'p-dashboard') view = <ProducteurDashboard kpiVariant={tweaks.kpiVariant} showKpiIcons={tweaks.showKpiIcons} onNavigate={setRoute}/>;
     else if (route === 'p-inscriptions' || route === 'p-ins-cours' || route === 'p-ins-historique') view = <ProducteurInscriptionsList onOpenWizard={() => setRoute('p-inscription')}/>;

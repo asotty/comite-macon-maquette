@@ -414,15 +414,13 @@ const DegustateurRepas = ({ onNavigate }) => {
   const [confirmedPayment, setConfirmedPayment] = React.useState(null); // { repas, regime, payment }
   const upcoming = repas.filter(r => !r.reserved || r.status === 'confirmee');
 
-  const handleConfirm = ({ repas: r, regime, paid }) => {
-    // Marquer comme réservé + décrémenter
+  const handleConfirm = ({ repas: r, regime, paid, nbAccomp = 0, montant }) => {
     setRepas(rs => rs.map(x => x.id === r.id ? { ...x, reserved: true, status: 'confirmee', paye: paid, places: x.places - 1, regime } : x));
     setReserving(null);
     if (paid && r.prix > 0) {
-      // Page confirmation post-paiement
       setConfirmedPayment({
-        repas: r, regime,
-        montant: r.prix,
+        repas: r, regime, nbAccomp,
+        montant: montant || r.prix,
         ref: 'PAY-RPS-' + Math.floor(100000 + Math.random() * 900000),
       });
     }
@@ -495,8 +493,13 @@ const DegustateurRepas = ({ onNavigate }) => {
                   <button onClick={() => annuler(r.id)} className="btn btn-ghost btn-sm">Annuler</button>
                 </>
               ) : (
-                <button onClick={() => setReserving(r)} disabled={isFull} className="btn btn-primary btn-sm">
-                  <Icon.Plus size={13}/> {r.prix === 0 ? 'Réserver ma place' : 'Réserver'}
+                <button
+                  onClick={() => !isFull && setReserving(r)}
+                  disabled={isFull}
+                  className={isFull ? 'btn btn-sm' : 'btn btn-primary btn-sm'}
+                  style={isFull ? { background: 'var(--slate-100)', color: 'var(--fg-muted)', cursor: 'not-allowed', border: '1px solid var(--border)' } : {}}
+                >
+                  <Icon.Plus size={13}/> {isFull ? 'Complet' : r.prix === 0 ? 'Réserver ma place' : '+ Réserver'}
                 </button>
               )}
             </div>
@@ -518,7 +521,10 @@ const DegustateurRepas = ({ onNavigate }) => {
 // Modale de réservation — récap + régime alimentaire + CTA paiement/confirmation
 const ReservationModal = ({ repas, onClose, onConfirm }) => {
   const [regime, setRegime] = React.useState(USER_DEGUSTATEUR.regime);
+  const [nbAccomp, setNbAccomp] = React.useState(0);
   const isFree = repas.prix === 0;
+  const prixAccomp = 28.00; // prix accompagnateur (issu des paramètres concours)
+  const totalAmount = isFree ? 0 : repas.prix + nbAccomp * prixAccomp;
 
   return (
     <div onClick={onClose} style={{
@@ -551,37 +557,59 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
           <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
             Récapitulatif
           </div>
-          <div style={{
-            padding: '14px 16px',
-            background: 'var(--surface-2)',
-            border: '1px solid var(--border)',
-            borderRadius: 10,
-          }}>
+          <div style={{ padding: '14px 16px', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10 }}>
             <div style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: '-0.01em' }}>{repas.evt}</div>
             <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
               <span><Icon.Calendar size={11} style={{ verticalAlign: -1 }}/> {repas.date}</span>
               <span style={{ color: 'var(--fg-subtle)' }}>·</span>
               <span>{repas.lieu}</span>
             </div>
-            <div style={{
-              marginTop: 12,
-              paddingTop: 12,
-              borderTop: '1px solid var(--border)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
-            }}>
-              <span style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>Prix</span>
-              <span className="tnum display" style={{
-                fontSize: 22, fontWeight: 600,
-                color: isFree ? 'var(--success)' : 'var(--fg)',
-              }}>
-                {formatPrix(repas.prix)}
-              </span>
+          </div>
+        </div>
+
+        {/* Bloc 2 — MA PLACE (dégustateur) */}
+        <div style={{ padding: '16px 24px 0' }}>
+          <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+            Ma place
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 500 }}>Dégustateur</div>
+            <div className="tnum" style={{ fontSize: 14, fontWeight: 600, color: isFree ? 'var(--success)' : 'var(--fg)' }}>
+              {isFree ? 'Gratuit' : formatPrix(repas.prix)}
             </div>
           </div>
         </div>
 
-        {/* Bloc 2 — Régime alimentaire */}
-        <div style={{ padding: '20px 24px' }}>
+        {/* Bloc 3 — ACCOMPAGNATEURS */}
+        <div style={{ padding: '16px 24px 0' }}>
+          <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+            Accompagnateurs
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10 }}>
+            <div>
+              <div style={{ fontSize: 13.5, fontWeight: 500 }}>Nombre d'accompagnateurs</div>
+              <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2 }}>
+                {isFree ? 'Gratuit · invités du comité' : formatPrix(prixAccomp) + ' / personne'}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                onClick={() => setNbAccomp(Math.max(0, nbAccomp - 1))}
+                className="btn btn-outline btn-sm btn-icon"
+                style={{ width: 32, height: 32, borderRadius: '50%', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >−</button>
+              <span className="tnum" style={{ fontSize: 16, fontWeight: 600, minWidth: 24, textAlign: 'center' }}>{nbAccomp}</span>
+              <button
+                onClick={() => setNbAccomp(nbAccomp + 1)}
+                className="btn btn-primary btn-sm btn-icon"
+                style={{ width: 32, height: 32, borderRadius: '50%', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >+</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Bloc 4 — Régime alimentaire */}
+        <div style={{ padding: '16px 24px 0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
             <div>
               <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
@@ -595,15 +623,30 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
           <RegimeFields regime={regime} onChange={setRegime}/>
         </div>
 
-        <div style={{ padding: '0 24px 22px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        {/* Total */}
+        <div style={{ margin: '16px 24px 0', padding: '14px 16px', background: 'var(--burgundy-50)', border: '1px solid var(--burgundy-200)', borderRadius: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--burgundy-800)', fontWeight: 500, marginBottom: 4 }}>Total</div>
+            {!isFree && nbAccomp > 0 && (
+              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>
+                1 × {formatPrix(repas.prix)} + {nbAccomp} × {formatPrix(prixAccomp)}
+              </div>
+            )}
+          </div>
+          <div className="tnum display" style={{ fontSize: 22, fontWeight: 600, color: isFree ? 'var(--success)' : 'var(--burgundy-900)' }}>
+            {isFree ? 'Gratuit' : formatPrix(totalAmount)}
+          </div>
+        </div>
+
+        <div style={{ padding: '16px 24px 22px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button onClick={onClose} className="btn btn-outline">Annuler</button>
           {isFree ? (
-            <button onClick={() => onConfirm({ repas, regime, paid: false })} className="btn btn-primary">
+            <button onClick={() => onConfirm({ repas, regime, paid: false, nbAccomp, montant: 0 })} className="btn btn-primary">
               <Icon.Check size={14}/> Confirmer ma réservation
             </button>
           ) : (
-            <button onClick={() => onConfirm({ repas, regime, paid: true })} className="btn btn-primary">
-              Procéder au paiement · {formatPrix(repas.prix)} <Icon.ArrowRight size={14}/>
+            <button onClick={() => onConfirm({ repas, regime, paid: true, nbAccomp, montant: totalAmount })} className="btn btn-primary">
+              Réserver et payer · {formatPrix(totalAmount)} <Icon.ArrowRight size={14}/>
             </button>
           )}
         </div>
@@ -689,14 +732,27 @@ const RepasPaymentConfirmation = ({ payment, onContinue, onClose }) => (
           </div>
         </div>
         <div style={{ paddingTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div>
+          <div style={{ gridColumn: payment.nbAccomp > 0 ? 'span 2' : 'span 1' }}>
             <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Montant payé</div>
             <div className="tnum" style={{ fontSize: 18, fontWeight: 600, marginTop: 4 }}>{formatPrix(payment.montant)} <span style={{ fontSize: 12, color: 'var(--fg-muted)', fontWeight: 400 }}>TTC</span></div>
+            {payment.nbAccomp > 0 && (
+              <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 4 }}>
+                1 dégustateur × {formatPrix(payment.repas.prix)} + {payment.nbAccomp} accompagnateur{payment.nbAccomp > 1 ? 's' : ''} × {formatPrix(28.00)}
+              </div>
+            )}
           </div>
-          <div>
-            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Régime alimentaire</div>
-            <div style={{ fontSize: 13, marginTop: 4 }}>{regimeSummary(payment.regime)}</div>
-          </div>
+          {!(payment.nbAccomp > 0) && (
+            <div>
+              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Régime alimentaire</div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>{regimeSummary(payment.regime)}</div>
+            </div>
+          )}
+          {payment.nbAccomp > 0 && (
+            <div style={{ gridColumn: 'span 2', paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Régime alimentaire</div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>{regimeSummary(payment.regime)}</div>
+            </div>
+          )}
         </div>
       </div>
 

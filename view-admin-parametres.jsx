@@ -113,6 +113,18 @@ const AdminParamConcours = () => {
           <ParamRow label="Nombre max d'échantillons" hint="Plafond par dossier d'inscription">
             <input type="number" className="input tnum" defaultValue={12} onChange={markDirty} style={{ maxWidth: 120 }}/>
           </ParamRow>
+          <ParamRow label="Prix repas — Dégustateur" hint="Tarif HT par dégustateur pour les repas du concours">
+            <div style={{ position: 'relative', maxWidth: 160 }}>
+              <input type="number" className="input tnum" defaultValue={38} onChange={markDirty} style={{ paddingRight: 28 }}/>
+              <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€</span>
+            </div>
+          </ParamRow>
+          <ParamRow label="Prix repas — Accompagnateur" hint="Tarif HT par accompagnateur (distinct du tarif dégustateur)">
+            <div style={{ position: 'relative', maxWidth: 160 }}>
+              <input type="number" className="input tnum" defaultValue={28} onChange={markDirty} style={{ paddingRight: 28 }}/>
+              <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€</span>
+            </div>
+          </ParamRow>
         </ParamCard>
 
         {/* Règles de contrôle */}
@@ -1504,6 +1516,72 @@ const InviteAdminModal = ({ onCancel, onConfirm }) => {
   );
 };
 
+// ─── Page N — Configuration des paiements ────────────────────────
+
+const AdminParamPaiements = () => {
+  const [dirty, setDirty] = React.useState(false);
+  const markDirty = () => setDirty(true);
+
+  return (
+    <div data-screen-label="admin-param-paiements">
+      <PageHeader
+        breadcrumb={['Administration', 'Paramètres', 'Configuration paiements']}
+        title="Configuration des paiements"
+        subtitle="Coordonnées bancaires et postales affichées aux producteurs selon leur méthode de paiement"
+      />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {/* Virement */}
+        <ParamCard title="Virement bancaire" icon={<Icon.Bank size={14}/>} sub="Coordonnées affichées sur la page de confirmation virement">
+          <ParamRow label="Titulaire du compte" hint="Nom exact tel qu'il apparaît sur le RIB">
+            <input className="input" defaultValue="Comité des Salons et Concours de Mâcon" onChange={markDirty} style={{ maxWidth: 480 }}/>
+          </ParamRow>
+          <ParamRow label="IBAN" hint="Format FR76 XXXX XXXX …">
+            <input className="input tnum" defaultValue="FR76 1234 5678 9012 3456 7890 123" onChange={markDirty} style={{ maxWidth: 380 }}/>
+          </ParamRow>
+          <ParamRow label="BIC / SWIFT" hint="">
+            <input className="input tnum" defaultValue="AGRIFRPP" onChange={markDirty} style={{ maxWidth: 200 }}/>
+          </ParamRow>
+          <ParamRow label="Nom de la banque" hint="">
+            <input className="input" defaultValue="Crédit Agricole Centre-Est" onChange={markDirty} style={{ maxWidth: 320 }}/>
+          </ParamRow>
+          <ParamRow label="Délai de paiement (jours)" hint="Nombre de jours ouvrés accordés au producteur après soumission">
+            <input type="number" className="input tnum" defaultValue={10} onChange={markDirty} style={{ maxWidth: 120 }}/>
+          </ParamRow>
+        </ParamCard>
+
+        {/* Chèque */}
+        <ParamCard title="Paiement par chèque" icon={<Icon.FileText size={14}/>} sub="Instructions affichées sur la page de confirmation chèque">
+          <ParamRow label="À l'ordre de" hint="Libellé exact du chèque">
+            <input className="input" defaultValue="Comité des Salons et Concours de Mâcon" onChange={markDirty} style={{ maxWidth: 480 }}/>
+          </ParamRow>
+          <ParamRow label="Adresse d'envoi" hint="Adresse postale complète à afficher au producteur">
+            <textarea className="textarea" rows={3} onChange={markDirty} style={{ maxWidth: 480 }} defaultValue={"Comité des Salons et Concours de Mâcon\n225 Quai des Marans\n71000 Mâcon"}/>
+          </ParamRow>
+          <ParamRow label="Délai de paiement (jours)" hint="Nombre de jours ouvrés accordés au producteur après soumission">
+            <input type="number" className="input tnum" defaultValue={10} onChange={markDirty} style={{ maxWidth: 120 }}/>
+          </ParamRow>
+        </ParamCard>
+      </div>
+
+      {dirty && (
+        <div style={{ position: 'sticky', bottom: 16, marginTop: 18, padding: '12px 16px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(15,23,42,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <span style={{ fontSize: 12.5, color: 'var(--fg-muted)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: 999, background: '#f59e0b' }}/>
+            Modifications non sauvegardées
+          </span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-outline btn-sm" onClick={() => setDirty(false)}>Annuler</button>
+            <button className="btn btn-primary btn-sm" onClick={() => setDirty(false)} style={{ background: 'var(--burgundy-800)' }}>
+              <Icon.Check size={13}/> Sauvegarder
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 Object.assign(window, {
   AdminParamConcours,
   AdminParamAppellations,
@@ -1511,4 +1589,5 @@ Object.assign(window, {
   AdminParamEmails,
   AdminParamAPI,
   AdminParamUtilisateurs,
+  AdminParamPaiements,
 });

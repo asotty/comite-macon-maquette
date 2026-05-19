@@ -880,11 +880,157 @@ const ProducteurInscriptionDetail = ({ inscription, onBack, onDuplicate }) => {
     </div>
   );
 };
-const InscriptionConfirmation = ({ nbVins, onExit, onViewDossier }) => {
+const InscriptionConfirmation = ({ nbVins, payMethod = 'carte', onExit, onViewDossier }) => {
   const ttc = (nbVins * 60 * 1.2).toFixed(2).replace('.', ',');
   const ref = 'INS-2026-0184';
   const payRef = 'PAY-2026-' + Math.floor(100000 + Math.random() * 900000);
 
+  // Variante Virement
+  if (payMethod === 'virement') {
+    return (
+      <div style={{ minHeight: 'calc(100vh - 64px)', background: 'var(--bg-app)', padding: '64px 24px 80px' }}>
+        <div className="fade-in" style={{ maxWidth: 640, margin: '0 auto' }}>
+          <button onClick={onExit} className="btn btn-ghost btn-sm" style={{ marginLeft: -10, marginBottom: 32 }}>
+            <Icon.ChevronLeft size={14}/> Retour à mes inscriptions
+          </button>
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--success-bg)', color: '#16a34a', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, border: '6px solid #d1fae5' }}>
+              <Icon.Check size={32}/>
+            </div>
+            <h1 className="display" style={{ fontSize: 32, fontWeight: 500, margin: 0, letterSpacing: '-0.025em' }}>Votre dossier a été soumis !</h1>
+            <div style={{ marginTop: 10, fontSize: 14.5, color: 'var(--fg-muted)' }}>
+              Dossier <span className="tnum" style={{ color: 'var(--fg)', fontWeight: 500 }}>{ref}</span> · En attente de réception du virement
+            </div>
+          </div>
+
+          {/* RIB */}
+          <div className="card" style={{ padding: 24, marginBottom: 16, borderColor: '#bfdbfe', background: '#eff6ff' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e40af', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>🏦</span> Coordonnées bancaires pour votre virement
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px' }}>
+              {[
+                { label: 'Titulaire', value: 'Comité des Salons et Concours de Mâcon' },
+                { label: 'Banque', value: 'Crédit Agricole Centre-Est' },
+                { label: 'IBAN', value: 'FR76 1234 5678 9012 3456 7890 123', mono: true },
+                { label: 'BIC', value: 'AGRIFRPP', mono: true },
+              ].map(({ label, value, mono }) => (
+                <div key={label}>
+                  <div style={{ fontSize: 11, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>{label}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, fontFamily: mono ? 'Menlo, monospace' : 'inherit', marginTop: 2, color: '#1e3a8a' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(255,255,255,0.7)', borderRadius: 8, fontSize: 12.5, color: '#1e40af' }}>
+              ⚠️ Indiquez impérativement la référence <strong className="tnum">{ref}</strong> dans le libellé de votre virement
+            </div>
+          </div>
+
+          {/* Instructions */}
+          <div className="card" style={{ padding: 22, marginBottom: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>Et maintenant ?</div>
+            {[
+              { icon: <Icon.Check size={16}/>, label: 'Dossier soumis',               meta: 'Statut actuel', current: true },
+              { icon: <Icon.Bank size={16}/>, label: 'Effectuez votre virement',      meta: 'Dans les 10 jours ouvrés' },
+              { icon: <Icon.Check size={16}/>, label: 'Confirmation de réception',    meta: 'Par email dès validation admin' },
+              { icon: <Icon.Trophy size={16}/>, label: 'Résultats publiés',           meta: 'Palmarès · 02 juin 2026' },
+            ].map((s, i, arr) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '12px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none', position: 'relative' }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: s.current ? 'var(--burgundy-800)' : 'var(--surface)', border: s.current ? 'none' : '1px solid var(--border)', color: s.current ? '#fff' : 'var(--fg-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.icon}</div>
+                {i < arr.length - 1 && <div style={{ position: 'absolute', left: 15, top: 44, bottom: -6, width: 2, background: 'var(--border)' }}/>}
+                <div style={{ paddingTop: 4 }}>
+                  <div style={{ fontSize: 14, fontWeight: s.current ? 600 : 500 }}>{s.label}</div>
+                  <div style={{ fontSize: 12.5, color: s.current ? 'var(--burgundy-800)' : 'var(--fg-muted)', marginTop: 2, fontWeight: s.current ? 500 : 400 }}>{s.meta}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn btn-outline btn-lg" style={{ flex: 1 }}><Icon.Download size={14}/> Télécharger le récapitulatif</button>
+            <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={onViewDossier}>Retour à mon espace <Icon.ArrowRight size={14}/></button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Variante Chèque
+  if (payMethod === 'cheque') {
+    return (
+      <div style={{ minHeight: 'calc(100vh - 64px)', background: 'var(--bg-app)', padding: '64px 24px 80px' }}>
+        <div className="fade-in" style={{ maxWidth: 640, margin: '0 auto' }}>
+          <button onClick={onExit} className="btn btn-ghost btn-sm" style={{ marginLeft: -10, marginBottom: 32 }}>
+            <Icon.ChevronLeft size={14}/> Retour à mes inscriptions
+          </button>
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--success-bg)', color: '#16a34a', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, border: '6px solid #d1fae5' }}>
+              <Icon.Check size={32}/>
+            </div>
+            <h1 className="display" style={{ fontSize: 32, fontWeight: 500, margin: 0, letterSpacing: '-0.025em' }}>Votre dossier a été soumis !</h1>
+            <div style={{ marginTop: 10, fontSize: 14.5, color: 'var(--fg-muted)' }}>
+              Dossier <span className="tnum" style={{ color: 'var(--fg)', fontWeight: 500 }}>{ref}</span> · En attente de réception du chèque
+            </div>
+          </div>
+
+          {/* Adresse chèque */}
+          <div className="card" style={{ padding: 24, marginBottom: 16, borderColor: '#d1fae5', background: '#f0fdf4' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#166534', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>📄</span> Instructions pour votre chèque
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px', marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 11, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>À l'ordre de</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2, color: '#14532d' }}>Comité des Salons et Concours de Mâcon</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Montant à libeller</div>
+                <div className="tnum" style={{ fontSize: 18, fontWeight: 700, marginTop: 2, color: '#14532d' }}>{ttc} €</div>
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500, marginBottom: 4 }}>Adresse d'envoi</div>
+              <div style={{ fontSize: 13, color: '#14532d', lineHeight: 1.6 }}>
+                Comité des Salons et Concours de Mâcon<br/>
+                225 Quai des Marans<br/>
+                71000 Mâcon
+              </div>
+            </div>
+            <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(255,255,255,0.7)', borderRadius: 8, fontSize: 12.5, color: '#166534' }}>
+              ⚠️ Notez impérativement la référence <strong className="tnum">{ref}</strong> au dos de votre chèque
+            </div>
+          </div>
+
+          {/* Instructions timeline */}
+          <div className="card" style={{ padding: 22, marginBottom: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>Et maintenant ?</div>
+            {[
+              { icon: <Icon.Check size={16}/>, label: 'Dossier soumis',               meta: 'Statut actuel', current: true },
+              { icon: <Icon.Mail size={16}/>,  label: 'Envoyez votre chèque',         meta: 'Dans les 10 jours ouvrés' },
+              { icon: <Icon.Check size={16}/>, label: 'Confirmation de réception',    meta: 'Par email dès validation admin' },
+              { icon: <Icon.Trophy size={16}/>, label: 'Résultats publiés',           meta: 'Palmarès · 02 juin 2026' },
+            ].map((s, i, arr) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '12px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none', position: 'relative' }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: s.current ? 'var(--burgundy-800)' : 'var(--surface)', border: s.current ? 'none' : '1px solid var(--border)', color: s.current ? '#fff' : 'var(--fg-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.icon}</div>
+                {i < arr.length - 1 && <div style={{ position: 'absolute', left: 15, top: 44, bottom: -6, width: 2, background: 'var(--border)' }}/>}
+                <div style={{ paddingTop: 4 }}>
+                  <div style={{ fontSize: 14, fontWeight: s.current ? 600 : 500 }}>{s.label}</div>
+                  <div style={{ fontSize: 12.5, color: s.current ? 'var(--burgundy-800)' : 'var(--fg-muted)', marginTop: 2, fontWeight: s.current ? 500 : 400 }}>{s.meta}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn btn-outline btn-lg" style={{ flex: 1 }}><Icon.Download size={14}/> Télécharger le récapitulatif</button>
+            <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={onViewDossier}>Retour à mon espace <Icon.ArrowRight size={14}/></button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Variante Carte (existante)
   const steps = [
     { state: 'current', icon: <Icon.Eye size={16}/>,    label: "Votre dossier est en cours d'examen",   meta: "Statut actuel" },
     { state: 'pending', icon: <Icon.Mail size={16}/>,   label: "Vous recevrez un email de validation",  meta: "Sous 5 jours ouvrés" },
@@ -894,23 +1040,14 @@ const InscriptionConfirmation = ({ nbVins, onExit, onViewDossier }) => {
   return (
     <div style={{ minHeight: 'calc(100vh - 64px)', background: 'var(--bg-app)', padding: '64px 24px 80px' }}>
       <div className="fade-in" style={{ maxWidth: 640, margin: '0 auto' }}>
-        {/* Quitter discret */}
         <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 32 }}>
           <button onClick={onExit} className="btn btn-ghost btn-sm" style={{ marginLeft: -10 }}>
             <Icon.ChevronLeft size={14}/> Retour à mes inscriptions
           </button>
         </div>
 
-        {/* Confirmation visuelle forte */}
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: '50%',
-            background: 'var(--success-bg)',
-            color: '#16a34a',
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: 20,
-            border: '6px solid #d1fae5',
-          }}>
+          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--success-bg)', color: '#16a34a', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, border: '6px solid #d1fae5' }}>
             <Icon.Check size={32}/>
           </div>
           <h1 className="display" style={{ fontSize: 32, fontWeight: 500, margin: 0, letterSpacing: '-0.025em', color: 'var(--fg)' }}>
@@ -921,15 +1058,9 @@ const InscriptionConfirmation = ({ nbVins, onExit, onViewDossier }) => {
           </div>
         </div>
 
-        {/* Récapitulatif */}
         <div className="card" style={{ padding: 24, marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: 10,
-              background: 'var(--burgundy-50)', color: 'var(--burgundy-800)',
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
+            <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--burgundy-50)', color: 'var(--burgundy-800)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Icon.Trophy size={20}/>
             </div>
             <div style={{ flex: 1 }}>
@@ -955,46 +1086,20 @@ const InscriptionConfirmation = ({ nbVins, onExit, onViewDossier }) => {
           </div>
         </div>
 
-        {/* Timeline "Et maintenant ?" */}
         <div style={{ marginBottom: 32 }}>
           <h2 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 16px', letterSpacing: '-0.01em' }}>Et maintenant ?</h2>
           <div className="card" style={{ padding: '8px 22px' }}>
             {steps.map((s, i) => {
               const isCurrent = s.state === 'current';
               return (
-                <div key={i} style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 14,
-                  padding: '14px 0',
-                  borderBottom: i < steps.length - 1 ? '1px solid var(--border)' : 'none',
-                  position: 'relative',
-                }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: '50%',
-                    background: isCurrent ? 'var(--burgundy-800)' : 'var(--surface)',
-                    border: isCurrent ? 'none' : '1px solid var(--border)',
-                    color: isCurrent ? '#fff' : 'var(--fg-muted)',
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0,
-                    position: 'relative',
-                    zIndex: 1,
-                  }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '14px 0', borderBottom: i < steps.length - 1 ? '1px solid var(--border)' : 'none', position: 'relative' }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: isCurrent ? 'var(--burgundy-800)' : 'var(--surface)', border: isCurrent ? 'none' : '1px solid var(--border)', color: isCurrent ? '#fff' : 'var(--fg-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 1 }}>
                     {s.icon}
                   </div>
-                  {i < steps.length - 1 && (
-                    <div style={{
-                      position: 'absolute',
-                      left: 15, top: 46, bottom: -6,
-                      width: 2,
-                      background: 'var(--border)',
-                    }}/>
-                  )}
+                  {i < steps.length - 1 && <div style={{ position: 'absolute', left: 15, top: 46, bottom: -6, width: 2, background: 'var(--border)' }}/>}
                   <div style={{ flex: 1, paddingTop: 4 }}>
-                    <div style={{ fontSize: 14, fontWeight: isCurrent ? 600 : 500, color: isCurrent ? 'var(--fg)' : 'var(--slate-700)' }}>
-                      {s.label}
-                    </div>
-                    <div style={{ fontSize: 12.5, color: isCurrent ? 'var(--burgundy-800)' : 'var(--fg-muted)', marginTop: 2, fontWeight: isCurrent ? 500 : 400 }}>
-                      {s.meta}
-                    </div>
+                    <div style={{ fontSize: 14, fontWeight: isCurrent ? 600 : 500, color: isCurrent ? 'var(--fg)' : 'var(--slate-700)' }}>{s.label}</div>
+                    <div style={{ fontSize: 12.5, color: isCurrent ? 'var(--burgundy-800)' : 'var(--fg-muted)', marginTop: 2, fontWeight: isCurrent ? 500 : 400 }}>{s.meta}</div>
                   </div>
                 </div>
               );
@@ -1002,21 +1107,12 @@ const InscriptionConfirmation = ({ nbVins, onExit, onViewDossier }) => {
           </div>
         </div>
 
-        {/* Actions */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 28 }}>
-          <button className="btn btn-outline btn-lg" style={{ flex: 1 }}>
-            <Icon.Download size={14}/> Télécharger la facture
-          </button>
-          <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={onViewDossier}>
-            Voir mon dossier <Icon.ArrowRight size={14}/>
-          </button>
+          <button className="btn btn-outline btn-lg" style={{ flex: 1 }}><Icon.Download size={14}/> Télécharger la facture</button>
+          <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={onViewDossier}>Voir mon dossier <Icon.ArrowRight size={14}/></button>
         </div>
 
-        {/* Message secondaire */}
-        <div style={{
-          fontSize: 13, color: 'var(--fg-muted)', textAlign: 'center',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-        }}>
+        <div style={{ fontSize: 13, color: 'var(--fg-muted)', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           <Icon.Mail size={14} style={{ color: 'var(--fg-subtle)' }}/>
           Un email de confirmation a été envoyé à <span style={{ color: 'var(--fg)' }}>contact@domaine-chevaliere.fr</span>
         </div>
@@ -1037,6 +1133,7 @@ const ProducteurInscription = ({ onExit }) => {
   const [step, setStep] = React.useState(2);
   const [showVinForm, setShowVinForm] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
+  const [payMethod, setPayMethod] = React.useState('carte');
   const [vins, setVins] = React.useState([
     { name: 'Les Crays Vieilles Vignes', appell: 'Pouilly-Fuissé', mil: 2024, vol: '750 ml', cep: 'Chardonnay 100%' },
     { name: 'Cuvée Tradition', appell: 'Mâcon-Villages', mil: 2024, vol: '750 ml', cep: 'Chardonnay 100%' },
@@ -1048,7 +1145,7 @@ const ProducteurInscription = ({ onExit }) => {
   ]);
 
   if (submitted) {
-    return <InscriptionConfirmation nbVins={vins.length} onExit={onExit} onViewDossier={onExit}/>;
+    return <InscriptionConfirmation nbVins={vins.length} payMethod={payMethod} onExit={onExit} onViewDossier={onExit}/>;
   }
 
   return (
@@ -1112,7 +1209,7 @@ const ProducteurInscription = ({ onExit }) => {
         {step === 1 && <WizardStep1/>}
         {step === 2 && <WizardStep2 vins={vins} setVins={setVins} showForm={showVinForm} setShowForm={setShowVinForm}/>}
         {step === 3 && <WizardStep3/>}
-        {step === 4 && <WizardStep4 nbVins={vins.length}/>}
+        {step === 4 && <WizardStep4 nbVins={vins.length} payMethod={payMethod} setPayMethod={setPayMethod}/>}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
           <button onClick={() => setStep(Math.max(1, step - 1))} disabled={step === 1} className="btn btn-outline">
@@ -1124,7 +1221,10 @@ const ProducteurInscription = ({ onExit }) => {
             </button>
           ) : (
             <button className="btn btn-primary btn-lg" onClick={() => setSubmitted(true)}>
-              Valider et payer · {(vins.length * 60 * 1.2).toFixed(2).replace('.', ',')} € <Icon.ArrowRight size={16}/>
+              {payMethod === 'carte'
+                ? <>Valider et payer · {(vins.length * 60 * 1.2).toFixed(2).replace('.', ',')} € <Icon.ArrowRight size={16}/></>
+                : <>Soumettre mon dossier <Icon.ArrowRight size={16}/></>
+              }
             </button>
           )}
         </div>
@@ -1147,6 +1247,13 @@ const WizardStep1 = () => (
         <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Adresse</label><input className="input" defaultValue="Lieu-dit Les Crays, 71960 Vergisson"/></div>
         <div className="field"><label className="field-label">Code APE</label><input className="input" defaultValue="0121Z"/></div>
         <div className="field"><label className="field-label">N° TVA intracommunautaire</label><input className="input tnum" defaultValue="FR42487219035"/></div>
+        <div className="field" style={{ gridColumn: 'span 2' }}>
+          <label className="field-label">CVI (Code Viti-Identificateur) *
+            <span title="Numéro officiel attribué par FranceAgriMer à chaque viticulteur" style={{ marginLeft: 6, cursor: 'help', color: 'var(--fg-muted)', fontSize: 12 }}>ⓘ</span>
+          </label>
+          <input className="input tnum" placeholder="Ex : 01234567890" defaultValue="08000123456"/>
+          <span className="field-hint">Obligatoire · 11 chiffres · attribué par FranceAgriMer</span>
+        </div>
       </div>
     </div>
 
@@ -1328,7 +1435,7 @@ const WizardStep3 = () => (
   </div>
 );
 
-const WizardStep4 = ({ nbVins }) => (
+const WizardStep4 = ({ nbVins, payMethod, setPayMethod }) => (
   <div className="fade-in">
     <div style={{ fontSize: 11.5, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--burgundy-800)', fontWeight: 600 }}>Étape 4 sur 4</div>
     <h1 className="display" style={{ fontSize: 36, fontWeight: 500, margin: '8px 0 4px', letterSpacing: '-0.025em' }}>Récapitulatif &amp; paiement</h1>
@@ -1363,9 +1470,51 @@ const WizardStep4 = ({ nbVins }) => (
       </table>
     </div>
 
+    {/* Choix méthode de paiement */}
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 12, letterSpacing: '-0.01em' }}>Choisissez votre méthode de paiement</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {[
+          { id: 'carte',    icon: '🔵', label: 'Carte bancaire',   sub: 'Paiement immédiat sécurisé par Paybox · Crédit Agricole Up2Pay' },
+          { id: 'virement', icon: '🏦', label: 'Virement bancaire', sub: 'Votre dossier est soumis — paiement confirmé manuellement à réception' },
+          { id: 'cheque',   icon: '📄', label: 'Chèque',           sub: 'Votre dossier est soumis — chèque à envoyer par courrier' },
+        ].map(m => {
+          const selected = payMethod === m.id;
+          return (
+            <label key={m.id} style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              padding: '14px 16px',
+              border: '1px solid ' + (selected ? 'var(--burgundy-800)' : 'var(--border)'),
+              background: selected ? 'var(--burgundy-50)' : 'var(--surface)',
+              borderRadius: 10,
+              cursor: 'pointer',
+              transition: 'all .12s',
+            }}>
+              <input type="radio" name="payMethod" value={m.id} checked={selected} onChange={() => setPayMethod(m.id)}
+                style={{ accentColor: 'var(--burgundy-800)', width: 16, height: 16 }}/>
+              <span style={{ fontSize: 16 }}>{m.icon}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13.5, fontWeight: selected ? 600 : 500, color: selected ? 'var(--burgundy-900)' : 'var(--fg)' }}>{m.label}</div>
+                <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2 }}>{m.sub}</div>
+              </div>
+            </label>
+          );
+        })}
+      </div>
+    </div>
+
+    {(payMethod === 'virement' || payMethod === 'cheque') && (
+      <div style={{ padding: '12px 16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, fontSize: 13, color: '#92400e', marginBottom: 16 }}>
+        <Icon.Info size={14} style={{ verticalAlign: -2, marginRight: 6 }}/>
+        Votre inscription sera réservée <strong>10 jours</strong> à compter de la soumission. Le paiement doit être reçu dans ce délai pour valider votre dossier.
+      </div>
+    )}
+
     <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13, color: 'var(--slate-700)', cursor: 'pointer', padding: 14, border: '1px solid var(--border)', borderRadius: 10 }}>
       <input type="checkbox" defaultChecked style={{ accentColor: 'var(--burgundy-800)', marginTop: 2 }}/>
-      <span>J'accepte le règlement du Concours et certifie l'exactitude des informations fournies. Le paiement est sécurisé par <strong>Paybox</strong> · Crédit Agricole Up2Pay.</span>
+      <span>J'accepte le règlement du Concours et certifie l'exactitude des informations fournies.
+        {payMethod === 'carte' && <> Le paiement est sécurisé par <strong>Paybox</strong> · Crédit Agricole Up2Pay.</>}
+      </span>
     </label>
   </div>
 );
@@ -2619,6 +2768,13 @@ const CompteInfos = () => {
           <div className="field" style={{ gridColumn: 'span 2' }}>
             <label className="field-label">N° TVA intracommunautaire</label>
             <input className="input tnum" value={form.tva} onChange={setField('tva')}/>
+          </div>
+          <div className="field" style={{ gridColumn: 'span 2' }}>
+            <label className="field-label">CVI (Code Viti-Identificateur)
+              <span title="Numéro officiel attribué par FranceAgriMer" style={{ marginLeft: 6, cursor: 'help', color: 'var(--fg-muted)', fontSize: 12 }}>ⓘ</span>
+            </label>
+            <input className="input tnum" value={form.cvi || '08000123456'} onChange={setField('cvi')}/>
+            <span className="field-hint">11 chiffres · attribué par FranceAgriMer</span>
           </div>
         </div>
       </div>

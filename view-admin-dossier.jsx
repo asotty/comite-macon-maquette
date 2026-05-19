@@ -12,6 +12,7 @@ const DOSSIER = {
   totalDocs: 16,
   amount: '480 €',
   paymentStatus: 'pending', // pending | paid
+  methode_paiement: 'virement', // carte | virement | cheque
   contactInscription: { nom: 'Marie Dupont', email: 'marie@chevaliere.fr', tel: '06 12 34 56 78' },
   contactMarketing: { nom: 'Jean Dupont', email: 'jean@chevaliere.fr' },
   siret: '412 345 678 00012',
@@ -280,6 +281,13 @@ const DossierAside = () => (
     <div style={{ height: 1, background: 'var(--border)', margin: '8px 0 18px' }}/>
 
     <SectionLabel>Paiement</SectionLabel>
+    <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 8 }}>
+      Méthode : <strong style={{ color: 'var(--fg)' }}>
+        {DOSSIER.methode_paiement === 'virement' ? '🏦 Virement bancaire'
+         : DOSSIER.methode_paiement === 'cheque'  ? '📄 Chèque'
+         : '🔵 Carte bancaire'}
+      </strong>
+    </div>
     <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
       <span className="display" style={{ fontSize: 22, fontWeight: 500 }}>{DOSSIER.amount}</span>
       <span style={{ fontSize: 11.5, color: '#92400e', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -893,6 +901,8 @@ const NoEcartsFooter = ({ count }) => (
 // ─── Onglet 4 — Paiement ──────────────────────────────────────────
 
 const TabPaiement = ({ paid, onMarkPaid }) => {
+  const methode = DOSSIER.methode_paiement || 'carte';
+
   if (paid) {
     return (
       <div>
@@ -913,21 +923,46 @@ const TabPaiement = ({ paid, onMarkPaid }) => {
           </table>
         </div>
 
-        <div className="card" style={{ padding: 24, marginBottom: 20 }}>
-          <SectionLabel>Transaction Paybox</SectionLabel>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px 24px' }}>
-            <KV label="Référence" mono>TXN-2026-08412</KV>
-            <KV label="Moyen de paiement">CB Visa ****4521</KV>
-            <KV label="Montant" mono>480,00 €</KV>
-            <KV label="Statut"><span style={{ color: '#166534', fontWeight: 600 }}>Accepté</span></KV>
+        {methode === 'carte' && (
+          <div className="card" style={{ padding: 24, marginBottom: 20 }}>
+            <SectionLabel>Transaction Paybox</SectionLabel>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px 24px' }}>
+              <KV label="Référence" mono>TXN-2026-08412</KV>
+              <KV label="Moyen de paiement">CB Visa ****4521</KV>
+              <KV label="Montant" mono>480,00 €</KV>
+              <KV label="Statut"><span style={{ color: '#166534', fontWeight: 600 }}>Accepté</span></KV>
+            </div>
           </div>
-        </div>
+        )}
+        {methode === 'virement' && (
+          <div className="card" style={{ padding: 24, marginBottom: 20, background: '#eff6ff', borderColor: '#bfdbfe' }}>
+            <SectionLabel>Virement reçu</SectionLabel>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px 24px' }}>
+              <KV label="Reçu le">12/04/2026 à 16h44</KV>
+              <KV label="Confirmé par">Sophie L. (admin)</KV>
+              <KV label="Montant" mono>480,00 €</KV>
+              <KV label="Statut"><span style={{ color: '#166534', fontWeight: 600 }}>Reçu et validé</span></KV>
+            </div>
+          </div>
+        )}
+        {methode === 'cheque' && (
+          <div className="card" style={{ padding: 24, marginBottom: 20, background: '#f0fdf4', borderColor: '#d1fae5' }}>
+            <SectionLabel>Chèque reçu</SectionLabel>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px 24px' }}>
+              <KV label="Reçu le">12/04/2026 à 16h44</KV>
+              <KV label="Confirmé par">Sophie L. (admin)</KV>
+              <KV label="Montant" mono>480,00 €</KV>
+              <KV label="Statut"><span style={{ color: '#166534', fontWeight: 600 }}>Reçu et validé</span></KV>
+            </div>
+          </div>
+        )}
 
         <button className="btn btn-outline"><Icon.Download size={14}/> Télécharger la facture FAC-2026-0089</button>
       </div>
     );
   }
 
+  // Pas encore payé
   return (
     <div>
       <div className="card" style={{ padding: 24, marginBottom: 20 }}>
@@ -945,19 +980,45 @@ const TabPaiement = ({ paid, onMarkPaid }) => {
         </table>
       </div>
 
-      <div className="card" style={{ padding: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--warning-bg)', color: '#92400e', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Icon.Clock size={20}/>
+      {methode === 'carte' && (
+        <div className="card" style={{ padding: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--warning-bg)', color: '#92400e', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Icon.Clock size={20}/>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>En attente de paiement</div>
+            <div style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>Aucune transaction Paybox enregistrée à ce jour.</div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-outline btn-sm"><Icon.Send size={13}/> Envoyer relance</button>
+            <button className="btn btn-primary btn-sm" onClick={onMarkPaid}><Icon.Check size={13}/> Marquer comme payé</button>
+          </div>
         </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>En attente de paiement</div>
-          <div style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>Aucune transaction Paybox enregistrée à ce jour.</div>
+      )}
+
+      {(methode === 'virement' || methode === 'cheque') && (
+        <div className="card" style={{ padding: 24, display: 'flex', alignItems: 'center', gap: 16, borderColor: '#fde68a', background: '#fffbeb' }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fef3c7', color: '#92400e', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Icon.Clock size={20}/>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2, color: '#92400e' }}>
+              {methode === 'virement' ? '🏦 En attente de virement' : '📄 En attente du chèque'}
+            </div>
+            <div style={{ fontSize: 12.5, color: '#92400e' }}>
+              {methode === 'virement'
+                ? 'Le producteur a choisi le virement bancaire. Confirmez manuellement à réception.'
+                : 'Le producteur a choisi le paiement par chèque. Confirmez manuellement à réception.'}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-outline btn-sm"><Icon.Send size={13}/> Envoyer relance</button>
+            <button className="btn btn-primary btn-sm" onClick={onMarkPaid} style={{ background: '#166534', borderColor: '#166534' }}>
+              <Icon.Check size={13}/> Marquer le paiement comme reçu
+            </button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn-outline btn-sm"><Icon.Send size={13}/> Envoyer relance</button>
-          <button className="btn btn-primary btn-sm" onClick={onMarkPaid}><Icon.Check size={13}/> Marquer comme payé</button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -966,7 +1027,7 @@ const TabPaiement = ({ paid, onMarkPaid }) => {
 
 const TabHistorique = ({ paid }) => {
   const events12 = [
-    paid && { time: '16h44', s: 'success', icon: <Icon.Check size={12}/>, title: 'Paiement confirmé', detail: '480 € · CB Visa ****4521 · Réf. TXN-2026-08412', actor: null },
+    paid && { time: '16h44', s: 'success', icon: <Icon.Check size={12}/>, title: 'Paiement confirmé', detail: DOSSIER.methode_paiement === 'virement' ? '480 € · Virement bancaire reçu · Confirmé par Sophie L.' : DOSSIER.methode_paiement === 'cheque' ? '480 € · Chèque reçu · Confirmé par Sophie L.' : '480 € · CB Visa ****4521 · Réf. TXN-2026-08412', actor: null },
     { time: '15h28', s: 'warn',    icon: <Icon.AlertCircle size={12}/>, title: 'Statut → À contrôler (score 74%)', detail: 'Anomalies détectées : volume éch. 2, cuve éch. 5, pH éch. 7', actor: 'Contrôle automatique' },
     { time: '15h10', s: 'info',    icon: <Icon.Sparkles size={12}/>,    title: 'Contrôle automatique lancé', actor: 'Sophie L. (admin)' },
     { time: '14h32', s: 'neutral', icon: <Icon.Mail size={12}/>,        title: 'Email de confirmation envoyé', detail: 'À : marie@chevaliere.fr' },
