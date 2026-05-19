@@ -1460,11 +1460,10 @@ const WizardStep4 = ({ nbVins, payMethod, setPayMethod }) => (
       <table className="table">
         <tbody>
           <tr><td>Échantillons — {nbVins} × 60,00 €</td><td className="num tnum" style={{ fontWeight: 500 }}>{(nbVins * 60).toFixed(2).replace('.', ',')} €</td></tr>
-          <tr><td className="muted">Sous-total HT</td><td className="num tnum muted">{(nbVins * 60).toFixed(2).replace('.', ',')} €</td></tr>
-          <tr><td className="muted">TVA 20%</td><td className="num tnum muted">{(nbVins * 60 * 0.2).toFixed(2).replace('.', ',')} €</td></tr>
+          <tr><td className="muted">TVA</td><td className="num tnum muted">0 % (exonéré)</td></tr>
           <tr style={{ background: 'var(--burgundy-50)' }}>
-            <td style={{ fontWeight: 600, color: 'var(--burgundy-900)' }}>Total TTC</td>
-            <td className="num tnum display" style={{ fontWeight: 600, fontSize: 18, color: 'var(--burgundy-900)' }}>{(nbVins * 60 * 1.2).toFixed(2).replace('.', ',')} €</td>
+            <td style={{ fontWeight: 600, color: 'var(--burgundy-900)' }}>Total à régler</td>
+            <td className="num tnum display" style={{ fontWeight: 600, fontSize: 18, color: 'var(--burgundy-900)' }}>{(nbVins * 60).toFixed(2).replace('.', ',')} €</td>
           </tr>
         </tbody>
       </table>
