@@ -566,25 +566,27 @@ const AdminPalmares = () => {
   const counts = { or: 142, argent: 184, bronze: 97, sans: 36 };
   const totalMedailles = counts.or + counts.argent + counts.bronze;
 
+  // Colonnes : [producteur, région, appellation, couleur, millésime, médaille, note, n°éch]
+  //              r[0]       r[1]    r[2]          r[3]    r[4]       r[5]      r[6]  r[7]
   const ALL_ROWS = [
-    ['Les Crays',           'Domaine de la Chevalière',  'Pouilly-Fuissé',   2024, 'or',     92.4],
-    ['Cuvée Prestige',      'Maison Joseph Drouhin',     'Beaune 1er Cru',   2023, 'or',     91.8],
-    ['Clos du Roi',         'Château de Pierreclos',     'Saint-Véran',      2024, 'or',     90.6],
-    ['Réserve du Domaine',  'Domaine Bouchard Père',     'Meursault',        2023, 'or',     90.1],
-    ['Vieilles Vignes',     'Domaine des 3 Pierres',     'Mâcon-Villages',   2024, 'argent', 88.2],
-    ['L\'Authentique',      'Cellier de Solutré',        'Pouilly-Fuissé',   2023, 'argent', 87.9],
-    ['Cuvée des Moines',    'Vignobles Lacroix',         'Mercurey',         2024, 'argent', 86.4],
-    ['Sélection Parcellaire','Domaine Sainte-Anne',      'Mâcon-Villages',   2024, 'argent', 85.7],
-    ['Tradition',           'Domaine Tabard',            'Brouilly',         2024, 'bronze', 84.5],
-    ['Vieux Plants',        'Domaine de la Verrière',    'Morgon',           2023, 'bronze', 83.2],
-    ['Cuvée du Cep',        'Vignerons de Buxy',         'Bourgogne Aligoté',2024, 'bronze', 82.6],
-    ['L\'Élégance',         'Domaine Sainte-Anne',       'Saint-Véran',      2023, 'sans',   78.4],
-    ['Cuvée Ancestrale',    'Vignobles Lacroix',         'Givry',            2024, 'sans',   76.8],
+    ['Domaine de la Chevalière',  'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2024, 'or',     92.4, 'ECH-2026-0184'],
+    ['Maison Joseph Drouhin',     'Côte de Beaune',    'Beaune 1er Cru',    'Rouge', 2023, 'or',     91.8, 'ECH-2026-0201'],
+    ['Château de Pierreclos',     'Mâconnais',         'Saint-Véran',       'Blanc', 2024, 'or',     90.6, 'ECH-2026-0093'],
+    ['Domaine Bouchard Père',     'Côte de Beaune',    'Meursault',         'Blanc', 2023, 'or',     90.1, 'ECH-2026-0157'],
+    ['Domaine des 3 Pierres',     'Mâconnais',         'Mâcon-Villages',    'Blanc', 2024, 'argent', 88.2, 'ECH-2026-0042'],
+    ['Cellier de Solutré',        'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2023, 'argent', 87.9, 'ECH-2026-0118'],
+    ['Vignobles Lacroix',         'Côte Chalonnaise',  'Mercurey',          'Rouge', 2024, 'argent', 86.4, 'ECH-2026-0076'],
+    ['Domaine Sainte-Anne',       'Mâconnais',         'Mâcon-Villages',    'Blanc', 2024, 'argent', 85.7, 'ECH-2026-0209'],
+    ['Domaine Tabard',            'Beaujolais',        'Brouilly',          'Rouge', 2024, 'bronze', 84.5, 'ECH-2026-0033'],
+    ['Domaine de la Verrière',    'Beaujolais',        'Morgon',            'Rouge', 2023, 'bronze', 83.2, 'ECH-2026-0147'],
+    ['Vignerons de Buxy',         'Côte Chalonnaise',  'Bourgogne Aligoté', 'Blanc', 2024, 'bronze', 82.6, 'ECH-2026-0055'],
+    ['Domaine Sainte-Anne',       'Mâconnais',         'Saint-Véran',       'Blanc', 2023, 'sans',   78.4, 'ECH-2026-0218'],
+    ['Vignobles Lacroix',         'Côte Chalonnaise',  'Givry',             'Rouge', 2024, 'sans',   76.8, 'ECH-2026-0081'],
   ];
 
-  const filtered = tab === 'tous' ? ALL_ROWS : ALL_ROWS.filter(r => r[4] === tab);
+  const filtered = tab === 'tous' ? ALL_ROWS : ALL_ROWS.filter(r => r[5] === tab);
   const sorted = [...filtered].sort((a, b) => {
-    const k = sortKey === 'note' ? 5 : sortKey === 'appellation' ? 2 : 3;
+    const k = sortKey === 'note' ? 6 : sortKey === 'appellation' ? 2 : 4;
     const av = a[k], bv = b[k];
     if (av < bv) return sortDir === 'asc' ? -1 : 1;
     if (av > bv) return sortDir === 'asc' ?  1 : -1;
@@ -754,23 +756,27 @@ const AdminPalmares = () => {
         <table className="table">
           <thead>
             <tr>
-              <th>Cuvée</th>
               <th>Producteur</th>
+              <th>Région</th>
               <PalmaresSortableTh label="Appellation" k="appellation" sortKey={sortKey} sortDir={sortDir} onSort={handleSort}/>
+              <th>Couleur</th>
               <PalmaresSortableTh label="Millésime"   k="mill"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
               <th>Médaille</th>
               <PalmaresSortableTh label="Note"        k="note"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
+              <th className="num">N° éch.</th>
             </tr>
           </thead>
           <tbody>
             {sorted.slice(0, pageSize).map((r, i) => (
               <tr key={i}>
                 <td style={{ fontWeight: 500 }}>{r[0]}</td>
-                <td>{r[1]}</td>
-                <td className="muted">{r[2]}</td>
-                <td className="num tnum">{r[3]}</td>
-                <td><MedailleBadge kind={r[4]}/></td>
-                <td className="num tnum" style={{ fontWeight: 600, color: 'var(--burgundy-800)' }}>{r[5].toFixed(1)}</td>
+                <td className="muted">{r[1]}</td>
+                <td>{r[2]}</td>
+                <td className="muted">{r[3]}</td>
+                <td className="num tnum">{r[4]}</td>
+                <td><MedailleBadge kind={r[5]}/></td>
+                <td className="num tnum" style={{ fontWeight: 600, color: 'var(--burgundy-800)' }}>{r[6].toFixed(1)}</td>
+                <td className="num tnum muted" style={{ fontSize: 11.5 }}>{r[7]}</td>
               </tr>
             ))}
           </tbody>
@@ -1040,11 +1046,11 @@ const ImportPalmaresModal = ({ onCancel, onConfirm }) => {
   }, [onCancel]);
 
   const PREVIEW_ROWS = [
-    ['Les Crays',           'or',     92.4],
-    ['Cuvée Prestige',      'or',     91.8],
-    ['Clos du Roi',         'or',     90.6],
-    ['Vieilles Vignes',     'argent', 88.2],
-    ['Cuvée des Moines',    'argent', 86.4],
+    ['Domaine de la Chevalière', 'or',     92.4],
+    ['Maison Joseph Drouhin',    'or',     91.8],
+    ['Château de Pierreclos',    'or',     90.6],
+    ['Domaine des 3 Pierres',    'argent', 88.2],
+    ['Vignobles Lacroix',        'argent', 86.4],
   ];
 
   const handleDrop = (e) => {
@@ -1142,7 +1148,7 @@ const ImportPalmaresModal = ({ onCancel, onConfirm }) => {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
                   <thead>
                     <tr style={{ background: 'var(--slate-50)' }}>
-                      <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, fontSize: 10.5, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--fg-muted)', borderBottom: '1px solid var(--border)' }}>Cuvée</th>
+                      <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, fontSize: 10.5, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--fg-muted)', borderBottom: '1px solid var(--border)' }}>Producteur</th>
                       <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, fontSize: 10.5, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--fg-muted)', borderBottom: '1px solid var(--border)' }}>Médaille</th>
                       <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 600, fontSize: 10.5, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--fg-muted)', borderBottom: '1px solid var(--border)' }}>Note</th>
                     </tr>
