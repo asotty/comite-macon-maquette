@@ -1443,33 +1443,31 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
           </table>
         </div>
 
-        <div className="card" style={{ padding: 0 }}>
-          <div style={{ padding: '18px 22px 10px', fontSize: 16, fontWeight: 700 }}>Prochaines échéances</div>
-          <div style={{ padding: '0 22px 18px' }}>
-            {echeances.map((e, i) => (
-              <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                padding: '14px 0',
-                borderTop: i > 0 ? '1px solid var(--border)' : 'none',
-              }}>
-                <div style={{ width: 44, textAlign: 'center', flexShrink: 0, padding: '4px 0' }}>
-                  <div className="display" style={{ fontSize: 11, fontWeight: 600, color: 'var(--burgundy-800)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{e.mois}</div>
-                  <div className="display" style={{ fontSize: 22, fontWeight: 600, lineHeight: 1, color: 'var(--fg)', marginTop: 2 }}>{e.jour}</div>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 500 }}>{e.t}</div>
-                  <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>{e.sub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Ligne 4 — Dérogations + Répartition régions */}
-      <div style={{ display: 'grid', gridTemplateColumns: '440px 1fr', gap: 16, marginBottom: 16, alignItems: 'flex-start' }}>
+        {/* Colonne droite : Échéances + Dérogations empilées */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Dérogations en attente */}
+          <div className="card" style={{ padding: 0 }}>
+            <div style={{ padding: '18px 22px 10px', fontSize: 16, fontWeight: 700 }}>Prochaines échéances</div>
+            <div style={{ padding: '0 22px 18px' }}>
+              {echeances.map((e, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  padding: '14px 0',
+                  borderTop: i > 0 ? '1px solid var(--border)' : 'none',
+                }}>
+                  <div style={{ width: 44, textAlign: 'center', flexShrink: 0, padding: '4px 0' }}>
+                    <div className="display" style={{ fontSize: 11, fontWeight: 600, color: 'var(--burgundy-800)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{e.mois}</div>
+                    <div className="display" style={{ fontSize: 22, fontWeight: 600, lineHeight: 1, color: 'var(--fg)', marginTop: 2 }}>{e.jour}</div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 500 }}>{e.t}</div>
+                    <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>{e.sub}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Dérogations en attente — sous les échéances */}
           <div className="card" style={{ padding: 22 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
               <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--warning-bg)', color: '#92400e', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -1482,35 +1480,35 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Répartition par région */}
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '18px 22px 14px', fontSize: 16, fontWeight: 700 }}>Répartition par région</div>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Région</th>
-                <th className="num">Producteurs</th>
-                <th className="num">Échant.</th>
-                <th className="num">Validés</th>
-                <th className="num">À contrô.</th>
-                <th className="num">Rejetés</th>
+      {/* Ligne 4 — Répartition par région (pleine largeur) */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 16 }}>
+        <div style={{ padding: '18px 22px 14px', fontSize: 16, fontWeight: 700 }}>Répartition par région</div>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Région</th>
+              <th className="num">Producteurs</th>
+              <th className="num">Échant.</th>
+              <th className="num">Validés</th>
+              <th className="num">À contrô.</th>
+              <th className="num">Rejetés</th>
+            </tr>
+          </thead>
+          <tbody>
+            {regions.map(r => (
+              <tr key={r.r}>
+                <td style={{ fontWeight: 500 }}>{r.r}</td>
+                <td className="num tnum">{r.p}</td>
+                <td className="num tnum">{r.e}</td>
+                <td className="num tnum">{r.v}</td>
+                <td className="num tnum">{r.c}</td>
+                <td className="num tnum">{r.rej}</td>
               </tr>
-            </thead>
-            <tbody>
-              {regions.map(r => (
-                <tr key={r.r}>
-                  <td style={{ fontWeight: 500 }}>{r.r}</td>
-                  <td className="num tnum">{r.p}</td>
-                  <td className="num tnum">{r.e}</td>
-                  <td className="num tnum">{r.v}</td>
-                  <td className="num tnum">{r.c}</td>
-                  <td className="num tnum">{r.rej}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Ligne 5 — Activité + Action requise */}
