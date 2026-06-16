@@ -122,19 +122,20 @@ const Logo = ({ size = 36, mono = false, label = true }) => (
 // Status badge — encapsulates wine inscription statuses
 const StatusBadge = ({ status }) => {
   const map = {
-    'brouillon':   { cls: 'badge', label: 'Brouillon', dot: '#94a3b8' },
-    'soumis':      { cls: 'badge badge-info', label: 'Soumis', dot: '#0284c7' },
+    // R20 — 4 statuts inscriptions concours
+    'en-attente-paiement': { cls: 'badge badge-warning', label: 'En attente de paiement', dot: '#d97706' },
     'a-verifier':  { cls: 'badge badge-warning', label: 'À vérifier', dot: '#d97706' },
     'valide':      { cls: 'badge badge-success', label: 'Validé', dot: '#16a34a' },
     'paye':        { cls: 'badge badge-success', label: 'Payé', dot: '#16a34a' },
+    // Statuts conservés pour d'autres contextes (contrôle, dossiers…)
+    'brouillon':   { cls: 'badge', label: 'Brouillon', dot: '#94a3b8' },
+    'soumis':      { cls: 'badge badge-info', label: 'Soumis', dot: '#0284c7' },
     'rejete':      { cls: 'badge badge-danger', label: 'Rejeté', dot: '#dc2626' },
     'en-attente':  { cls: 'badge badge-warning', label: 'En attente', dot: '#d97706' },
     'en-cours':    { cls: 'badge badge-info', label: 'En cours', dot: '#0284c7' },
     'or':          { cls: 'badge badge-gold', label: 'Or', dot: '#d4a017' },
     'argent':      { cls: 'badge', label: 'Argent', dot: '#94a3b8' },
     'bronze':      { cls: 'badge', label: 'Bronze', dot: '#a16207' },
-    'attente-virement': { cls: 'badge badge-warning', label: 'En attente virement', dot: '#d97706' },
-    'attente-cheque':   { cls: 'badge badge-warning', label: 'En attente chèque',   dot: '#d97706' },
   };
   const it = map[status] || { cls: 'badge', label: status };
   return (

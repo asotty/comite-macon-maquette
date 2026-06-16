@@ -376,22 +376,23 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
     }, 180);
     return () => clearInterval(t);
   }, [ctrlState]);
+  // R20 — statuts réduits à 4 : en-attente-paiement, paye, a-verifier, valide
   const ALL_ROWS = [
-    ['INS-2026-0184', 'Domaine de la Chevalière', 'Mâconnais', 8, 'a-verifier', 480, '12/04/26'],
-    ['INS-2026-0183', 'Château Pied-de-Rieux', 'Beaujolais', 4, 'attente-virement', 240, '11/04/26'],
-    ['INS-2026-0182', 'Maison Joseph Drouhin', 'Côte de Beaune', 22, 'soumis', 1320, '11/04/26'],
-    ['INS-2026-0181', 'Domaine des 3 Pierres', 'Mâconnais', 9, 'paye', 540, '10/04/26'],
-    ['INS-2026-0180', 'Cellier de Solutré', 'Mâconnais', 6, 'valide', 360, '10/04/26'],
-    ['INS-2026-0179', 'Domaine Tabard', 'Beaujolais', 3, 'paye', 180, '09/04/26'],
-    ['INS-2026-0178', 'Vignobles Lacroix', 'Côte Chalonnaise', 12, 'rejete', 720, '09/04/26'],
-    ['INS-2026-0177', 'Domaine Sainte-Anne', 'Mâconnais', 5, 'paye', 300, '08/04/26'],
-    ['INS-2026-0176', 'Château de Pierreclos', 'Mâconnais', 14, 'valide', 840, '08/04/26'],
-    ['INS-2026-0175', 'Domaine Bouchard Père', 'Côte de Beaune', 18, 'paye', 1080, '07/04/26'],
-    ['INS-2026-0174', 'Château Dubreuil',     'Côte de Beaune',  11, 'attente-cheque', 660, '07/04/26'],
-    ['INS-2026-0173', 'Domaine Servan',       'Beaujolais',      7,  'a-verifier',420, '06/04/26'],
-    ['INS-2026-0172', 'Cave de Lugny',        'Mâconnais',       16, 'valide',     960, '06/04/26'],
-    ['INS-2026-0171', 'Domaine Bouland',      'Beaujolais',      9,  'paye',       540, '05/04/26'],
-    ['INS-2026-0170', 'Château Saint-Pierre', 'Côte Chalonnaise',5,  'soumis',     300, '05/04/26'],
+    ['INS-2026-0184', 'Domaine de la Chevalière', 'Mâconnais',       8,  'a-verifier',          480,  '12/04/26'],
+    ['INS-2026-0183', 'Château Pied-de-Rieux',    'Beaujolais',      4,  'en-attente-paiement', 240,  '11/04/26'],
+    ['INS-2026-0182', 'Maison Joseph Drouhin',    'Côte de Beaune',  22, 'en-attente-paiement', 1320, '11/04/26'],
+    ['INS-2026-0181', 'Domaine des 3 Pierres',    'Mâconnais',       9,  'paye',                540,  '10/04/26'],
+    ['INS-2026-0180', 'Cellier de Solutré',       'Mâconnais',       6,  'valide',              360,  '10/04/26'],
+    ['INS-2026-0179', 'Domaine Tabard',           'Beaujolais',      3,  'paye',                180,  '09/04/26'],
+    ['INS-2026-0178', 'Vignobles Lacroix',        'Côte Chalonnaise',12, 'a-verifier',          720,  '09/04/26'],
+    ['INS-2026-0177', 'Domaine Sainte-Anne',      'Mâconnais',       5,  'paye',                300,  '08/04/26'],
+    ['INS-2026-0176', 'Château de Pierreclos',    'Mâconnais',       14, 'valide',              840,  '08/04/26'],
+    ['INS-2026-0175', 'Domaine Bouchard Père',    'Côte de Beaune',  18, 'paye',                1080, '07/04/26'],
+    ['INS-2026-0174', 'Château Dubreuil',         'Côte de Beaune',  11, 'en-attente-paiement', 660,  '07/04/26'],
+    ['INS-2026-0173', 'Domaine Servan',           'Beaujolais',      7,  'a-verifier',          420,  '06/04/26'],
+    ['INS-2026-0172', 'Cave de Lugny',            'Mâconnais',       16, 'valide',              960,  '06/04/26'],
+    ['INS-2026-0171', 'Domaine Bouland',          'Beaujolais',      9,  'paye',                540,  '05/04/26'],
+    ['INS-2026-0170', 'Château Saint-Pierre',     'Côte Chalonnaise',5,  'en-attente-paiement', 300,  '05/04/26'],
   ];
   const fmt = (n) => n.toLocaleString('fr-FR') + ' €';
   const parseDate = (s) => { const [d, m, y] = s.split('/'); return new Date(2000 + (+y), +m - 1, +d).getTime(); };
@@ -456,9 +457,10 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 24, borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
-        {['Tous', 'Brouillon', 'Soumis', 'Att. virement', 'Att. chèque', 'À vérifier', 'Validés', 'Payés', 'Rejetés'].map(t => {
+        {/* R20 — 4 statuts + Tous : en-attente-paiement, paye, a-verifier, valide */}
+        {['Tous', 'En att. paiement', 'À vérifier', 'Validés', 'Payés'].map(t => {
           const active = filter === t;
-          const counts = { 'Tous': 847, 'Brouillon': 24, 'Soumis': 142, 'Att. virement': 18, 'Att. chèque': 7, 'À vérifier': 47, 'Validés': 386, 'Payés': 240, 'Rejetés': 8 };
+          const counts = { 'Tous': 847, 'En att. paiement': 167, 'À vérifier': 47, 'Validés': 386, 'Payés': 240 };
           return (
             <button key={t} onClick={() => setFilter(t)} style={{
               padding: '12px 0',
@@ -1234,8 +1236,9 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
 
   // Stats Concours
   const concoursStats = isFrance
-    ? { delta: '+12 %', large: [['847','Inscrits'],['241','Validés'],['198','Payés'],['2148','Échantillons']], small: [['612','Soumis'],['47','À vérifier'],['12','Rejetés']] }
-    : { delta: '+48 %', large: [['312','Inscrits'],['80','Validés'],['65','Payés'],['612','Échantillons']], small: [['180','Soumis'],['22','À vérifier'],['5','Rejetés']] };
+    // R20 — small KPIs alignés sur les 4 nouveaux statuts
+    ? { delta: '+12 %', large: [['847','Inscrits'],['241','Validés'],['198','Payés'],['2148','Échantillons']], small: [['167','En att. paiement'],['47','À vérifier'],['240','Payés']] }
+    : { delta: '+48 %', large: [['312','Inscrits'],['80','Validés'],['65','Payés'],['612','Échantillons']], small: [['55','En att. paiement'],['22','À vérifier'],['65','Payés']] };
 
   // Contrôle des échantillons (gauge)
   const ctrl = isFrance
