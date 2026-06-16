@@ -49,14 +49,15 @@ const navAdmin = [
   ]},
 ];
 
-// Producteur — navbar horizontale simplifiée (4 entrées principales)
+// Producteur — navbar horizontale (R28 : labels métier)
 const navProducteur = [
-  { id: 'concours',    label: 'Concours',    route: 'p-inscriptions',  match: ['p-inscriptions', 'p-ins-cours', 'p-ins-historique', 'p-inscription'] },
-  { id: 'medailles',   label: 'Médailles',   route: 'p-medailles',  badge: 1,
+  { id: 'palmares',    label: 'Mon palmarès',              route: 'p-inscriptions',
+    match: ['p-inscriptions', 'p-ins-cours', 'p-ins-historique', 'p-inscription'] },
+  { id: 'medailles',   label: 'Commander mes médailles',   route: 'p-commandes', badge: 1,
     match: ['p-medailles', 'p-commandes', 'p-cmd-nouvelle', 'p-cmd-historique'] },
-  { id: 'derogations', label: 'Dérogations', route: 'p-derogations',
+  { id: 'derogations', label: 'Commander mes dérogations', route: 'p-derogations',
     match: ['p-derogations', 'p-der-nouvelle', 'p-der-mes'] },
-  { id: 'compte',      label: 'Mon compte',  route: 'p-compte',
+  { id: 'compte',      label: 'Mon compte',                route: 'p-compte',
     match: ['p-compte', 'p-compte-infos', 'p-compte-facturation', 'p-compte-mdp'], hidden: true },
 ];
 
