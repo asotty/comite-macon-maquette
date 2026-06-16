@@ -1537,20 +1537,80 @@ const WizardStep4 = ({ nbVins, payMethod, setPayMethod }) => (
   </div>
 );
 
+// Résout l'image d'une médaille selon le concours (france ou monde)
+const medalImg = (medal, concours) => {
+  if (concours === 'monde') {
+    return { or: 'OR-MONDE-2025.webp', argent: 'ARGENT-MONDE-2025.webp' }[medal] || 'OR-MONDE-2025.webp';
+  }
+  return { or: 'OR-2025.webp', argent: 'ARGENT-2025.webp', bronze: 'BRONZE-2025.webp' }[medal];
+};
+const medalLabel = { or: 'Or', argent: 'Argent', bronze: 'Bronze' };
+
 const ProducteurMedailles = ({ onNavigate }) => {
   const medals = [
-    { id: 'vv24',  name: 'Vieilles Vignes 2024',     appell: 'Mâcon-Villages', medal: 'argent', pts: 88.2, edition: '2026' },
-    { id: 'cp23',  name: 'Cuvée Prestige 2023',      appell: 'Pouilly-Fuissé', medal: 'or',     pts: 91.5, edition: '2025' },
-    { id: 'lh23',  name: 'Les Hauts 2023',           appell: 'Saint-Véran',    medal: 'or',     pts: 90.8, edition: '2025' },
-    { id: 't22',   name: 'Tradition 2022',           appell: 'Mâcon-Villages', medal: 'bronze', pts: 84.0, edition: '2024' },
-    { id: 'csp22', name: 'Clos Saint-Pierre 2022',   appell: 'Pouilly-Fuissé', medal: 'or',     pts: 92.1, edition: '2024' },
-    { id: 'aut21', name: "L'Authentique 2021",       appell: 'Mâcon-Villages', medal: 'argent', pts: 87.4, edition: '2023' },
+    { id: 'vv24',  name: 'Vieilles Vignes 2024',   appell: 'Mâcon-Villages', medal: 'argent', pts: 88.2, edition: '2026', concours: 'france' },
+    { id: 'cp23',  name: 'Cuvée Prestige 2023',    appell: 'Pouilly-Fuissé', medal: 'or',     pts: 91.5, edition: '2025', concours: 'france' },
+    { id: 't22',   name: 'Tradition 2022',         appell: 'Mâcon-Villages', medal: 'bronze', pts: 84.0, edition: '2024', concours: 'france' },
+    { id: 'csp22', name: 'Clos Saint-Pierre 2022', appell: 'Pouilly-Fuissé', medal: 'or',     pts: 92.1, edition: '2024', concours: 'france' },
+    { id: 'lh23',  name: 'Les Hauts 2023',         appell: 'Saint-Véran',    medal: 'or',     pts: 90.8, edition: '2025', concours: 'monde'  },
+    { id: 'aut21', name: "L'Authentique 2021",     appell: 'Mâcon-Villages', medal: 'argent', pts: 87.4, edition: '2023', concours: 'monde'  },
   ];
+
+  const france = medals.filter(m => m.concours === 'france');
+  const monde  = medals.filter(m => m.concours === 'monde');
 
   const goCommander = (wineId) => {
     window.__commandeFocusWine = wineId || null;
     onNavigate('p-commandes');
   };
+
+  const MedalCard = ({ m }) => (
+    <div className="card" style={{ display: 'flex', gap: 16, padding: 20 }}>
+      <img
+        src={medalImg(m.medal, m.concours)}
+        alt={m.medal}
+        style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 }}
+      />
+      <div style={{ flex: 1 }}>
+        <div className="display" style={{ fontSize: 16, fontWeight: 500 }}>{m.name}</div>
+        <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>{m.appell} · Édition {m.edition}</div>
+        <div style={{ display: 'flex', gap: 6, marginTop: 10, alignItems: 'center' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            <img src={medalImg(m.medal, m.concours)} alt={m.medal} style={{ width: 20, height: 20, objectFit: 'contain' }}/>
+            <span style={{ fontSize: 11.5, fontWeight: 600 }}>{medalLabel[m.medal]}</span>
+          </span>
+          <span className="badge tnum">{m.pts} pts</span>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <button className="btn btn-outline btn-sm"><Icon.Download size={12}/> Diplôme</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => goCommander(m.id)}><Icon.Package size={12}/> Commander</button>
+      </div>
+    </div>
+  );
+
+  const Section = ({ title, icon, items, accent }) => (
+    <div style={{ marginBottom: 32 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
+        paddingBottom: 10, borderBottom: `2px solid ${accent}`,
+      }}>
+        <div style={{
+          width: 32, height: 32, borderRadius: 8,
+          background: accent + '22', color: accent,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>{icon}</div>
+        <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--fg)' }}>{title}</span>
+        <span style={{
+          fontSize: 11.5, fontWeight: 600, padding: '2px 8px', borderRadius: 999,
+          background: accent + '18', color: accent,
+        }}>{items.length} médaille{items.length > 1 ? 's' : ''}</span>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
+        {items.map(m => <MedalCard key={m.id} m={m}/>)}
+      </div>
+    </div>
+  );
 
   return (
     <div>
@@ -1568,32 +1628,18 @@ const ProducteurMedailles = ({ onNavigate }) => {
           </div>
         }
       />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
-        {medals.map(m => (
-          <div key={m.id} className="card" style={{ display: 'flex', gap: 16, padding: 20 }}>
-            <img
-              src={{ or: 'OR-2025.webp', argent: 'ARGENT-2025.webp', bronze: 'BRONZE-2025.webp' }[m.medal]}
-              alt={m.medal}
-              style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 }}
-            />
-            <div style={{ flex: 1 }}>
-              <div className="display" style={{ fontSize: 16, fontWeight: 500 }}>{m.name}</div>
-              <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>{m.appell} · Édition {m.edition}</div>
-              <div style={{ display: 'flex', gap: 6, marginTop: 10, alignItems: 'center' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                  <img src={{ or: 'OR-2025.webp', argent: 'ARGENT-2025.webp', bronze: 'BRONZE-2025.webp' }[m.medal]} alt={m.medal} style={{ width: 20, height: 20, objectFit: 'contain' }}/>
-                  <span style={{ fontSize: 11.5, fontWeight: 600 }}>{{ or: 'Or', argent: 'Argent', bronze: 'Bronze' }[m.medal]}</span>
-                </span>
-                <span className="badge tnum">{m.pts} pts</span>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <button className="btn btn-outline btn-sm"><Icon.Download size={12}/> Diplôme</button>
-              <button className="btn btn-ghost btn-sm" onClick={() => goCommander(m.id)}><Icon.Package size={12}/> Commander</button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <Section
+        title="Concours France"
+        icon={<Icon.Trophy size={16}/>}
+        items={france}
+        accent="var(--burgundy-800)"
+      />
+      <Section
+        title="Concours Monde"
+        icon={<Icon.Globe size={16}/>}
+        items={monde}
+        accent="#1e40af"
+      />
     </div>
   );
 };

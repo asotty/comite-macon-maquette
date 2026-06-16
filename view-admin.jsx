@@ -544,12 +544,19 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
   );
 };
 
-const AdminPalmares = () => {
-  const EDITIONS = [
+const AdminPalmares = ({ concours = 'france' }) => {
+  const isMonde = concours === 'monde';
+
+  // Editions selon le concours
+  const EDITIONS = isMonde ? [
+    { id: '2026', label: 'Concours Monde 2026', published: false, mode: 'edition' },
+    { id: '2025', label: 'Concours Monde 2025', published: true,  publishedAt: '20/06/2025', publishedBy: 'Sophie L.', mode: 'archive' },
+  ] : [
     { id: '2026', label: 'Concours France 2026', published: false, mode: 'edition' },
     { id: '2025', label: 'Concours France 2025', published: true,  publishedAt: '15/06/2025', publishedBy: 'Sophie L.', mode: 'archive' },
     { id: '2024', label: 'Concours France 2024', published: true,  publishedAt: '12/06/2024', publishedBy: 'Sophie L.', mode: 'archive' },
   ];
+
   const [editionId, setEditionId] = React.useState('2026');
   const [editionPicker, setEditionPicker] = React.useState(false);
   const [tab, setTab] = React.useState('tous');
@@ -565,12 +572,21 @@ const AdminPalmares = () => {
   const edition = EDITIONS.find(e => e.id === editionId);
   const isArchive = edition.mode === 'archive';
   const justPublished = published[editionId];
-  const counts = { or: 142, argent: 184, bronze: 97, sans: 36 };
+
+  // Monde : pas de bronze
+  const counts = isMonde
+    ? { or: 78, argent: 112, bronze: 0, sans: 28 }
+    : { or: 142, argent: 184, bronze: 97, sans: 36 };
   const totalMedailles = counts.or + counts.argent + counts.bronze;
+
+  // Images médailles selon le concours
+  const medalImgAdmin = (medal) => isMonde
+    ? { or: 'OR-MONDE-2025.webp', argent: 'ARGENT-MONDE-2025.webp' }[medal]
+    : { or: 'OR-2025.webp', argent: 'ARGENT-2025.webp', bronze: 'BRONZE-2025.webp' }[medal];
 
   // Colonnes : [producteur, région, appellation, couleur, millésime, médaille, note, n°éch]
   //              r[0]       r[1]    r[2]          r[3]    r[4]       r[5]      r[6]  r[7]
-  const ALL_ROWS = [
+  const ALL_ROWS_FRANCE = [
     ['Domaine de la Chevalière',  'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2024, 'or',     92.4, 'ECH-2026-0184'],
     ['Maison Joseph Drouhin',     'Côte de Beaune',    'Beaune 1er Cru',    'Rouge', 2023, 'or',     91.8, 'ECH-2026-0201'],
     ['Château de Pierreclos',     'Mâconnais',         'Saint-Véran',       'Blanc', 2024, 'or',     90.6, 'ECH-2026-0093'],
@@ -586,6 +602,20 @@ const AdminPalmares = () => {
     ['Vignobles Lacroix',         'Côte Chalonnaise',  'Givry',             'Rouge', 2024, 'sans',   76.8, 'ECH-2026-0081'],
   ];
 
+  // Monde : uniquement Or et Argent (pas de bronze)
+  const ALL_ROWS_MONDE = [
+    ['Domaine de la Chevalière',  'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2024, 'or',     93.1, 'ECH-MONDE-2026-0012'],
+    ['Maison Joseph Drouhin',     'Côte de Beaune',    'Beaune 1er Cru',    'Rouge', 2023, 'or',     92.5, 'ECH-MONDE-2026-0034'],
+    ['Château de Pierreclos',     'Mâconnais',         'Saint-Véran',       'Blanc', 2024, 'or',     91.2, 'ECH-MONDE-2026-0008'],
+    ['Cellier de Solutré',        'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2023, 'argent', 88.7, 'ECH-MONDE-2026-0051'],
+    ['Vignobles Lacroix',         'Côte Chalonnaise',  'Mercurey',          'Rouge', 2024, 'argent', 87.3, 'ECH-MONDE-2026-0019'],
+    ['Domaine Bouchard Père',     'Côte de Beaune',    'Meursault',         'Blanc', 2023, 'argent', 86.1, 'ECH-MONDE-2026-0067'],
+    ['Domaine Sainte-Anne',       'Mâconnais',         'Mâcon-Villages',    'Blanc', 2024, 'sans',   77.9, 'ECH-MONDE-2026-0083'],
+    ['Domaine Tabard',            'Beaujolais',        'Brouilly',          'Rouge', 2024, 'sans',   75.2, 'ECH-MONDE-2026-0041'],
+  ];
+
+  const ALL_ROWS = isMonde ? ALL_ROWS_MONDE : ALL_ROWS_FRANCE;
+
   const filtered = tab === 'tous' ? ALL_ROWS : ALL_ROWS.filter(r => r[5] === tab);
   const sorted = [...filtered].sort((a, b) => {
     const k = sortKey === 'note' ? 6 : sortKey === 'appellation' ? 2 : 4;
@@ -595,11 +625,12 @@ const AdminPalmares = () => {
     return 0;
   });
 
+  // Pas de tab Bronze pour le Concours Monde
   const tabsDef = [
     { id: 'tous',   label: 'Tous',         count: totalMedailles + counts.sans },
     { id: 'or',     label: 'Or',           count: counts.or },
     { id: 'argent', label: 'Argent',       count: counts.argent },
-    { id: 'bronze', label: 'Bronze',       count: counts.bronze },
+    ...(!isMonde ? [{ id: 'bronze', label: 'Bronze', count: counts.bronze }] : []),
     { id: 'sans',   label: 'Sans médaille',count: counts.sans },
   ];
 
@@ -701,11 +732,11 @@ const AdminPalmares = () => {
       )}
 
       {/* KPI cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMonde ? 2 : 3}, 1fr)`, gap: 16, marginBottom: 20 }}>
         {[
-          { label: 'Médailles d\'Or',     n: counts.or,     img: 'OR-2025.webp' },
-          { label: 'Médailles d\'Argent', n: counts.argent, img: 'ARGENT-2025.webp' },
-          { label: 'Médailles de Bronze', n: counts.bronze, img: 'BRONZE-2025.webp' },
+          { label: 'Médailles d\'Or',     n: counts.or,     img: medalImgAdmin('or') },
+          { label: 'Médailles d\'Argent', n: counts.argent, img: medalImgAdmin('argent') },
+          ...(!isMonde ? [{ label: 'Médailles de Bronze', n: counts.bronze, img: medalImgAdmin('bronze') }] : []),
         ].map(c => (
           <div key={c.label} className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <img src={c.img} alt={c.label} style={{ width: 52, height: 52, objectFit: 'contain', flexShrink: 0 }}/>
@@ -776,7 +807,7 @@ const AdminPalmares = () => {
                 <td>{r[2]}</td>
                 <td className="muted">{r[3]}</td>
                 <td className="num tnum">{r[4]}</td>
-                <td><MedailleBadge kind={r[5]}/></td>
+                <td><MedailleBadge kind={r[5]} concours={concours}/></td>
                 <td className="num tnum" style={{ fontWeight: 600, color: 'var(--burgundy-800)' }}>{r[6].toFixed(1)}</td>
                 <td className="num tnum muted" style={{ fontSize: 11.5 }}>{r[7]}</td>
               </tr>
@@ -811,6 +842,8 @@ const AdminPalmares = () => {
         <PublishPalmaresModal
           medalCount={counts.or + counts.argent + counts.bronze}
           orCount={counts.or}
+          argentCount={counts.argent}
+          bronzeCount={counts.bronze}
           onCancel={() => setPublishModal(false)}
           onConfirm={() => {
             setPublished(p => ({ ...p, [editionId]: { at: '12/05/2026 à 14h32', by: 'Sophie L.' } }));
@@ -850,11 +883,12 @@ const PalmaresSortableTh = ({ label, k, sortKey, sortDir, onSort, align }) => {
 
 // ─── Medal dot badge ──────────────────────────────────────────────
 
-const MedailleBadge = ({ kind }) => {
+const MedailleBadge = ({ kind, concours = 'france' }) => {
+  const isMonde = concours === 'monde';
   const map = {
-    or:     { img: 'OR-2025.webp',     label: 'Or' },
-    argent: { img: 'ARGENT-2025.webp', label: 'Argent' },
-    bronze: { img: 'BRONZE-2025.webp', label: 'Bronze' },
+    or:     { img: isMonde ? 'OR-MONDE-2025.webp'     : 'OR-2025.webp',     label: 'Or' },
+    argent: { img: isMonde ? 'ARGENT-MONDE-2025.webp' : 'ARGENT-2025.webp', label: 'Argent' },
+    bronze: { img: 'BRONZE-2025.webp', label: 'Bronze' }, // Monde n'a pas de bronze
     sans:   { img: null,               label: 'Sans médaille' },
   };
   const s = map[kind] || map.sans;
@@ -946,7 +980,7 @@ const ExportPdfDropdown = ({ open, setOpen }) => {
 
 // ─── Publish modal ────────────────────────────────────────────────
 
-const PublishPalmaresModal = ({ medalCount, orCount, onCancel, onConfirm }) => {
+const PublishPalmaresModal = ({ medalCount, orCount, argentCount, bronzeCount, onCancel, onConfirm }) => {
   React.useEffect(() => {
     const k = (e) => e.key === 'Escape' && onCancel();
     window.addEventListener('keydown', k);
@@ -959,7 +993,7 @@ const PublishPalmaresModal = ({ medalCount, orCount, onCancel, onConfirm }) => {
       bg: 'var(--burgundy-50)',
       fg: 'var(--burgundy-800)',
       title: <>Email de félicitations → <strong style={{ color: 'var(--fg)', fontWeight: 600 }}>{medalCount} producteurs médaillés</strong></>,
-      sub: `${orCount} Or · 184 Argent · 97 Bronze`,
+      sub: [orCount && `${orCount} Or`, argentCount && `${argentCount} Argent`, bronzeCount && `${bronzeCount} Bronze`].filter(Boolean).join(' · '),
     },
     {
       icon: <Icon.Globe size={16}/>,
