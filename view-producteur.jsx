@@ -192,64 +192,146 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
         </div>
       </div>
 
-      {/* Ligne 1 — Bandeau action urgente (conditionnel) */}
+      {/* Bandeau paiement en attente */}
       {hasUrgentAction && (
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 14,
+          display: 'flex', alignItems: 'center', gap: 20,
           background: '#fdf0f3',
-          border: '1px solid #f4d4dd',
-          borderRadius: 10,
-          padding: '12px 16px',
-          marginBottom: 20,
+          border: '1.5px solid #f0b8c8',
+          borderRadius: 14,
+          padding: '20px 28px',
+          marginBottom: 28,
         }}>
           <div style={{
-            width: 32, height: 32, borderRadius: 8,
+            width: 48, height: 48, borderRadius: 12,
             background: 'var(--burgundy-800)', color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
           }}>
-            <Icon.AlertTriangle size={15}/>
+            <Icon.AlertTriangle size={22}/>
           </div>
-          <div style={{ flex: 1, fontSize: 13.5, color: 'var(--burgundy-900)' }}>
-            <span style={{ fontWeight: 500 }}>Paiement en attente</span>
-            <span style={{ color: 'var(--burgundy-700)', margin: '0 8px' }}>·</span>
-            <span>Dossier <strong style={{ fontVariantNumeric: 'tabular-nums' }}>INS-2026-0184</strong></span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--burgundy-900)', marginBottom: 4 }}>
+              Paiement en attente
+            </div>
+            <div style={{ fontSize: 13.5, color: 'var(--burgundy-700)' }}>
+              Votre dossier <strong style={{ fontVariantNumeric: 'tabular-nums' }}>INS-2026-0184</strong> est en attente de paiement.
+              Réglez avant la clôture pour valider votre participation.
+            </div>
           </div>
-          <button className="btn btn-primary btn-sm" onClick={() => onNavigate('p-inscription')}>
-            Payer maintenant <Icon.ArrowRight size={13}/>
+          <button className="btn btn-primary" onClick={() => onNavigate('p-inscription')} style={{ whiteSpace: 'nowrap' }}>
+            Payer maintenant <Icon.ArrowRight size={15}/>
           </button>
         </div>
       )}
 
-      {/* Ligne 2 — 3 KPI cards horizontales */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
-        <PKpi
-          label="Inscriptions"
-          value="2 en cours"
-          sub={
-            <span>
-              <span style={{ color: 'var(--success)' }}>● Validée</span>
-              <span style={{ color: 'var(--fg-subtle)', margin: '0 6px' }}>·</span>
-              <span style={{ color: 'var(--fg-muted)' }}>● Brouillon</span>
-            </span>
-          }
-          cta={{ label: 'Voir mes inscriptions', onClick: () => onNavigate('p-inscriptions') }}
-        />
-        <PKpi
-          label="Médailles"
-          value="3 médailles 2025"
-          sub="Or · Argent · Argent"
-          cta={{ label: 'Commander', onClick: () => onNavigate('p-commandes') }}
-        />
-        <PKpi
-          label="Dérogations"
-          value="1 en attente"
-          sub="Soumise le 04 juin"
-          cta={{ label: 'Voir la réponse', onClick: () => onNavigate('p-derogations') }}
-        />
+      {/* 2 cards concours côte à côte */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
+
+        {/* Concours France — ACTIF */}
+        <div className="card" style={{
+          padding: 28,
+          border: '2px solid var(--burgundy-200)',
+          background: 'linear-gradient(135deg, #fff 60%, #fdf4f7 100%)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 14,
+              background: 'var(--burgundy-800)', color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <Icon.Trophy size={26}/>
+            </div>
+            <span style={{
+              fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 999,
+              background: '#dcfce7', color: '#15803d',
+              letterSpacing: '0.04em', textTransform: 'uppercase',
+            }}>Inscriptions ouvertes</span>
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg)', letterSpacing: '-0.02em', marginBottom: 4 }}>
+            Concours France
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--fg-muted)', marginBottom: 20 }}>
+            Concours des Grands Vins de France · Édition 2026
+          </div>
+          {/* Statut inscription */}
+          <div style={{
+            background: 'var(--burgundy-50)', borderRadius: 10, padding: '12px 16px', marginBottom: 20,
+          }}>
+            <div style={{ fontSize: 12, color: 'var(--burgundy-700)', fontWeight: 500, marginBottom: 4 }}>Votre dossier en cours</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--fg)', fontVariantNumeric: 'tabular-nums' }}>INS-2026-0184</span>
+              <StatusBadge status="valide"/>
+              <span style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginLeft: 'auto' }}>8 échantillons · 480 €</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: 12.5, color: 'var(--burgundy-800)', fontWeight: 500 }}>
+              <Icon.Clock size={12} style={{ verticalAlign: 'middle', marginRight: 4 }}/>
+              Clôture dans <strong>12 jours</strong>
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={() => onNavigate('p-inscriptions')}>
+              Voir mon dossier <Icon.ArrowRight size={12}/>
+            </button>
+          </div>
+        </div>
+
+        {/* Concours Monde — FERMÉ / à venir */}
+        <div className="card" style={{
+          padding: 28,
+          border: '1px solid var(--border)',
+          background: 'var(--slate-50)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 14,
+              background: 'var(--slate-300)', color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <Icon.Globe size={26}/>
+            </div>
+            <span style={{
+              fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 999,
+              background: 'var(--slate-200)', color: 'var(--slate-500)',
+              letterSpacing: '0.04em', textTransform: 'uppercase',
+            }}>Inscriptions fermées</span>
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-muted)', letterSpacing: '-0.02em', marginBottom: 4 }}>
+            Concours Monde
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--fg-subtle)', marginBottom: 20 }}>
+            Concours des Grands Vins du Monde · Édition 2027
+          </div>
+          {/* Date d'ouverture */}
+          <div style={{
+            background: 'var(--slate-100)', borderRadius: 10, padding: '16px 20px', marginBottom: 20,
+            display: 'flex', alignItems: 'center', gap: 14,
+          }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 10,
+              background: 'var(--slate-200)', color: 'var(--slate-500)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <Icon.Calendar size={18}/>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: 'var(--slate-500)', fontWeight: 500, marginBottom: 2 }}>
+                Ouverture des inscriptions
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg-muted)' }}>
+                15 septembre 2026
+              </div>
+            </div>
+          </div>
+          <div style={{ fontSize: 12.5, color: 'var(--slate-400)', textAlign: 'right' }}>
+            dans environ 3 mois
+          </div>
+        </div>
       </div>
 
-      {/* Ligne 3 — Mes inscriptions en cours */}
+      {/* Mes inscriptions en cours */}
       <section style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
@@ -313,69 +395,6 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
           </table>
         </div>
       </section>
-
-      {/* Ligne 4 — Échéances + Accès rapide */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
-        {/* Prochaines échéances */}
-        <div className="card" style={{ padding: 0 }}>
-          <div style={{ padding: '18px 22px 4px' }}>
-            <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>Prochaines échéances</div>
-            <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>À surveiller dans les semaines à venir</div>
-          </div>
-          <div style={{ padding: '8px 22px 18px' }}>
-            {[
-              { label: 'Clôture inscriptions Concours France', date: '15 juin 2026', dist: 'dans 12 jours', urgent: true },
-              { label: 'Publication palmarès 2025',             date: '02 juin 2026', dist: 'dans 3 jours',  urgent: true },
-              { label: 'Clôture commandes médailles 2025',      date: '30 juin 2026', dist: 'dans 25 jours', urgent: false },
-            ].map((e, i) => (
-              <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                padding: '12px 0',
-                borderTop: i > 0 ? '1px solid var(--border)' : 'none',
-              }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: 8,
-                  background: e.urgent ? 'var(--burgundy-50)' : 'var(--slate-100)',
-                  color: e.urgent ? 'var(--burgundy-800)' : 'var(--slate-500)',
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                  <Icon.Calendar size={16}/>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--fg)' }}>{e.label}</div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2 }}>{e.date}</div>
-                </div>
-                <div style={{
-                  fontSize: 12, fontWeight: 500,
-                  color: e.urgent ? 'var(--burgundy-800)' : 'var(--fg-muted)',
-                  fontVariantNumeric: 'tabular-nums',
-                  whiteSpace: 'nowrap',
-                }}>{e.dist}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Accès rapide */}
-        <div className="card" style={{ padding: 22 }}>
-          <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>Actions rapides</div>
-          <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2, marginBottom: 16 }}>
-            Démarrer immédiatement
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <button onClick={() => onNavigate('p-inscription')} className="btn btn-primary" style={{ width: '100%', justifyContent: 'flex-start' }}>
-              <Icon.Plus size={14}/> Nouvelle inscription
-            </button>
-            <button onClick={() => onNavigate('p-commandes')} className="btn btn-outline" style={{ width: '100%', justifyContent: 'flex-start' }}>
-              <Icon.Package size={14}/> Commander des médailles
-            </button>
-            <button onClick={() => onNavigate('p-derogations')} className="btn btn-outline" style={{ width: '100%', justifyContent: 'flex-start' }}>
-              <Icon.Mail size={14}/> Faire une demande
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
