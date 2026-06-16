@@ -24,8 +24,8 @@ const navAdmin = [
   ]},
   { id: 'salons', label: 'Salons & exposants', icon: <Icon.Building size={16}/>, group: 'Logistique', children: [
     { id: 'salons-events', label: 'Événements' },
-    { id: 'salons-exposants', label: 'Inscriptions exposants' },
-    { id: 'salons-stands', label: 'Plan des stands' },
+    { id: 'salons-vins',   label: 'Salon des Vins' },
+    { id: 'salons-marche', label: 'Marché des Plaisirs Gourmands' },
   ]},
   { id: 'producteurs', label: 'Producteurs', icon: <Icon.Wine size={16}/>, group: 'Utilisateurs' },
   { id: 'degustateurs', label: 'Dégustateurs', icon: <Icon.Users size={16}/>, group: 'Utilisateurs', children: [
@@ -42,6 +42,7 @@ const navAdmin = [
   ]},
   { id: 'parametres', label: 'Paramètres', icon: <Icon.Settings size={16}/>, group: 'Gestion', children: [
     { id: 'param-concours', label: 'Configuration concours' },
+    { id: 'param-salons', label: 'Configuration salons' },
     { id: 'param-appellations', label: 'Appellations & régions' },
     { id: 'param-fournisseurs', label: 'Fournisseurs médailles' },
     { id: 'param-emails', label: 'Templates emails' },

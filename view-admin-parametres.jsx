@@ -1787,6 +1787,392 @@ const AdminParamPaiements = () => {
   );
 };
 
+// ─── Page N+1 — Configuration salons ──────────────────────────────
+//
+// Données de paramétrage par salon :
+//   • Calendrier (dates salon + fenêtre inscriptions exposants)
+//   • Tarification (TVA, acompte, paiement CB)
+//   • Types de stands (surface, prix HT, quantité disponible)
+//   • Options & équipements (électricité, WiFi, mobilier…)
+//   • Repas exposants (tarif par catégorie)
+
+const PARAM_SALONS_LIST = [
+  { id: 'salon-vins-2026',      label: 'Salon des Vins de Mâcon 2026' },
+  { id: 'marche-plaisirs-2026', label: 'Marché des Plaisirs Gourmands 2026' },
+  { id: 'salon-vins-2025',      label: 'Salon des Vins de Mâcon 2025' },
+];
+
+// Données initiales de chaque salon (préfixe PARAM_ pour éviter tout conflit de noms)
+const PARAM_STANDS_INIT = {
+  'salon-vins-2026': [
+    { id: 'sv-s1', label: 'Stand individuel', sub: '6 m² · Emplacement standard',  surface: 6,  prix: 350, qty: 45, active: true,  builtin: true },
+    { id: 'sv-s2', label: 'Stand double',     sub: '12 m² · Double largeur',        surface: 12, prix: 620, qty: 18, active: true,  builtin: true },
+    { id: 'sv-s3', label: 'Stand angle',      sub: '9 m² · Coin allée principale', surface: 9,  prix: 480, qty: 8,  active: true,  builtin: true },
+    { id: 'sv-s4', label: 'Stand prestige',   sub: '16 m² · Emplacement façade',   surface: 16, prix: 850, qty: 4,  active: false, builtin: true },
+  ],
+  'marche-plaisirs-2026': [
+    { id: 'mp-s1', label: 'Stand standard', sub: '6 m² · Emplacement courant', surface: 6,  prix: 290, qty: 60, active: true, builtin: true },
+    { id: 'mp-s2', label: 'Stand premium',  sub: '9 m² · Allée centrale',      surface: 9,  prix: 420, qty: 20, active: true, builtin: true },
+    { id: 'mp-s3', label: 'Stand double',   sub: '12 m² · Grande surface',     surface: 12, prix: 560, qty: 10, active: true, builtin: true },
+  ],
+  'salon-vins-2025': [
+    { id: 'sv25-s1', label: 'Stand individuel', sub: '6 m²', surface: 6,  prix: 330, qty: 45, active: true, builtin: true },
+    { id: 'sv25-s2', label: 'Stand double',     sub: '12 m²', surface: 12, prix: 590, qty: 18, active: true, builtin: true },
+  ],
+};
+
+const PARAM_OPTIONS_INIT = {
+  'salon-vins-2026': [
+    { id: 'sv-o1', label: 'Électricité monophasé', sub: '16A / 3,5 kW',          prix: 25,  active: true },
+    { id: 'sv-o2', label: 'Électricité triphasé',  sub: '32A / 7 kW',            prix: 55,  active: true },
+    { id: 'sv-o3', label: 'Accès WiFi',            sub: 'Connexion haut débit',   prix: 15,  active: true },
+    { id: 'sv-o4', label: 'Table supplémentaire',  sub: 'Table pliante 180 cm',   prix: 20,  active: true },
+    { id: 'sv-o5', label: 'Chaise supplémentaire', sub: 'Par unité',              prix: 8,   active: true },
+    { id: 'sv-o6', label: 'Vitrine réfrigérée',    sub: '60 cm · avec serrure',   prix: 80,  active: false },
+  ],
+  'marche-plaisirs-2026': [
+    { id: 'mp-o1', label: 'Électricité monophasé', sub: '16A / 3,5 kW',        prix: 22,  active: true },
+    { id: 'mp-o2', label: 'Électricité triphasé',  sub: '32A / 7 kW',          prix: 48,  active: true },
+    { id: 'mp-o3', label: 'Accès WiFi',            sub: 'Connexion haut débit', prix: 12,  active: true },
+    { id: 'mp-o4', label: 'Table supplémentaire',  sub: 'Table pliante 180 cm', prix: 18,  active: true },
+    { id: 'mp-o5', label: 'Chaise supplémentaire', sub: 'Par unité',            prix: 6,   active: true },
+  ],
+  'salon-vins-2025': [
+    { id: 'sv25-o1', label: 'Électricité monophasé', sub: '16A',          prix: 22, active: true },
+    { id: 'sv25-o2', label: 'Accès WiFi',            sub: 'Haut débit',   prix: 12, active: true },
+  ],
+};
+
+const PARAM_DATES_INIT = {
+  'salon-vins-2026':      { ouverture: '2026-01-15', cloture: '2026-03-15', debut: '2026-05-08', fin: '2026-05-10', tva: 20, acompte: 50, cb: true },
+  'marche-plaisirs-2026': { ouverture: '2026-02-01', cloture: '2026-03-31', debut: '2026-05-09', fin: '2026-05-11', tva: 20, acompte: 50, cb: true },
+  'salon-vins-2025':      { ouverture: '2025-01-20', cloture: '2025-03-10', debut: '2025-05-09', fin: '2025-05-11', tva: 20, acompte: 50, cb: false },
+};
+
+const PARAM_REPAS_INIT = {
+  'salon-vins-2026':      [{ id: 'r1', label: 'Déjeuner exposant',      prix: 32 }, { id: 'r2', label: 'Déjeuner accompagnateur', prix: 28 }, { id: 'r3', label: 'Repas staff Comité', prix: 0 }],
+  'marche-plaisirs-2026': [{ id: 'r1', label: 'Déjeuner exposant',      prix: 30 }, { id: 'r2', label: 'Déjeuner accompagnateur', prix: 26 }, { id: 'r3', label: 'Repas staff Comité', prix: 0 }],
+  'salon-vins-2025':      [{ id: 'r1', label: 'Déjeuner exposant',      prix: 30 }, { id: 'r2', label: 'Déjeuner accompagnateur', prix: 26 }],
+};
+
+const AdminParamSalons = () => {
+  const [salon, setSalon]   = React.useState('salon-vins-2026');
+  const [dirty, setDirty]   = React.useState(false);
+  const markDirty = () => setDirty(true);
+
+  const [stands,  setStands]  = React.useState(PARAM_STANDS_INIT);
+  const [options, setOptions] = React.useState(PARAM_OPTIONS_INIT);
+  const [repas,   setRepas]   = React.useState(PARAM_REPAS_INIT);
+  const [dates,   setDates]   = React.useState(PARAM_DATES_INIT);
+
+  const salonStands  = stands[salon]  || [];
+  const salonOptions = options[salon] || [];
+  const salonRepas   = repas[salon]   || [];
+  const salonDates   = dates[salon]   || {};
+
+  // Helpers de mise à jour
+  const updateStand  = (id, patch) => { setStands(s  => ({ ...s, [salon]: s[salon].map(x => x.id === id ? { ...x, ...patch } : x) }));  markDirty(); };
+  const updateOption = (id, patch) => { setOptions(o => ({ ...o, [salon]: o[salon].map(x => x.id === id ? { ...x, ...patch } : x) })); markDirty(); };
+  const updateRepas  = (id, patch) => { setRepas(r   => ({ ...r, [salon]: r[salon].map(x => x.id === id ? { ...x, ...patch } : x) }));  markDirty(); };
+  const updateDates  = (patch)     => { setDates(d   => ({ ...d, [salon]: { ...d[salon], ...patch } })); markDirty(); };
+
+  // Ligne réutilisable pour un article (stand ou option) avec toggle + champs
+  const ArticleRow = ({ item, onUpdate, showSurface = false, showQty = false }) => (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 12,
+      padding: '12px 14px',
+      background: item.active ? 'var(--surface)' : 'var(--surface-2)',
+      border: '1px solid var(--border)',
+      borderRadius: 8,
+      opacity: item.active ? 1 : 0.65,
+      transition: 'opacity .15s',
+    }}>
+      {/* Toggle actif / inactif */}
+      <input
+        type="checkbox"
+        checked={item.active}
+        onChange={e => onUpdate(item.id, { active: e.target.checked })}
+        style={{ width: 16, height: 16, accentColor: 'var(--burgundy-800)', flexShrink: 0, cursor: 'pointer' }}
+      />
+      {/* Identité */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 500 }}>{item.label}</div>
+        {item.sub && <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 1 }}>{item.sub}</div>}
+      </div>
+      {/* Surface (stands seulement) */}
+      {showSurface && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>Surface</span>
+          <div style={{ position: 'relative', width: 88 }}>
+            <input
+              type="number" min={1}
+              className="input tnum"
+              value={item.surface}
+              onChange={e => onUpdate(item.id, { surface: parseInt(e.target.value, 10) || 1 })}
+              style={{ paddingRight: 28, textAlign: 'center' }}
+            />
+            <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--fg-muted)', pointerEvents: 'none' }}>m²</span>
+          </div>
+        </div>
+      )}
+      {/* Prix HT */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>Prix HT</span>
+        <div style={{ position: 'relative', width: 104 }}>
+          <input
+            type="number" min={0}
+            className="input tnum"
+            value={item.prix}
+            onChange={e => onUpdate(item.id, { prix: parseInt(e.target.value, 10) || 0 })}
+            style={{ paddingRight: 20, textAlign: 'right' }}
+          />
+          <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--fg-muted)', pointerEvents: 'none' }}>€</span>
+        </div>
+      </div>
+      {/* Quantité disponible (stands seulement) */}
+      {showQty && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>Qté</span>
+          <input
+            type="number" min={0}
+            className="input tnum"
+            value={item.qty}
+            onChange={e => onUpdate(item.id, { qty: parseInt(e.target.value, 10) || 0 })}
+            style={{ width: 72, textAlign: 'center' }}
+          />
+        </div>
+      )}
+      {/* Supprimer (formats personnalisés seulement) */}
+      {!item.builtin ? (
+        <button
+          className="btn btn-icon btn-ghost btn-sm"
+          style={{ color: 'var(--danger)', flexShrink: 0 }}
+          title="Supprimer"
+        >
+          <Icon.Trash size={13}/>
+        </button>
+      ) : (
+        <div style={{ width: 28, flexShrink: 0 }}/>
+      )}
+    </div>
+  );
+
+  return (
+    <div data-screen-label="admin-param-salons">
+      <PageHeader
+        breadcrumb={['Administration', 'Paramètres', 'Configuration salons']}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <span>Configuration salons</span>
+            <SalonPicker
+              salons={PARAM_SALONS_LIST}
+              value={salon}
+              onChange={(v) => { setSalon(v); setDirty(false); }}
+            />
+          </div>
+        }
+        subtitle="Calendrier · tarifs prestations · types de stands · équipements · repas"
+      />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+
+        {/* ─── Calendrier ──────────────────────────────────────── */}
+        <ParamCard
+          title="Calendrier du salon"
+          icon={<Icon.Calendar size={14}/>}
+          sub="Dates d'ouverture au public et fenêtre d'inscriptions exposants"
+        >
+          <ParamRow label="Dates du salon" hint="Période d'ouverture effective au public">
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', maxWidth: 460 }}>
+              <input
+                type="date" className="input tnum"
+                defaultValue={salonDates.debut}
+                onChange={e => updateDates({ debut: e.target.value })}
+              />
+              <span style={{ color: 'var(--fg-muted)' }}>→</span>
+              <input
+                type="date" className="input tnum"
+                defaultValue={salonDates.fin}
+                onChange={e => updateDates({ fin: e.target.value })}
+              />
+            </div>
+          </ParamRow>
+          <ParamRow label="Ouverture des inscriptions" hint="À partir de quand les exposants peuvent déposer un dossier">
+            <input
+              type="date" className="input tnum"
+              defaultValue={salonDates.ouverture}
+              onChange={e => updateDates({ ouverture: e.target.value })}
+              style={{ maxWidth: 220 }}
+            />
+          </ParamRow>
+          <ParamRow label="Clôture des inscriptions" hint="Date limite de dépôt — aucun nouveau dossier accepté après cette date">
+            <input
+              type="date" className="input tnum"
+              defaultValue={salonDates.cloture}
+              onChange={e => updateDates({ cloture: e.target.value })}
+              style={{ maxWidth: 220 }}
+            />
+          </ParamRow>
+        </ParamCard>
+
+        {/* ─── Tarification ────────────────────────────────────── */}
+        <ParamCard
+          title="Tarification"
+          icon={<Icon.Euro size={14}/>}
+          sub="Règles financières applicables à ce salon"
+        >
+          <ParamRow
+            label="Taux de TVA"
+            hint="Les salons sont soumis à TVA — contrairement aux concours (exonérés)."
+          >
+            <div style={{ position: 'relative', maxWidth: 140 }}>
+              <input
+                type="number" className="input tnum"
+                defaultValue={salonDates.tva}
+                onChange={markDirty}
+                style={{ paddingRight: 28 }}
+              />
+              <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>%</span>
+            </div>
+          </ParamRow>
+          <ParamRow
+            label="Acompte à l'inscription"
+            hint="Pourcentage du total TTC exigé lors de la soumission — le solde est facturé séparément."
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative', maxWidth: 140 }}>
+                <input
+                  type="number" className="input tnum"
+                  defaultValue={salonDates.acompte}
+                  onChange={markDirty}
+                  style={{ paddingRight: 28 }}
+                />
+                <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>%</span>
+              </div>
+              <span style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>du total TTC — le solde est dû à réception de facture</span>
+            </div>
+          </ParamRow>
+          <ParamRow label="Paiement en ligne (CB)" hint="Autoriser le paiement CB via Paybox lors de l'inscription exposant">
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                defaultChecked={salonDates.cb}
+                onChange={markDirty}
+                style={{ width: 16, height: 16, accentColor: 'var(--burgundy-800)' }}
+              />
+              <span style={{ fontSize: 13, color: 'var(--fg)' }}>Activé</span>
+            </label>
+          </ParamRow>
+        </ParamCard>
+
+        {/* ─── Types de stands ─────────────────────────────────── */}
+        <ParamCard
+          title="Types de stands"
+          icon={<Icon.Building size={14}/>}
+          sub="Formules disponibles à la réservation — surface, prix HT et quantité par type"
+          actions={
+            <button className="btn btn-outline btn-sm" onClick={markDirty}>
+              <Icon.Plus size={13}/> Ajouter un type
+            </button>
+          }
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {salonStands.map(s => (
+              <ArticleRow
+                key={s.id}
+                item={s}
+                onUpdate={updateStand}
+                showSurface
+                showQty
+              />
+            ))}
+            <div style={{ fontSize: 12, color: 'var(--fg-muted)', paddingLeft: 2, marginTop: 4, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Icon.Info size={12} style={{ flexShrink: 0 }}/>
+              Les prix sont HT. La TVA ({salonDates.tva}%) s'ajoute automatiquement lors de la facturation exposant.
+            </div>
+          </div>
+        </ParamCard>
+
+        {/* ─── Options & équipements ───────────────────────────── */}
+        <ParamCard
+          title="Options & équipements"
+          icon={<Icon.Sliders size={14}/>}
+          sub="Services additionnels sélectionnables lors de l'inscription exposant"
+          actions={
+            <button className="btn btn-outline btn-sm" onClick={markDirty}>
+              <Icon.Plus size={13}/> Ajouter une option
+            </button>
+          }
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {salonOptions.map(opt => (
+              <ArticleRow
+                key={opt.id}
+                item={opt}
+                onUpdate={updateOption}
+              />
+            ))}
+            <div style={{ fontSize: 12, color: 'var(--fg-muted)', paddingLeft: 2, marginTop: 4, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Icon.Info size={12} style={{ flexShrink: 0 }}/>
+              Décocher une option la masque dans le formulaire d'inscription sans supprimer son historique.
+            </div>
+          </div>
+        </ParamCard>
+
+        {/* ─── Repas exposants ─────────────────────────────────── */}
+        <ParamCard
+          title="Repas exposants"
+          icon={<Icon.Receipt size={14}/>}
+          sub="Tarifs HT des repas proposés au personnel exposant lors du salon"
+        >
+          {salonRepas.map(r => (
+            <ParamRow
+              key={r.id}
+              label={r.label}
+              hint={r.label === 'Repas staff Comité' ? 'Tarif interne — 0 € = gratuit pour le staff' : `Tarif HT par ${r.label.includes('accompagnateur') ? 'accompagnateur' : 'exposant'}`}
+            >
+              <div style={{ position: 'relative', maxWidth: 160 }}>
+                <input
+                  type="number" min={0}
+                  className="input tnum"
+                  value={r.prix}
+                  onChange={e => updateRepas(r.id, { prix: parseInt(e.target.value, 10) || 0 })}
+                  style={{ paddingRight: 28 }}
+                />
+                <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€</span>
+              </div>
+            </ParamRow>
+          ))}
+        </ParamCard>
+
+      </div>
+
+      {/* Barre de sauvegarde persistante */}
+      {dirty && (
+        <div style={{
+          position: 'sticky', bottom: 16, marginTop: 18,
+          padding: '12px 16px',
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          borderRadius: 10,
+          boxShadow: '0 8px 24px rgba(15,23,42,0.10)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+        }}>
+          <span style={{ fontSize: 12.5, color: 'var(--fg-muted)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: 999, background: '#f59e0b' }}/>
+            Modifications non sauvegardées
+          </span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-outline btn-sm" onClick={() => setDirty(false)}>Annuler</button>
+            <button className="btn btn-primary btn-sm" onClick={() => setDirty(false)} style={{ background: 'var(--burgundy-800)' }}>
+              <Icon.Check size={13}/> Sauvegarder
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 Object.assign(window, {
   AdminParamConcours,
   AdminParamAppellations,
@@ -1795,4 +2181,5 @@ Object.assign(window, {
   AdminParamAPI,
   AdminParamUtilisateurs,
   AdminParamPaiements,
+  AdminParamSalons,
 });

@@ -121,8 +121,14 @@ function App() {
     else if (route === 'cmd-fournisseurs') view = <AdminTransmissions/>;
     // Salons
     else if (route === 'salons' || route === 'salons-events') view = <AdminEvenements/>;
-    else if (route === 'salons-exposants') view = <AdminInscriptionsExposants onOpenDetail={() => setRoute('salons-exposant-detail')}/>;
-    else if (route === 'salons-exposant-detail') view = <AdminInscriptionExposantDetail onBack={() => setRoute('salons-exposants')}/>;
+    // Routes séparées par salon (R11) — le SalonPicker ne sert plus qu'aux archives
+    else if (route === 'salons-vins')   view = <AdminInscriptionsVins   onOpenDetail={() => setRoute('salons-detail-vins')}/>;
+    else if (route === 'salons-marche') view = <AdminInscriptionsMarche onOpenDetail={() => setRoute('salons-detail-marche')}/>;
+    else if (route === 'salons-detail-vins')   view = <AdminInscriptionExposantDetail onBack={() => setRoute('salons-vins')}/>;
+    else if (route === 'salons-detail-marche') view = <AdminInscriptionExposantDetail onBack={() => setRoute('salons-marche')}/>;
+    // Rétro-compat ancien id
+    else if (route === 'salons-exposants')       view = <AdminInscriptionsVins onOpenDetail={() => setRoute('salons-detail-vins')}/>;
+    else if (route === 'salons-exposant-detail') view = <AdminInscriptionExposantDetail onBack={() => setRoute('salons-vins')}/>;
     else if (route === 'salons-stands') view = <AdminPlanStands/>;
     // Utilisateurs
     else if (route === 'producteurs') view = <AdminProducteursList onOpenDetail={() => setRoute('producteur-detail')}/>;
@@ -139,6 +145,7 @@ function App() {
     else if (route === 'fin-exports') view = <AdminExportsComptables/>;
     // Paramètres
     else if (route === 'parametres' || route === 'param-concours') view = <AdminParamConcours/>;
+    else if (route === 'param-salons') view = <AdminParamSalons/>;
     else if (route === 'param-appellations') view = <AdminParamAppellations/>;
     else if (route === 'param-fournisseurs') view = <AdminParamFournisseurs/>;
     else if (route === 'param-emails') view = <AdminParamEmails/>;

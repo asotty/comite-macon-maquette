@@ -1,22 +1,23 @@
 // ─── Salons & exposants : Événements / Inscriptions / Stands ───────
 
 // Shared salon picker (compact)
-const SalonPicker = ({ salons, value, onChange }) => {
+const SalonPicker = ({ salons, value, onChange, label }) => {
   const [open, setOpen] = React.useState(false);
   const current = salons.find(s => s.id === value);
+  const displayLabel = current ? current.label : (label || 'Sélectionner…');
   return (
     <div style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen(o => !o)}
         style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '6px 12px', fontSize: 14, fontWeight: 500,
+          padding: '5px 10px', fontSize: 12.5, fontWeight: 500,
           border: '1px solid var(--border)', borderRadius: 8,
-          background: 'var(--surface)', color: 'var(--fg)',
+          background: 'var(--surface)', color: 'var(--fg-muted)',
           cursor: 'pointer', fontFamily: 'inherit',
         }}
       >
-        {current.label}
+        {displayLabel}
         <Icon.ChevronDown size={13} style={{ color: 'var(--fg-muted)' }}/>
       </button>
       {open && (
@@ -52,6 +53,28 @@ const SALONS = [
   { id: 'vins-2026',     label: 'Salon des Vins 2026',          short: 'Salon des Vins' },
   { id: 'plaisirs-2026', label: 'Marché des Plaisirs Gourmands 2026', short: 'Plaisirs Gourmands' },
   { id: 'vins-2025',     label: 'Salon des Vins 2025 (archive)', short: 'Salon des Vins 2025' },
+];
+
+// Uniquement les archives — utilisé dans le SalonPicker "Autres éditions"
+const SALONS_ARCHIVES = [
+  { id: 'vins-2025', label: 'Salon des Vins 2025 (archive)', short: 'Vins 2025' },
+];
+
+// Catégories produits du Marché des Plaisirs Gourmands (col. supplémentaire dans la liste inscriptions)
+const CATEGORIES_MARCHE = [
+  'Vins',
+  'Alcools et spiritueux',
+  'Champagne',
+  'Charcuteries, fromages',
+  'Foie gras',
+  'Préparations culinaires',
+  'Saveurs du monde',
+  'Épicerie fine',
+  'Chocolat, desserts, confiserie',
+  'Boulangerie, pâtisserie',
+  'Arts de la table',
+  'Spécialités régionales',
+  'Bière',
 ];
 
 // ─── Page 1 — Événements ──────────────────────────────────────────
@@ -370,25 +393,45 @@ const SalonModal = ({ editing, onCancel, onConfirm }) => {
 
 // ─── Page 2 — Inscriptions exposants ──────────────────────────────
 
-const AdminInscriptionsExposants = ({ onOpenDetail }) => {
-  const [salonId, setSalonId] = React.useState('vins-2026');
+// Wrappers exposés comme routes distinctes dans la nav (R11)
+const AdminInscriptionsVins   = (props) => <AdminInscriptionsExposants salonId="vins-2026"     {...props}/>;
+const AdminInscriptionsMarche = (props) => <AdminInscriptionsExposants salonId="plaisirs-2026" {...props}/>;
+
+const AdminInscriptionsExposants = ({ salonId = 'vins-2026', onOpenDetail }) => {
   const [tab, setTab] = React.useState('toutes');
   const [rowMenu, setRowMenu] = React.useState(null);
 
   const counts = { toutes: 142, attente: 38, validees: 86, acompte: 64, soldees: 12, refusees: 2 };
 
-  const ROWS = [
-    ['INS-2026-0142', 'Domaine de la Chevalière',  'Mâcon',          'Viticulteur',         '12 m²', 240,  'paye',    360,  'attente', 'acompte'],
-    ['INS-2026-0141', 'Maison Joseph Drouhin',     'Beaune',         'Viticulteur',         '18 m²', 360,  'paye',    540,  'paye',    'soldee'],
-    ['INS-2026-0140', 'Fromagerie Lactobac',       'Charolles',      'Artisan alimentaire', '9 m²',  180,  'attente', 270,  'attente', 'attente'],
-    ['INS-2026-0139', 'Cellier du Roi',            'Tournus',        'Caviste',             '9 m²',  180,  'paye',    270,  'attente', 'acompte'],
-    ['INS-2026-0138', 'Maison Joannet',            'Cluny',          'Artisan alimentaire', '6 m²',  120,  'attente', 180,  'attente', 'attente'],
-    ['INS-2026-0137', 'Vignobles Lacroix',         'Mercurey',       'Viticulteur',         '12 m²', 240,  'paye',    360,  'paye',    'soldee'],
-    ['INS-2026-0136', 'Brasserie de Saône',        'Mâcon',          'Brasseur',            '9 m²',  180,  'attente', 270,  'attente', 'validee'],
-    ['INS-2026-0135', 'Domaine Sainte-Anne',       'Saint-Véran',    'Viticulteur',         '12 m²', 240,  'paye',    360,  'attente', 'acompte'],
-    ['INS-2026-0134', 'Boulangerie Le Levain',     'Mâcon',          'Artisan alimentaire', '6 m²',  120,  'attente', 180,  'attente', 'refusee'],
-    ['INS-2026-0133', 'Domaine Tabard',            'Brouilly',       'Viticulteur',         '9 m²',  180,  'paye',    270,  'attente', 'acompte'],
+  // Données Salon des Vins
+  // [ref, exposant, ville, typeActivité, stand, acompteMontant, acompteStatus, soldeMontant, soldeStatus, statut, région, appellationsPrésentées]
+  const ROWS_VINS = [
+    ['INS-2026-0142', 'Domaine de la Chevalière',  'Mâcon',       'Viticulteur',         '12 m²', 240,  'paye',    360,  'attente', 'acompte', 'Mâconnais',        'Mâcon-Villages, Viré-Clessé'],
+    ['INS-2026-0141', 'Maison Joseph Drouhin',     'Beaune',      'Viticulteur',         '18 m²', 360,  'paye',    540,  'paye',    'soldee',  'Côte de Beaune',   'Beaune, Meursault, Puligny-Montrachet'],
+    ['INS-2026-0140', 'Fromagerie Lactobac',       'Charolles',   'Artisan alimentaire', '9 m²',  180,  'attente', 270,  'attente', 'attente', '—',                '—'],
+    ['INS-2026-0139', 'Cellier du Roi',            'Tournus',     'Caviste',             '9 m²',  180,  'paye',    270,  'attente', 'acompte', 'Côte Chalonnaise', 'Mercurey, Rully, Givry'],
+    ['INS-2026-0138', 'Maison Joannet',            'Cluny',       'Artisan alimentaire', '6 m²',  120,  'attente', 180,  'attente', 'attente', '—',                '—'],
+    ['INS-2026-0137', 'Vignobles Lacroix',         'Mercurey',    'Viticulteur',         '12 m²', 240,  'paye',    360,  'paye',    'soldee',  'Côte Chalonnaise', 'Mercurey, Givry'],
+    ['INS-2026-0136', 'Brasserie de Saône',        'Mâcon',       'Brasseur',            '9 m²',  180,  'attente', 270,  'attente', 'validee', '—',                '—'],
+    ['INS-2026-0135', 'Domaine Sainte-Anne',       'Saint-Véran', 'Viticulteur',         '12 m²', 240,  'paye',    360,  'attente', 'acompte', 'Mâconnais',        'Saint-Véran, Pouilly-Fuissé'],
+    ['INS-2026-0134', 'Boulangerie Le Levain',     'Mâcon',       'Artisan alimentaire', '6 m²',  120,  'attente', 180,  'attente', 'refusee', '—',                '—'],
+    ['INS-2026-0133', 'Domaine Tabard',            'Brouilly',    'Viticulteur',         '9 m²',  180,  'paye',    270,  'attente', 'acompte', 'Beaujolais',       'Brouilly, Côte de Brouilly'],
   ];
+  // Données Marché des Plaisirs Gourmands — même structure + [10] = catégorie produit
+  const ROWS_MARCHE = [
+    ['MPG-2026-0042', 'Fromagerie des Dombes',      'Châtillon-s-Chalaronne', 'Artisan alimentaire', '9 m²',  180, 'paye',    270, 'attente', 'acompte',  'Charcuteries, fromages'],
+    ['MPG-2026-0041', 'Domaine des Pentes',         'Mâcon',                  'Viticulteur',         '12 m²', 240, 'paye',    360, 'paye',    'soldee',   'Vins'],
+    ['MPG-2026-0040', 'Chocolaterie Berthier',      'Cluny',                  'Artisan alimentaire', '6 m²',  120, 'attente', 180, 'attente', 'attente',  'Chocolat, desserts, confiserie'],
+    ['MPG-2026-0039', 'Brasserie du Vieux Moulin',  'Tournus',                'Brasseur',            '9 m²',  180, 'paye',    270, 'attente', 'acompte',  'Bière'],
+    ['MPG-2026-0038', 'Maison Foie Gras Périgord',  'Bergerac',               'Artisan alimentaire', '12 m²', 240, 'paye',    360, 'attente', 'validee',  'Foie gras'],
+    ['MPG-2026-0037', 'Épicerie du Terroir',        'Mâcon',                  'Artisan alimentaire', '6 m²',  120, 'attente', 180, 'attente', 'attente',  'Épicerie fine'],
+    ['MPG-2026-0036', 'Champagne Gauthier',         'Épernay',                'Artisan alimentaire', '9 m²',  180, 'paye',    270, 'paye',    'soldee',   'Champagne'],
+    ['MPG-2026-0035', 'Boulangerie Artisanale Roy', 'Mâcon',                  'Artisan alimentaire', '6 m²',  120, 'paye',    180, 'attente', 'acompte',  'Boulangerie, pâtisserie'],
+    ['MPG-2026-0034', 'Distillerie Saveurs du Monde','Lyon',                  'Artisan alimentaire', '9 m²',  180, 'attente', 270, 'attente', 'attente',  'Saveurs du monde'],
+    ['MPG-2026-0033', 'Art de la Table Lefèvre',    'Dijon',                  'Artisan alimentaire', '6 m²',  120, 'paye',    180, 'attente', 'refusee',  'Arts de la table'],
+  ];
+  const isMarche = salonId === 'plaisirs-2026';
+  const ROWS = isMarche ? ROWS_MARCHE : ROWS_VINS;
 
   const filtered = ROWS.filter(r => {
     if (tab === 'toutes')   return true;
@@ -402,8 +445,9 @@ const AdminInscriptionsExposants = ({ onOpenDetail }) => {
   const paged = useSortablePaged(filtered, {
     defaultPageSize: 25,
     accessors: {
-      ref: r => r[0], exposant: r => r[1], type: r => r[3], stand: r => r[4],
-      acompte: r => r[5], solde: r => r[7], statut: r => r[9],
+      ref: r => r[0], exposant: r => r[1], type: r => r[3],
+      region: r => r[10] || '', appellations: r => r[11] || '', categorie: r => r[10] || '',
+      stand: r => r[4], reglement: r => r[5], statut: r => r[9],
     },
   });
 
@@ -419,11 +463,17 @@ const AdminInscriptionsExposants = ({ onOpenDetail }) => {
   return (
     <div data-screen-label="admin-inscriptions-exposants">
       <PageHeader
-        breadcrumb={['Administration', 'Salons & exposants', 'Inscriptions']}
+        breadcrumb={['Administration', 'Salons & exposants', isMarche ? 'Marché des Plaisirs Gourmands' : 'Salon des Vins']}
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-            <span>Inscriptions exposants</span>
-            <SalonPicker salons={SALONS} value={salonId} onChange={setSalonId}/>
+            <span>{isMarche ? 'Marché des Plaisirs Gourmands' : 'Salon des Vins de Mâcon'}</span>
+            {/* Archives uniquement — éditions passées */}
+            <SalonPicker
+              salons={SALONS_ARCHIVES}
+              value={null}
+              onChange={() => {}}
+              label="Autres éditions…"
+            />
           </div>
         }
         subtitle="142 inscriptions · 38 en attente de validation"
@@ -440,6 +490,9 @@ const AdminInscriptionsExposants = ({ onOpenDetail }) => {
         </div>
         <button className="btn btn-outline btn-sm"><Icon.Filter size={13}/> Type d'activité</button>
         <button className="btn btn-outline btn-sm"><Icon.Map size={13}/> Région</button>
+        {isMarche && (
+          <button className="btn btn-outline btn-sm"><Icon.Filter size={13}/> Catégorie</button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -474,10 +527,18 @@ const AdminInscriptionsExposants = ({ onOpenDetail }) => {
               <SortableTh sortKey="ref"      currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>N° Inscription</SortableTh>
               <SortableTh sortKey="exposant" currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Exposant</SortableTh>
               <SortableTh sortKey="type"     currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Type activité</SortableTh>
-              <SortableTh sortKey="stand"    currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Stand</SortableTh>
-              <SortableTh sortKey="acompte"  currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Acompte (40%)</SortableTh>
-              <SortableTh sortKey="solde"    currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Solde (60%)</SortableTh>
-              <SortableTh sortKey="statut"   currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Statut</SortableTh>
+              {isMarche && (
+                <SortableTh sortKey="categorie"    currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Catégorie</SortableTh>
+              )}
+              {!isMarche && (
+                <SortableTh sortKey="region"       currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Région</SortableTh>
+              )}
+              {!isMarche && (
+                <SortableTh sortKey="appellations" currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Appellations présentées</SortableTh>
+              )}
+              <SortableTh sortKey="stand"      currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Stand</SortableTh>
+              <SortableTh sortKey="reglement"  currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Règlement</SortableTh>
+              <SortableTh sortKey="statut"     currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Statut</SortableTh>
               <th style={{ width: 36 }}></th>
             </tr>
           </thead>
@@ -487,17 +548,36 @@ const AdminInscriptionsExposants = ({ onOpenDetail }) => {
                 <td style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)', fontSize: 12.5, fontWeight: 500 }}>{r[0]}</td>
                 <td>
                   <div style={{ fontWeight: 500 }}>{r[1]}</div>
-                  <div className="muted" style={{ fontSize: 11.5, marginTop: 1 }}>{r[2]}</div>
+                  {/* Ville affichée uniquement pour le Marché (le Salon des Vins a sa propre colonne Région) */}
+                  {isMarche && <div className="muted" style={{ fontSize: 11.5, marginTop: 1 }}>{r[2]}</div>}
                 </td>
-                <td>
-                  <ActiviteBadge type={r[3]}/>
-                </td>
+                <td><ActiviteBadge type={r[3]}/></td>
+                {isMarche && (
+                  <td style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>{r[10] || '—'}</td>
+                )}
+                {!isMarche && (
+                  <td style={{ fontSize: 12.5 }}>{r[10] || '—'}</td>
+                )}
+                {!isMarche && (
+                  <td style={{ fontSize: 12, color: 'var(--fg-muted)', maxWidth: 200 }}>
+                    <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={r[11]}>
+                      {r[11] || '—'}
+                    </span>
+                  </td>
+                )}
                 <td className="tnum">{r[4]}</td>
+                {/* Acompte + solde fusionnés en une seule cellule Règlement */}
                 <td>
-                  <PaymentLine montant={r[5]} status={r[6]}/>
-                </td>
-                <td>
-                  <PaymentLine montant={r[7]} status={r[8]}/>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ fontSize: 10.5, color: 'var(--fg-muted)', width: 52, flexShrink: 0 }}>Acompte</span>
+                      <PaymentLine montant={r[5]} status={r[6]}/>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ fontSize: 10.5, color: 'var(--fg-muted)', width: 52, flexShrink: 0 }}>Solde</span>
+                      <PaymentLine montant={r[7]} status={r[8]}/>
+                    </div>
+                  </div>
                 </td>
                 <td><InscriptionStatusBadge kind={r[9]}/></td>
                 <td onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
@@ -518,7 +598,7 @@ const AdminInscriptionsExposants = ({ onOpenDetail }) => {
                           <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }}/>
                         )}
                         {r[9] === 'attente' && (
-                          <CmdMenuItem icon={<Icon.Check size={13}/>}        label="Valider + attribuer un stand" primary onClick={() => setRowMenu(null)}/>
+                          <CmdMenuItem icon={<Icon.Check size={13}/>}        label="Valider l'inscription" primary onClick={() => setRowMenu(null)}/>
                         )}
                         {r[9] === 'attente' && (
                           <CmdMenuItem icon={<Icon.Mail size={13}/>}         label="Demander des compléments"     onClick={() => setRowMenu(null)}/>
@@ -977,5 +1057,7 @@ const StandsListView = ({ stands }) => {
 Object.assign(window, {
   AdminEvenements,
   AdminInscriptionsExposants,
+  AdminInscriptionsVins,
+  AdminInscriptionsMarche,
   AdminPlanStands,
 });
