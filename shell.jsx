@@ -697,9 +697,8 @@ const Topbar = ({ portal, onLogout, onNavigate }) => {
     <header style={{
       height: 60,
       borderBottom: '1px solid var(--border)',
-      background: 'rgba(255,255,255,0.85)',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
+      /* R25 — suppression backdropFilter (causait layer de composition au-dessus des overlays fixed) */
+      background: '#ffffff',
       display: 'flex', alignItems: 'center',
       padding: '0 32px',
       gap: 16,
