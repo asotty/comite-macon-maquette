@@ -249,6 +249,24 @@ const DossierAside = () => (
 
     <div style={{ height: 1, background: 'var(--border)', margin: '18px 0' }}/>
 
+    {/* R21 — Paiement remonté avant Contact inscription */}
+    <SectionLabel>Paiement</SectionLabel>
+    <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 8 }}>
+      Méthode : <strong style={{ color: 'var(--fg)' }}>
+        {DOSSIER.methode_paiement === 'virement' ? '🏦 Virement bancaire'
+         : DOSSIER.methode_paiement === 'cheque'  ? '📄 Chèque'
+         : '🔵 Carte bancaire'}
+      </strong>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+      <span className="display" style={{ fontSize: 22, fontWeight: 500 }}>{DOSSIER.amount}</span>
+      <span style={{ fontSize: 11.5, color: '#92400e', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <Icon.Clock size={11}/> En attente
+      </span>
+    </div>
+
+    <div style={{ height: 1, background: 'var(--border)', margin: '18px 0' }}/>
+
     <SectionLabel>Contact inscription</SectionLabel>
     <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{DOSSIER.contactInscription.nom}</div>
     <div style={{ fontSize: 12, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
@@ -277,23 +295,6 @@ const DossierAside = () => (
     <KV label="Soumis le">{DOSSIER.submittedAt}</KV>
     <KV label="Échantillons">{DOSSIER.totalEch}</KV>
     <KV label="Documents">{DOSSIER.totalDocs}</KV>
-
-    <div style={{ height: 1, background: 'var(--border)', margin: '8px 0 18px' }}/>
-
-    <SectionLabel>Paiement</SectionLabel>
-    <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 8 }}>
-      Méthode : <strong style={{ color: 'var(--fg)' }}>
-        {DOSSIER.methode_paiement === 'virement' ? '🏦 Virement bancaire'
-         : DOSSIER.methode_paiement === 'cheque'  ? '📄 Chèque'
-         : '🔵 Carte bancaire'}
-      </strong>
-    </div>
-    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-      <span className="display" style={{ fontSize: 22, fontWeight: 500 }}>{DOSSIER.amount}</span>
-      <span style={{ fontSize: 11.5, color: '#92400e', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-        <Icon.Clock size={11}/> En attente
-      </span>
-    </div>
   </div>
 );
 
