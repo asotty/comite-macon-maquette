@@ -2,7 +2,6 @@
 // Driven by a "route" prop that the parent App owns.
 
 const navAdmin = [
-  { id: 'dashboard', label: 'Tableau de bord', icon: <Icon.PieChart size={16}/>, group: '' },
   { id: 'inscriptions-fr', label: 'Concours France', icon: <Icon.Trophy size={16}/>, group: 'Concours', badge: 47, children: [
     { id: 'fr-dashboard', label: 'Tableau de bord' },
     { id: 'fr-inscriptions', label: 'Inscriptions' },
@@ -365,7 +364,8 @@ const Shell = ({ portal, route, onNavigate, onLogout, children }) => {
     groups[g].push(item);
   });
 
-  const groupOrder = ['_top', ...Object.keys(groups).filter(g => g !== '_top')];
+  // Filtre les groupes vides (_top peut ne plus exister si aucun item n'a group:'')
+  const groupOrder = ['_top', ...Object.keys(groups).filter(g => g !== '_top')].filter(g => !!groups[g]);
   const portalLabel = { admin: 'Administration', producteur: 'Espace Producteur', degustateur: 'Espace Dégustateur' }[portal];
 
   return (

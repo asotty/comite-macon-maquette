@@ -28,26 +28,26 @@
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-<script type="text/babel" src="icons.jsx"></script>
-<script type="text/babel" src="components-shared.jsx"></script>
-<script type="text/babel" src="tweaks-panel.jsx"></script>
-<script type="text/babel" src="view-login.jsx"></script>
-<script type="text/babel" src="shell.jsx"></script>
-<script type="text/babel" src="view-admin.jsx"></script>
-<script type="text/babel" src="view-admin-email.jsx"></script>
-<script type="text/babel" src="view-admin-dossier.jsx"></script>
-<script type="text/babel" src="view-admin-controle.jsx"></script>
-<script type="text/babel" src="view-admin-derogations.jsx"></script>
-<script type="text/babel" src="view-admin-commandes.jsx"></script>
-<script type="text/babel" src="view-admin-salons.jsx"></script>
-<script type="text/babel" src="view-admin-exposant-detail.jsx"></script>
-<script type="text/babel" src="view-admin-producteurs.jsx"></script>
-<script type="text/babel" src="view-admin-degustateurs.jsx"></script>
-<script type="text/babel" src="view-admin-finances.jsx"></script>
-<script type="text/babel" src="view-admin-parametres.jsx"></script>
-<script type="text/babel" src="view-producteur.jsx"></script>
-<script type="text/babel" src="view-degustateur.jsx"></script>
-<script type="text/babel" src="page-guide.jsx"></script>
+<script type="text/babel" src="icons.jsx?v=3"></script>
+<script type="text/babel" src="components-shared.jsx?v=3"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=3"></script>
+<script type="text/babel" src="view-login.jsx?v=3"></script>
+<script type="text/babel" src="shell.jsx?v=3"></script>
+<script type="text/babel" src="view-admin.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-email.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-dossier.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-controle.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-derogations.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-commandes.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-salons.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-exposant-detail.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-producteurs.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-degustateurs.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-finances.jsx?v=3"></script>
+<script type="text/babel" src="view-admin-parametres.jsx?v=3"></script>
+<script type="text/babel" src="view-producteur.jsx?v=3"></script>
+<script type="text/babel" src="view-degustateur.jsx?v=3"></script>
+<script type="text/babel" src="page-guide.jsx?v=3"></script>
 
 <script type="text/babel" data-presets="react">
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -56,12 +56,12 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "showKpiIcons": false
 }/*EDITMODE-END*/;
 
-const initialRoute = { admin: 'dashboard', producteur: 'p-dashboard', degustateur: 'd-dashboard' };
+const initialRoute = { admin: 'fr-dashboard', producteur: 'p-dashboard', degustateur: 'd-dashboard' };
 
 function App() {
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [portal, setPortal] = React.useState(null); // null = login screen
-  const [route, setRoute] = React.useState('dashboard');
+  const [route, setRoute] = React.useState('fr-dashboard');
 
   // Apply density to root
   React.useEffect(() => {
@@ -100,8 +100,7 @@ function App() {
   let view = null;
   if (portal === 'admin') {
     // Concours France sub-routes
-    if (route === 'dashboard') view = <AdminDashboard kpiVariant={tweaks.kpiVariant} showKpiIcons={tweaks.showKpiIcons}/>;
-    else if (route === 'fr-dashboard') view = <AdminConcoursDashboard concours="France"/>;
+    if (route === 'fr-dashboard') view = <AdminConcoursDashboard concours="France"/>;
     else if (route === 'monde-dashboard') view = <AdminConcoursDashboard concours="Monde"/>;
     else if (route === 'fr-dossier') view = <AdminDossierDetail onBack={() => setRoute('fr-inscriptions')}/>;
     else if (route === 'inscriptions-fr' || route === 'fr-inscriptions') view = <AdminInscriptions concours="France" onOpenDossier={() => setRoute('fr-dossier')}/>;
@@ -215,7 +214,7 @@ function App() {
         </TweakSection>
         <TweakSection title="Navigation rapide">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <button className="tweak-btn" onClick={() => { setPortal('admin'); setRoute('dashboard'); }}>→ Dashboard Admin</button>
+            <button className="tweak-btn" onClick={() => { setPortal('admin'); setRoute('fr-dashboard'); }}>→ Dashboard Admin</button>
             <button className="tweak-btn" onClick={() => { setPortal('producteur'); setRoute('p-inscription'); }}>→ Wizard inscription</button>
             <button className="tweak-btn" onClick={() => { setPortal('degustateur'); setRoute('d-dashboard'); }}>→ Dashboard Dégustateur</button>
             <button className="tweak-btn" onClick={() => setPortal(null)}>→ Écran de connexion</button>
