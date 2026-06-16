@@ -7,14 +7,12 @@ const navAdmin = [
     { id: 'fr-inscriptions', label: 'Inscriptions' },
     { id: 'fr-controle', label: 'Contrôle optimisé', badge: 47 },
     { id: 'fr-palmares', label: 'Résultats / Palmarès' },
-    { id: 'fr-derogations', label: 'Dérogations' },
   ]},
   { id: 'inscriptions-monde', label: 'Concours Monde', icon: <Icon.Globe size={16}/>, group: 'Concours', badge: 12, children: [
     { id: 'monde-dashboard', label: 'Tableau de bord' },
     { id: 'monde-inscriptions', label: 'Inscriptions' },
     { id: 'monde-controle', label: 'Contrôle optimisé' },
     { id: 'monde-palmares', label: 'Résultats / Palmarès' },
-    { id: 'monde-derogations', label: 'Dérogations' },
   ]},
   { id: 'commandes', label: 'Commandes médailles', icon: <Icon.Package size={16}/>, group: 'Logistique', children: [
     { id: 'cmd-liste', label: 'Commandes producteurs' },
@@ -547,7 +545,6 @@ const HELP_SECTIONS = [
     items: [
       { label: "Comprendre les statuts d'inscription", info: "Brouillon → Soumis → Validé → Payé. Les statuts «Att. virement» et «Att. chèque» indiquent un paiement en attente de confirmation manuelle." },
       { label: 'Confirmer un paiement virement / chèque', route: 'fr-inscriptions' },
-      { label: 'Traiter une dérogation', route: 'fr-derogations' },
       { label: 'Exporter les dossiers en CSV', route: 'fr-inscriptions' },
     ],
   },

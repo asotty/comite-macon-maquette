@@ -1443,9 +1443,8 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
           </table>
         </div>
 
-        {/* Colonne droite : Échéances + Dérogations empilées */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div className="card" style={{ padding: 0 }}>
+        {/* Colonne droite : Prochaines échéances */}
+        <div className="card" style={{ padding: 0 }}>
             <div style={{ padding: '18px 22px 10px', fontSize: 16, fontWeight: 700 }}>Prochaines échéances</div>
             <div style={{ padding: '0 22px 18px' }}>
               {echeances.map((e, i) => (
@@ -1465,20 +1464,6 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Dérogations en attente — sous les échéances */}
-          <div className="card" style={{ padding: 22 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--warning-bg)', color: '#92400e', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Icon.AlertCircle size={16}/>
-              </div>
-              <div style={{ fontSize: 15, fontWeight: 600 }}>3 demandes de dérogation en attente</div>
-            </div>
-            <button className="btn btn-outline btn-sm" style={{ width: '100%' }}>
-              Voir les demandes <Icon.ArrowRight size={13}/>
-            </button>
-          </div>
         </div>
       </div>
 
