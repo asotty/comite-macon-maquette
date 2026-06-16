@@ -581,7 +581,7 @@ const AdminPalmares = ({ concours = 'france' }) => {
 
   // Images médailles selon le concours
   const medalImgAdmin = (medal) => isMonde
-    ? { or: 'OR-MONDE-2025.webp', argent: 'ARGENT-MONDE-2025.webp' }[medal]
+    ? { or: 'monde-or.webp', argent: 'monde-argent.webp' }[medal]
     : { or: 'OR-2025.webp', argent: 'ARGENT-2025.webp', bronze: 'BRONZE-2025.webp' }[medal];
 
   // Colonnes : [producteur, région, appellation, couleur, millésime, médaille, note, n°éch]
@@ -886,8 +886,8 @@ const PalmaresSortableTh = ({ label, k, sortKey, sortDir, onSort, align }) => {
 const MedailleBadge = ({ kind, concours = 'france' }) => {
   const isMonde = concours === 'monde';
   const map = {
-    or:     { img: isMonde ? 'OR-MONDE-2025.webp'     : 'OR-2025.webp',     label: 'Or' },
-    argent: { img: isMonde ? 'ARGENT-MONDE-2025.webp' : 'ARGENT-2025.webp', label: 'Argent' },
+    or:     { img: isMonde ? 'monde-or.webp'     : 'OR-2025.webp',     label: 'Or' },
+    argent: { img: isMonde ? 'monde-argent.webp' : 'ARGENT-2025.webp', label: 'Argent' },
     bronze: { img: 'BRONZE-2025.webp', label: 'Bronze' }, // Monde n'a pas de bronze
     sans:   { img: null,               label: 'Sans médaille' },
   };

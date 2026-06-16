@@ -1540,7 +1540,7 @@ const WizardStep4 = ({ nbVins, payMethod, setPayMethod }) => (
 // Résout l'image d'une médaille selon le concours (france ou monde)
 const medalImg = (medal, concours) => {
   if (concours === 'monde') {
-    return { or: 'OR-MONDE-2025.webp', argent: 'ARGENT-MONDE-2025.webp' }[medal] || 'OR-MONDE-2025.webp';
+    return { or: 'monde-or.webp', argent: 'monde-argent.webp' }[medal] || 'monde-or.webp';
   }
   return { or: 'OR-2025.webp', argent: 'ARGENT-2025.webp', bronze: 'BRONZE-2025.webp' }[medal];
 };
