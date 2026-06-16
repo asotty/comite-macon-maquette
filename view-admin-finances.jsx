@@ -280,21 +280,39 @@ const PaiementGlobalBadge = ({ kind, sub }) => {
 
 // ─── Page 2 — Factures ─────────────────────────────────────────────
 
-const AdminFactures = () => {
-  const [relances, setRelances] = React.useState(true);
-  const [rowMenu,  setRowMenu]  = React.useState(null);
-  const [createModal, setCreateModal] = React.useState(false);
+// Les 4 événements du Comité — utilisés pour le filtre Factures
+const EVENEMENTS_FACTURES = [
+  { id: 'cgvf',         label: 'CGVF',                          type: 'concours' },
+  { id: 'cgvm',         label: 'CGVM',                          type: 'concours' },
+  { id: 'salon-vins',   label: 'Salon des Vins',                type: 'salon'    },
+  { id: 'marche-plaisirs', label: 'Marché des Plaisirs Gourmands', type: 'salon' },
+];
 
-  const ROWS = [
-    ['FAC-2026-0312', '15/05/2026', 'Domaine de la Chevalière',  'concours',   480,  'payee'],
-    ['FAC-2026-0311', '15/05/2026', 'Maison Joseph Drouhin',     'concours',   720,  'payee'],
-    ['FAC-2026-0310', '14/05/2026', 'Domaine Sainte-Anne',       'concours',   480,  'attente'],
-    ['FAC-2026-0309', '14/05/2026', 'Fromagerie Lactobac',       'salon',      180,  'payee'],
-    ['FAC-2026-0308', '02/05/2026', 'Maison Joannet',            'salon',      120,  'retard'],
-    ['FAC-2026-0307', '28/04/2026', 'Cave de Mâcon-Vinzelles',   'concours',   360,  'retard'],
-    ['FAC-2026-0306', '24/04/2026', 'Brasserie de Saône',        'salon',      180,  'annulee'],
-    ['FAC-2026-0305', '21/04/2026', 'Vignerons de Buxy',         'concours',   960,  'payee'],
+const AdminFactures = () => {
+  const [relances,   setRelances]   = React.useState(true);
+  const [rowMenu,    setRowMenu]    = React.useState(null);
+  const [createModal,setCreateModal]= React.useState(false);
+  const [evtFilter,  setEvtFilter]  = React.useState(null); // null = tous
+  const [evtOpen,    setEvtOpen]    = React.useState(false);
+
+  // Index : [0] ref  [1] date  [2] destinataire  [3] type  [4] montant  [5] statut  [6] evenementId
+  const ALL_ROWS = [
+    ['FAC-2026-0312', '15/05/2026', 'Domaine de la Chevalière',  'concours', 480,  'payee',   'cgvf'],
+    ['FAC-2026-0311', '15/05/2026', 'Maison Joseph Drouhin',     'concours', 720,  'payee',   'cgvf'],
+    ['FAC-2026-0310', '14/05/2026', 'Domaine Sainte-Anne',       'concours', 480,  'attente', 'cgvm'],
+    ['FAC-2026-0309', '14/05/2026', 'Fromagerie Lactobac',       'salon',    180,  'payee',   'marche-plaisirs'],
+    ['FAC-2026-0308', '02/05/2026', 'Maison Joannet',            'salon',    120,  'retard',  'marche-plaisirs'],
+    ['FAC-2026-0307', '28/04/2026', 'Cave de Mâcon-Vinzelles',   'concours', 360,  'retard',  'cgvf'],
+    ['FAC-2026-0306', '24/04/2026', 'Brasserie de Saône',        'salon',    180,  'annulee', 'salon-vins'],
+    ['FAC-2026-0305', '21/04/2026', 'Vignerons de Buxy',         'concours', 960,  'payee',   'cgvm'],
   ];
+
+  // Filtrage par événement (côté client — en prod ce sera un param query)
+  const ROWS = evtFilter ? ALL_ROWS.filter(r => r[6] === evtFilter) : ALL_ROWS;
+
+  const evtLabel = evtFilter
+    ? EVENEMENTS_FACTURES.find(e => e.id === evtFilter)?.label
+    : 'Événement';
 
   const parseDate2 = (s) => { const [d,m,y] = s.split('/'); return new Date(+y, +m-1, +d).getTime(); };
   const paged = useSortablePaged(ROWS, {
@@ -342,6 +360,74 @@ const AdminFactures = () => {
         </div>
         <button className="btn btn-outline btn-sm"><Icon.Filter size={13}/> Statut</button>
         <button className="btn btn-outline btn-sm"><Icon.Calendar size={13}/> Période</button>
+
+        {/* Filtre Événement — menu déroulant parmi les 4 événements du Comité */}
+        <div style={{ position: 'relative' }}>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => setEvtOpen(o => !o)}
+            style={evtFilter ? { borderColor: 'var(--burgundy-800)', color: 'var(--burgundy-800)', fontWeight: 600 } : {}}
+          >
+            <Icon.Calendar size={13}/>
+            {evtLabel}
+            <Icon.ChevronDown size={12}/>
+          </button>
+          {evtOpen && (
+            <>
+              <div onClick={() => setEvtOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 50 }}/>
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 4px)', left: 0,
+                background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8,
+                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                minWidth: 260, zIndex: 60, overflow: 'hidden', padding: '4px 0',
+              }}>
+                {/* Option "Tous les événements" */}
+                <button
+                  onClick={() => { setEvtFilter(null); setEvtOpen(false); }}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '9px 14px', border: 'none', textAlign: 'left', cursor: 'pointer',
+                    background: !evtFilter ? 'var(--burgundy-50)' : 'transparent',
+                    color: !evtFilter ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+                    fontSize: 12.5, fontWeight: !evtFilter ? 600 : 400, fontFamily: 'inherit',
+                  }}
+                >
+                  <span>Tous les événements</span>
+                  {!evtFilter && <Icon.Check size={13}/>}
+                </button>
+                <div style={{ height: 1, background: 'var(--border)', margin: '2px 0' }}/>
+                {EVENEMENTS_FACTURES.map(e => (
+                  <button
+                    key={e.id}
+                    onClick={() => { setEvtFilter(e.id); setEvtOpen(false); }}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '9px 14px', border: 'none', textAlign: 'left', cursor: 'pointer',
+                      background: evtFilter === e.id ? 'var(--burgundy-50)' : 'transparent',
+                      color: evtFilter === e.id ? 'var(--burgundy-800)' : 'var(--fg)',
+                      fontSize: 13, fontWeight: evtFilter === e.id ? 600 : 500, fontFamily: 'inherit',
+                    }}
+                  >
+                    <span>{e.label}</span>
+                    {evtFilter === e.id && <Icon.Check size={13}/>}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Bouton de remise à zéro si un filtre événement est actif */}
+        {evtFilter && (
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => setEvtFilter(null)}
+            style={{ color: 'var(--fg-muted)', padding: '5px 8px' }}
+            title="Réinitialiser le filtre événement"
+          >
+            <Icon.X size={13}/>
+          </button>
+        )}
       </div>
 
       <div className="table-wrap">
