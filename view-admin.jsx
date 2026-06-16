@@ -760,7 +760,6 @@ const AdminPalmares = () => {
               <PalmaresSortableTh label="Millésime"   k="mill"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
               <th>Médaille</th>
               <PalmaresSortableTh label="Note"        k="note"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
-              <th style={{ width: 36 }}></th>
             </tr>
           </thead>
           <tbody>
@@ -772,27 +771,6 @@ const AdminPalmares = () => {
                 <td className="num tnum">{r[3]}</td>
                 <td><MedailleBadge kind={r[4]}/></td>
                 <td className="num tnum" style={{ fontWeight: 600, color: 'var(--burgundy-800)' }}>{r[5].toFixed(1)}</td>
-                <td onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
-                  <button className="btn btn-icon btn-sm btn-ghost" onClick={() => setRowMenu(rowMenu === i ? null : i)} disabled={isArchive}>
-                    <Icon.MoreH size={13}/>
-                  </button>
-                  {rowMenu === i && (
-                    <>
-                      <div onClick={() => setRowMenu(null)} style={{ position: 'fixed', inset: 0, zIndex: 50 }}/>
-                      <div style={{
-                        position: 'absolute', top: 32, right: 8,
-                        background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8,
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                        minWidth: 200, zIndex: 60, overflow: 'hidden', padding: '4px 0',
-                      }}>
-                        <RowMenuItem icon={<Icon.Medal size={13}/>} label="Modifier la médaille" onClick={() => setRowMenu(null)}/>
-                        <RowMenuItem icon={<Icon.Edit size={13}/>}  label="Modifier la note"     onClick={() => setRowMenu(null)}/>
-                        <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }}/>
-                        <RowMenuItem icon={<Icon.X size={13}/>} label="Retirer du palmarès" danger onClick={() => setRowMenu(null)}/>
-                      </div>
-                    </>
-                  )}
-                </td>
               </tr>
             ))}
           </tbody>
