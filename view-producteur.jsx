@@ -1553,14 +1553,19 @@ const ProducteurMedailles = ({ onNavigate }) => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
         {medals.map(m => (
           <div key={m.id} className="card" style={{ display: 'flex', gap: 16, padding: 20 }}>
-            <div style={{ width: 64, height: 64, borderRadius: 12, background: m.medal === 'or' ? 'var(--gold-100)' : m.medal === 'argent' ? '#f1f5f9' : '#fef3c7', color: m.medal === 'or' ? 'var(--gold-700)' : m.medal === 'argent' ? '#475569' : '#a16207', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Icon.Medal size={28}/>
-            </div>
+            <img
+              src={{ or: 'OR-2025.webp', argent: 'ARGENT-2025.webp', bronze: 'BRONZE-2025.webp' }[m.medal]}
+              alt={m.medal}
+              style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 }}
+            />
             <div style={{ flex: 1 }}>
               <div className="display" style={{ fontSize: 16, fontWeight: 500 }}>{m.name}</div>
               <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>{m.appell} · Édition {m.edition}</div>
-              <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
-                <StatusBadge status={m.medal}/>
+              <div style={{ display: 'flex', gap: 6, marginTop: 10, alignItems: 'center' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                  <img src={{ or: 'OR-2025.webp', argent: 'ARGENT-2025.webp', bronze: 'BRONZE-2025.webp' }[m.medal]} alt={m.medal} style={{ width: 20, height: 20, objectFit: 'contain' }}/>
+                  <span style={{ fontSize: 11.5, fontWeight: 600 }}>{{ or: 'Or', argent: 'Argent', bronze: 'Bronze' }[m.medal]}</span>
+                </span>
                 <span className="badge tnum">{m.pts} pts</span>
               </div>
             </div>
