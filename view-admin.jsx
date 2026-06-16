@@ -699,19 +699,12 @@ const AdminPalmares = () => {
       {/* KPI cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
         {[
-          { label: 'Médailles d\'Or',     n: counts.or,     bg: '#fef3c7', fg: '#a16207', ring: '#fde68a' },
-          { label: 'Médailles d\'Argent', n: counts.argent, bg: '#f1f5f9', fg: '#475569', ring: '#cbd5e1' },
-          { label: 'Médailles de Bronze', n: counts.bronze, bg: '#fed7aa', fg: '#9a3412', ring: '#fdba74' },
+          { label: 'Médailles d\'Or',     n: counts.or,     img: 'OR-2025.webp' },
+          { label: 'Médailles d\'Argent', n: counts.argent, img: 'ARGENT-2025.webp' },
+          { label: 'Médailles de Bronze', n: counts.bronze, img: 'BRONZE-2025.webp' },
         ].map(c => (
           <div key={c.label} className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: 12,
-              background: c.bg, color: c.fg,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: `inset 0 0 0 1px ${c.ring}`,
-            }}>
-              <Icon.Medal size={22}/>
-            </div>
+            <img src={c.img} alt={c.label} style={{ width: 52, height: 52, objectFit: 'contain', flexShrink: 0 }}/>
             <div>
               <div className="tnum display" style={{ fontSize: 28, fontWeight: 500, lineHeight: 1 }}>{c.n}</div>
               <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 4 }}>{c.label}</div>
@@ -873,22 +866,30 @@ const PalmaresSortableTh = ({ label, k, sortKey, sortDir, onSort, align }) => {
 
 const MedailleBadge = ({ kind }) => {
   const map = {
-    or:     { dot: '#d4a017', bg: '#fef3c7', fg: '#78350f', label: 'Or' },
-    argent: { dot: '#94a3b8', bg: '#f1f5f9', fg: '#475569', label: 'Argent' },
-    bronze: { dot: '#c2410c', bg: '#fed7aa', fg: '#9a3412', label: 'Bronze' },
-    sans:   { dot: '#cbd5e1', bg: 'transparent', fg: 'var(--fg-muted)', label: 'Sans médaille' },
+    or:     { img: 'OR-2025.webp',     label: 'Or' },
+    argent: { img: 'ARGENT-2025.webp', label: 'Argent' },
+    bronze: { img: 'BRONZE-2025.webp', label: 'Bronze' },
+    sans:   { img: null,               label: 'Sans médaille' },
   };
   const s = map[kind] || map.sans;
+  if (!s.img) {
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        padding: '3px 9px 3px 7px', borderRadius: 999,
+        background: 'transparent', color: 'var(--fg-muted)',
+        fontSize: 11.5, fontWeight: 600,
+        border: '1px dashed var(--border)',
+      }}>
+        <span style={{ width: 8, height: 8, borderRadius: 999, background: '#cbd5e1', display: 'inline-block' }}/>
+        {s.label}
+      </span>
+    );
+  }
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '3px 9px 3px 7px', borderRadius: 999,
-      background: s.bg, color: s.fg,
-      fontSize: 11.5, fontWeight: 600,
-      border: kind === 'sans' ? '1px dashed var(--border)' : 'none',
-    }}>
-      <span style={{ width: 8, height: 8, borderRadius: 999, background: s.dot, display: 'inline-block' }}/>
-      {s.label}
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <img src={s.img} alt={s.label} style={{ width: 24, height: 24, objectFit: 'contain' }}/>
+      <span style={{ fontSize: 11.5, fontWeight: 600 }}>{s.label}</span>
     </span>
   );
 };
