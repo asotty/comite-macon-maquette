@@ -49,15 +49,17 @@ const navAdmin = [
   ]},
 ];
 
-// Producteur — navbar horizontale (R28 : labels métier)
+// Producteur — navbar horizontale (R28/R29 : labels métier)
 const navProducteur = [
-  { id: 'palmares',    label: 'Mon palmarès',              route: 'p-inscriptions',
+  { id: 'palmares',      label: 'Mon palmarès',              route: 'p-medailles',
+    match: ['p-medailles'] },
+  { id: 'inscriptions',  label: 'Mes inscriptions',          route: 'p-inscriptions',
     match: ['p-inscriptions', 'p-ins-cours', 'p-ins-historique', 'p-inscription'] },
-  { id: 'medailles',   label: 'Commander mes médailles',   route: 'p-commandes', badge: 1,
-    match: ['p-medailles', 'p-commandes', 'p-cmd-nouvelle', 'p-cmd-historique'] },
-  { id: 'derogations', label: 'Commander mes dérogations', route: 'p-derogations',
+  { id: 'medailles',     label: 'Commander mes médailles',   route: 'p-commandes', badge: 1,
+    match: ['p-commandes', 'p-cmd-nouvelle', 'p-cmd-historique'] },
+  { id: 'derogations',   label: 'Commander mes dérogations', route: 'p-derogations',
     match: ['p-derogations', 'p-der-nouvelle', 'p-der-mes'] },
-  { id: 'compte',      label: 'Mon compte',                route: 'p-compte',
+  { id: 'compte',        label: 'Mon compte',                route: 'p-compte',
     match: ['p-compte', 'p-compte-infos', 'p-compte-facturation', 'p-compte-mdp'], hidden: true },
 ];
 
