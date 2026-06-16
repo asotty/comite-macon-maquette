@@ -57,7 +57,7 @@ const navProducteur = [
   { id: 'derogations', label: 'Dérogations', route: 'p-derogations',
     match: ['p-derogations', 'p-der-nouvelle', 'p-der-mes'] },
   { id: 'compte',      label: 'Mon compte',  route: 'p-compte',
-    match: ['p-compte', 'p-compte-infos', 'p-compte-facturation', 'p-compte-mdp'] },
+    match: ['p-compte', 'p-compte-infos', 'p-compte-facturation', 'p-compte-mdp'], hidden: true },
 ];
 
 const navByPortal = {
@@ -189,7 +189,7 @@ const navDegustateur = [
   { id: 'repas',          label: 'Repas',              route: 'd-repas',          match: ['d-repas', 'd-repas-venir', 'd-repas-mes'] },
   { id: 'concours',       label: 'Prochains concours', route: 'd-concours',       match: ['d-concours'] },
   { id: 'disponibilites', label: 'Mes disponibilités', route: 'd-disponibilites', match: ['d-disponibilites'] },
-  { id: 'compte',         label: 'Mon compte',         route: 'd-compte',         match: ['d-compte', 'd-compte-infos', 'd-compte-prefs', 'd-compte-mdp'] },
+  { id: 'compte',         label: 'Mon compte',         route: 'd-compte',         match: ['d-compte', 'd-compte-infos', 'd-compte-prefs', 'd-compte-mdp'], hidden: true },
 ];
 
 // Shell horizontal générique (utilisé par producteur + dégustateur)
@@ -197,6 +197,8 @@ const TopNavShell = ({ nav, user, route, onNavigate, onLogout, fullBleedRoutes =
   const active = nav.find(n => n.match.includes(route))?.id;
   const homeRoute = nav[0].route;
   const isFullBleed = fullBleedRoutes.includes(route);
+  // Route "Mon compte" portée par l'entrée cachée — accès via le chip utilisateur
+  const compteRoute = nav.find(n => n.id === 'compte')?.route;
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-app)', display: 'flex', flexDirection: 'column' }}>
@@ -219,9 +221,9 @@ const TopNavShell = ({ nav, user, route, onNavigate, onLogout, fullBleedRoutes =
           <Logo size={32}/>
         </button>
 
-        {/* Nav centrée */}
+        {/* Nav centrée — items hidden:true exclus (ex. "Mon compte" → chip utilisateur) */}
         <nav style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: 4 }}>
-          {nav.map(item => {
+          {nav.filter(item => !item.hidden).map(item => {
             const isActive = item.id === active;
             return (
               <button key={item.id} onClick={() => onNavigate(item.route)} style={{
@@ -273,19 +275,46 @@ const TopNavShell = ({ nav, user, route, onNavigate, onLogout, fullBleedRoutes =
           })}
         </nav>
 
-        {/* User chip à droite */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div className="avatar" title={user.name} style={{
-            width: 34, height: 34,
-            background: 'var(--burgundy-800)',
-            color: '#fff',
-            fontSize: 12,
-            fontWeight: 600,
-          }}>{user.avatar}</div>
-          <div style={{ lineHeight: 1.15 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>{user.name}</div>
-            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>{user.role}</div>
-          </div>
+        {/* User chip à droite — cliquable vers Mon compte */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {compteRoute ? (
+            <button
+              onClick={() => onNavigate(compteRoute)}
+              title="Mon compte"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                background: active === 'compte' ? 'var(--burgundy-50)' : 'transparent',
+                border: active === 'compte' ? '1px solid var(--burgundy-200)' : '1px solid transparent',
+                borderRadius: 8,
+                padding: '5px 10px 5px 6px',
+                cursor: 'pointer',
+                transition: 'all .12s',
+              }}
+              onMouseEnter={e => { if (active !== 'compte') { e.currentTarget.style.background = 'var(--slate-100)'; e.currentTarget.style.border = '1px solid var(--border)'; } }}
+              onMouseLeave={e => { if (active !== 'compte') { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.border = '1px solid transparent'; } }}
+            >
+              <div className="avatar" style={{
+                width: 34, height: 34,
+                background: active === 'compte' ? 'var(--burgundy-800)' : 'var(--burgundy-700)',
+                color: '#fff',
+                fontSize: 12,
+                fontWeight: 600,
+                flexShrink: 0,
+              }}>{user.avatar}</div>
+              <div style={{ lineHeight: 1.15, textAlign: 'left' }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: active === 'compte' ? 'var(--burgundy-800)' : 'var(--fg)' }}>{user.name}</div>
+                <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>{user.role}</div>
+              </div>
+            </button>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className="avatar" style={{ width: 34, height: 34, background: 'var(--burgundy-800)', color: '#fff', fontSize: 12, fontWeight: 600 }}>{user.avatar}</div>
+              <div style={{ lineHeight: 1.15 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>{user.name}</div>
+                <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>{user.role}</div>
+              </div>
+            </div>
+          )}
           <button onClick={onLogout} title="Se déconnecter" style={{
             width: 32, height: 32,
             background: 'transparent',
@@ -294,7 +323,6 @@ const TopNavShell = ({ nav, user, route, onNavigate, onLogout, fullBleedRoutes =
             cursor: 'pointer',
             color: 'var(--fg-muted)',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            marginLeft: 4,
             transition: 'all .12s',
           }}
           onMouseEnter={e => { e.currentTarget.style.background = 'var(--slate-100)'; e.currentTarget.style.color = 'var(--burgundy-800)'; }}
