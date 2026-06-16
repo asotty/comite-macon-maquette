@@ -193,9 +193,10 @@ const navDegustateur = [
 ];
 
 // Shell horizontal générique (utilisé par producteur + dégustateur)
-const TopNavShell = ({ nav, user, route, onNavigate, onLogout, fullBleedRoutes = [], children }) => {
+const TopNavShell = ({ nav, user, route, onNavigate, onLogout, homeRoute: homeRouteProp, fullBleedRoutes = [], children }) => {
   const active = nav.find(n => n.match.includes(route))?.id;
-  const homeRoute = nav[0].route;
+  // homeRoute : prop explicite (ex. 'p-dashboard') ou premier item visible de la nav
+  const homeRoute = homeRouteProp || nav.find(n => !n.hidden)?.route || nav[0].route;
   const isFullBleed = fullBleedRoutes.includes(route);
   // Route "Mon compte" portée par l'entrée cachée — accès via le chip utilisateur
   const compteRoute = nav.find(n => n.id === 'compte')?.route;
@@ -354,6 +355,7 @@ const ProducerShell = ({ route, onNavigate, onLogout, children }) => (
     route={route}
     onNavigate={onNavigate}
     onLogout={onLogout}
+    homeRoute="p-dashboard"
     fullBleedRoutes={['p-inscription']}
   >{children}</TopNavShell>
 );
