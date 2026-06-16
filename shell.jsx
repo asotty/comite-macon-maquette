@@ -430,8 +430,9 @@ const Shell = ({ portal, route, onNavigate, onLogout, children }) => {
         </div>
       </aside>
 
-      {/* MAIN */}
-      <main style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      {/* MAIN — position:relative + z-index:0 crée un stacking context qui confine le topbar sticky,
+           permettant aux overlays fixed (z-index:100) de le couvrir depuis le root stacking context */}
+      <main style={{ display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative', zIndex: 0 }}>
         <Topbar portal={portal} onLogout={onLogout} onNavigate={onNavigate}/>
         <div style={{ flex: 1, padding: '32px 40px 56px', maxWidth: 1440, width: '100%', alignSelf: 'flex-start' }}>
           <div className="fade-in" key={route}>
@@ -697,12 +698,13 @@ const Topbar = ({ portal, onLogout, onNavigate }) => {
     <header style={{
       height: 60,
       borderBottom: '1px solid var(--border)',
-      /* R25 — suppression backdropFilter (causait layer de composition au-dessus des overlays fixed) */
       background: '#ffffff',
       display: 'flex', alignItems: 'center',
       padding: '0 32px',
       gap: 16,
-      position: 'sticky', top: 0, zIndex: 5,
+      /* R25 — position:relative sans z-index ni sticky : évite que la topbar crée
+         un compositor layer qui passe au-dessus des overlays position:fixed */
+      position: 'relative',
     }}>
       <div style={{ flex: 1, maxWidth: 480 }}>
         <div className="input-with-icon">
