@@ -1265,13 +1265,6 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
     { nom: 'Domaine des 3 Pierres',    region: 'Mâconnais',     concours: 'France', ech: 9,  status: 'soumis' },
   ];
 
-  // Stocks médailles
-  const stocks = [
-    { m: 'Or',     used: 4280, total: 6000, color: '#d4a017' },
-    { m: 'Argent', used: 3120, total: 5000, color: '#9ca3af' },
-    { m: 'Bronze', used: 1840, total: 4000, color: '#a16207' },
-  ];
-
   // Répartition par région
   const regions = isFrance ? [
     { r: 'Bourgogne — Mâconnais',    p: 210, e: 580, v: '87%', c: 8,  rej: 2 },
@@ -1473,32 +1466,9 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
         </div>
       </div>
 
-      {/* Ligne 4 — Stocks médailles + Dérogations + Répartition régions */}
+      {/* Ligne 4 — Dérogations + Répartition régions */}
       <div style={{ display: 'grid', gridTemplateColumns: '440px 1fr', gap: 16, marginBottom: 16, alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Stocks */}
-          <div className="card" style={{ padding: 22 }}>
-            <div style={{ fontSize: 16, fontWeight: 700 }}>Stocks médailles</div>
-            <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2, marginBottom: 16 }}>Édition 2026</div>
-            {stocks.map(s => (
-              <div key={s.m} style={{ marginBottom: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 13, marginBottom: 6 }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color }}/>
-                    <span style={{ fontWeight: 500 }}>Médaille {s.m}</span>
-                  </span>
-                  <span className="tnum" style={{ color: 'var(--fg-subtle)' }}>{s.used.toLocaleString('fr-FR')} / {s.total.toLocaleString('fr-FR')}</span>
-                </div>
-                <div style={{ height: 5, background: 'var(--slate-200)', borderRadius: 999, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${s.used/s.total*100}%`, background: s.color }}/>
-                </div>
-              </div>
-            ))}
-            <button className="btn btn-outline btn-sm" style={{ width: '100%', marginTop: 12 }}>
-              Transmettre au fournisseur <Icon.ArrowRight size={13}/>
-            </button>
-          </div>
-
           {/* Dérogations en attente */}
           <div className="card" style={{ padding: 22 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
