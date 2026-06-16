@@ -1555,7 +1555,7 @@ const ProducteurMedailles = ({ onNavigate }) => {
   return (
     <div>
       <PageHeader
-        title="Mes médailles"
+        title="Mon palmarès"
         actions={
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => onNavigate('p-cmd-historique')} className="btn btn-ghost btn-sm">
