@@ -19,15 +19,16 @@ const DOSSIER = {
   controlScore: 74,
 };
 
+// R23 — colonnes tableau échantillons redessinées : N°ECH / Appellation / Mill. / Couleur / Qte / Unité / Cuvée / Lot / Statut
 const ECHANTILLONS = [
-  { n: 1, nom: 'Mâcon-Villages Blanc',   appellation: 'Mâcon-Villages',  mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-08', lot: 'L-2023-04', qte: 4200, denom: 'Mâcon-Villages Blanc Tradition' },
-  { n: 2, nom: 'Pouilly-Fuissé',         appellation: 'Pouilly-Fuissé',  mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-14', lot: 'L-2022-08', qte: 2400, denom: 'Pouilly-Fuissé Vieilles Vignes', anomaly: 'Volume DREV : 850hl déclaré, 920hl extrait du document' },
-  { n: 3, nom: 'Viré-Clessé',            appellation: 'Viré-Clessé',     mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Blanc tranquille', cuve: 'C-09', lot: 'L-2023-11', qte: 1800, denom: 'Viré-Clessé Cuvée Anaïs' },
-  { n: 4, nom: 'Mâcon-Solutré',          appellation: 'Mâcon-Villages',  mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-11', lot: 'L-2023-07', qte: 3600, denom: 'Mâcon-Solutré Les Cras' },
-  { n: 5, nom: 'Saint-Véran',            appellation: 'Saint-Véran',     mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'err',  type: 'Blanc tranquille', cuve: 'C-12A',lot: 'L-2022-03', qte: 1900, denom: 'Saint-Véran Premier Jus', anomaly: 'Cuve déclarée "C-12A" ≠ document "C-12B"' },
-  { n: 6, nom: 'Mâcon Rouge',            appellation: 'Mâcon',           mill: 2022, cep: 'Pinot Noir', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Rouge tranquille', cuve: 'C-22', lot: 'L-2022-15', qte: 2800, denom: 'Mâcon Rouge Tradition' },
-  { n: 7, nom: 'Bourgogne Blanc',        appellation: 'Bourgogne',       mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-05', lot: 'L-2023-02', qte: 5100, denom: 'Bourgogne Chardonnay', anomaly: 'pH manquant dans le bulletin d\'analyses' },
-  { n: 8, nom: 'Crémant de Bourgogne',   appellation: 'Crémant',         mill: 2021, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Effervescent',     cuve: 'C-30', lot: 'L-2021-09', qte: 6000, denom: 'Crémant Brut Réserve' },
+  { n: 1, nom: 'Mâcon-Villages Blanc',   appellation: 'Mâcon-Villages',  mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-08', lot: 'L-2023-04', qte: 4200, unite: 'BT', denom: 'Mâcon-Villages Blanc Tradition' },
+  { n: 2, nom: 'Pouilly-Fuissé',         appellation: 'Pouilly-Fuissé',  mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-14', lot: 'L-2022-08', qte: 2400, unite: 'BT', denom: 'Pouilly-Fuissé Vieilles Vignes', anomaly: 'Volume DREV : 850hl déclaré, 920hl extrait du document' },
+  { n: 3, nom: 'Viré-Clessé',            appellation: 'Viré-Clessé',     mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Blanc tranquille', cuve: 'C-09', lot: 'L-2023-11', qte: 1800, unite: 'BT', denom: 'Viré-Clessé Cuvée Anaïs' },
+  { n: 4, nom: 'Mâcon-Solutré',          appellation: 'Mâcon-Villages',  mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-11', lot: 'L-2023-07', qte:   48, unite: 'HL', denom: 'Mâcon-Solutré Les Cras' },
+  { n: 5, nom: 'Saint-Véran',            appellation: 'Saint-Véran',     mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'err',  type: 'Blanc tranquille', cuve: 'C-12A',lot: 'L-2022-03', qte: 1900, unite: 'BT', denom: 'Saint-Véran Premier Jus', anomaly: 'Cuve déclarée "C-12A" ≠ document "C-12B"' },
+  { n: 6, nom: 'Mâcon Rouge',            appellation: 'Mâcon',           mill: 2022, cep: 'Pinot Noir', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Rouge tranquille', cuve: 'C-22', lot: 'L-2022-15', qte:   32, unite: 'HL', denom: 'Mâcon Rouge Tradition' },
+  { n: 7, nom: 'Bourgogne Blanc',        appellation: 'Bourgogne',       mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-05', lot: 'L-2023-02', qte: 5100, unite: 'BT', denom: 'Bourgogne Chardonnay', anomaly: 'pH manquant dans le bulletin d\'analyses' },
+  { n: 8, nom: 'Crémant de Bourgogne',   appellation: 'Crémant',         mill: 2021, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Effervescent',     cuve: 'C-30', lot: 'L-2021-09', qte:  420, unite: 'HL', denom: 'Crémant Brut Réserve' },
 ];
 
 const sStyles = {
@@ -310,15 +311,17 @@ const TabEchantillons = ({ onOpen }) => (
     </div>
     <div className="table-wrap">
       <table className="table">
+        {/* R23 — colonnes : N°ECH / Appellation / Mill. / Couleur / Qte disponible / Unité / Cuvée / Lot / Statut */}
         <thead>
           <tr>
-            <th style={{ width: 30 }}>#</th>
-            <th>Dénomination</th>
+            <th style={{ width: 48 }}>N°ECH</th>
             <th>Appellation</th>
-            <th>Mill.</th>
-            <th>Cépage</th>
-            <th>Vol.</th>
-            <th>Degré</th>
+            <th style={{ width: 60 }}>Mill.</th>
+            <th>Couleur</th>
+            <th style={{ width: 90, textAlign: 'right' }}>Qte dispo</th>
+            <th style={{ width: 64 }}>Unité</th>
+            <th>Cuvée</th>
+            <th style={{ width: 110 }}>Lot</th>
             <th>Statut</th>
             <th></th>
           </tr>
@@ -326,13 +329,14 @@ const TabEchantillons = ({ onOpen }) => (
         <tbody>
           {ECHANTILLONS.map((e, i) => (
             <tr key={e.n} onClick={() => onOpen(i)} style={{ cursor: 'pointer' }}>
-              <td className="tnum muted" style={{ fontWeight: 500 }}>{e.n}</td>
-              <td style={{ fontWeight: 500 }}>{e.nom}</td>
-              <td className="muted">{e.appellation}</td>
+              <td className="tnum" style={{ fontWeight: 600, color: 'var(--burgundy-800)' }}>#{e.n}</td>
+              <td style={{ fontWeight: 500 }}>{e.appellation}</td>
               <td className="tnum">{e.mill}</td>
-              <td className="muted">{e.cep}</td>
-              <td className="tnum muted">{e.vol}</td>
-              <td className="tnum">{e.deg}</td>
+              <td className="muted">{e.type}</td>
+              <td className="tnum" style={{ textAlign: 'right' }}>{e.qte.toLocaleString('fr-FR')}</td>
+              <td><span style={{ fontSize: 11, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: 'var(--slate-100)', color: 'var(--fg-muted)', letterSpacing: '0.04em' }}>{e.unite}</span></td>
+              <td style={{ fontWeight: 500 }}>{e.nom}</td>
+              <td className="tnum muted" style={{ fontSize: 12 }}>{e.lot}</td>
               <td><DossierStatusPill s={e.s} withLabel/></td>
               <td><Icon.ChevronRight size={13} style={{ color: 'var(--fg-subtle)' }}/></td>
             </tr>
