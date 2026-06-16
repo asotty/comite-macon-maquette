@@ -91,12 +91,13 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
       <div onClick={e => e.stopPropagation()} style={{
         background: 'var(--surface)',
         borderRadius: 14,
-        width: '100%', maxWidth: 580,
+        width: '100%', maxWidth: state === 'compose' ? 860 : 580,
         maxHeight: '92vh',
         display: 'flex', flexDirection: 'column',
         boxShadow: '0 24px 48px rgba(0,0,0,.18)',
         overflow: 'hidden',
         animation: 'modalIn .2s cubic-bezier(.2,.9,.3,1)',
+        transition: 'max-width .2s ease',
       }}>
         {state === 'compose' && (
           <ComposeStep
@@ -130,79 +131,93 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
   );
 };
 
+// R22 — 2 colonnes : options à gauche, corps du mail à droite
 const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey, subject, setSubject, body, setBody, onCancel, onPreview, onSend }) => (
   <>
-    <div style={{ padding: '22px 28px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-        <span style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--burgundy-50)', color: 'var(--burgundy-800)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon.Send size={14}/>
-        </span>
-        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)' }}>Communication</span>
-      </div>
-      <h2 className="display" style={{ fontSize: 22, fontWeight: 500, margin: 0, letterSpacing: '-0.02em' }}>Email groupé</h2>
+    {/* Header */}
+    <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+      <span style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--burgundy-50)', color: 'var(--burgundy-800)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Icon.Send size={14}/>
+      </span>
+      <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)' }}>Communication</span>
+      <h2 className="display" style={{ fontSize: 20, fontWeight: 500, margin: 0, letterSpacing: '-0.02em', marginLeft: 4 }}>Email groupé</h2>
     </div>
 
-    <div className="scroll-y" style={{ flex: 1, padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-      {/* Destinataires */}
-      <div>
-        <FieldLabel>Destinataires</FieldLabel>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {audienceOptions.map(o => (
-            <label key={o.id} style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '9px 12px',
-              border: '1px solid ' + (audience === o.id ? 'var(--burgundy-800)' : 'var(--border)'),
-              background: audience === o.id ? 'var(--burgundy-50)' : 'var(--surface)',
-              borderRadius: 8,
-              cursor: o.disabled ? 'not-allowed' : 'pointer',
-              opacity: o.disabled ? 0.5 : 1,
-              fontSize: 13.5,
-              transition: 'all .12s',
-            }}>
-              <input type="radio" name="audience" checked={audience === o.id} onChange={() => !o.disabled && setAudience(o.id)} disabled={o.disabled} style={{ accentColor: 'var(--burgundy-800)' }}/>
-              <span style={{ flex: 1, fontWeight: audience === o.id ? 500 : 400, color: audience === o.id ? 'var(--burgundy-900)' : 'var(--fg)' }}>{o.label}</span>
-            </label>
-          ))}
+    {/* Corps 2 colonnes */}
+    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '300px 1fr', overflow: 'hidden' }}>
+
+      {/* Colonne gauche — options */}
+      <div className="scroll-y" style={{ padding: '20px 22px', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 18 }}>
+
+        {/* Destinataires */}
+        <div>
+          <FieldLabel>Destinataires</FieldLabel>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {audienceOptions.map(o => (
+              <label key={o.id} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '9px 12px',
+                border: '1px solid ' + (audience === o.id ? 'var(--burgundy-800)' : 'var(--border)'),
+                background: audience === o.id ? 'var(--burgundy-50)' : 'var(--surface)',
+                borderRadius: 8,
+                cursor: o.disabled ? 'not-allowed' : 'pointer',
+                opacity: o.disabled ? 0.5 : 1,
+                fontSize: 13,
+                transition: 'all .12s',
+              }}>
+                <input type="radio" name="audience" checked={audience === o.id} onChange={() => !o.disabled && setAudience(o.id)} disabled={o.disabled} style={{ accentColor: 'var(--burgundy-800)' }}/>
+                <span style={{ flex: 1, fontWeight: audience === o.id ? 500 : 400, color: audience === o.id ? 'var(--burgundy-900)' : 'var(--fg)' }}>{o.label}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Template */}
-      <div>
-        <FieldLabel>Template</FieldLabel>
-        <select className="input" value={tplKey} onChange={e => setTplKey(e.target.value)} style={{ width: '100%' }}>
-          {Object.entries(TEMPLATES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-        </select>
-      </div>
+        {/* Template */}
+        <div>
+          <FieldLabel>Template</FieldLabel>
+          <select className="input" value={tplKey} onChange={e => setTplKey(e.target.value)} style={{ width: '100%' }}>
+            {Object.entries(TEMPLATES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+          </select>
+        </div>
 
-      {/* Objet */}
-      <div>
-        <FieldLabel>Objet</FieldLabel>
-        <input className="input" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Concours France 2026 — …" style={{ width: '100%' }}/>
-      </div>
+        {/* Objet */}
+        <div>
+          <FieldLabel>Objet</FieldLabel>
+          <input className="input" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Concours France 2026 — …" style={{ width: '100%' }}/>
+        </div>
 
-      {/* Message */}
-      <div>
-        <FieldLabel>Message</FieldLabel>
-        <textarea className="input" value={body} onChange={e => setBody(e.target.value)} rows={9} style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5 }}/>
-        <div style={{ marginTop: 10, padding: '10px 12px', background: 'var(--burgundy-50)', borderRadius: 7, fontSize: 12, color: 'var(--burgundy-900)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-          <span style={{ marginTop: 1 }}>💡</span>
-          <div>
-            <strong style={{ fontWeight: 600 }}>3 variables disponibles</strong> — cliquez pour insérer :
-            <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-              {VARIABLES.map(v => (
-                <button key={v} type="button" onClick={() => setBody(body + ' ' + v)} style={{
-                  background: 'var(--surface)', border: '1px solid var(--burgundy-200, rgba(83,20,66,.18))',
-                  color: 'var(--burgundy-800)', padding: '2px 8px', borderRadius: 999,
-                  fontSize: 11.5, fontFamily: 'Menlo, monospace', cursor: 'pointer', fontWeight: 500,
-                }}>{v}</button>
-              ))}
-            </div>
+        {/* Variables */}
+        <div style={{ padding: '10px 12px', background: 'var(--burgundy-50)', borderRadius: 7, fontSize: 12, color: 'var(--burgundy-900)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <span>💡</span>
+            <strong style={{ fontWeight: 600 }}>Variables disponibles</strong>
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {VARIABLES.map(v => (
+              <button key={v} type="button" onClick={() => setBody(body + ' ' + v)} style={{
+                background: 'var(--surface)', border: '1px solid var(--burgundy-200, rgba(83,20,66,.18))',
+                color: 'var(--burgundy-800)', padding: '2px 8px', borderRadius: 999,
+                fontSize: 11.5, fontFamily: 'Menlo, monospace', cursor: 'pointer', fontWeight: 500,
+              }}>{v}</button>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* Colonne droite — corps du mail */}
+      <div style={{ display: 'flex', flexDirection: 'column', padding: '20px 24px' }}>
+        <FieldLabel>Corps du message</FieldLabel>
+        <textarea
+          className="input"
+          value={body}
+          onChange={e => setBody(e.target.value)}
+          style={{ flex: 1, resize: 'none', fontFamily: 'inherit', lineHeight: 1.65, fontSize: 13.5, minHeight: 260 }}
+        />
+      </div>
     </div>
 
-    <div style={{ padding: '16px 28px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+    {/* Footer */}
+    <div style={{ padding: '14px 24px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
       <button className="btn btn-ghost" onClick={onCancel}>Annuler</button>
       <div style={{ display: 'flex', gap: 8 }}>
         <button className="btn btn-outline" onClick={onPreview}><Icon.Eye size={14}/> Prévisualiser</button>
