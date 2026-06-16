@@ -124,7 +124,7 @@ const StatusBadge = ({ status }) => {
   const map = {
     'brouillon':   { cls: 'badge', label: 'Brouillon', dot: '#94a3b8' },
     'soumis':      { cls: 'badge badge-info', label: 'Soumis', dot: '#0284c7' },
-    'a-controler': { cls: 'badge badge-warning', label: 'À contrôler', dot: '#d97706' },
+    'a-verifier':  { cls: 'badge badge-warning', label: 'À vérifier', dot: '#d97706' },
     'valide':      { cls: 'badge badge-success', label: 'Validé', dot: '#16a34a' },
     'paye':        { cls: 'badge badge-success', label: 'Payé', dot: '#16a34a' },
     'rejete':      { cls: 'badge badge-danger', label: 'Rejeté', dot: '#dc2626' },

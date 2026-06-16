@@ -114,11 +114,11 @@ const AdminDashboard = ({ kpiVariant, showKpiIcons }) => {
             </thead>
             <tbody>
               {[
-                ['Domaine de la Chevalière', 'Mâconnais',       'France', 8,  'a-controler'],
+                ['Domaine de la Chevalière', 'Mâconnais',       'France', 8,  'a-verifier'],
                 ['Château Pied-de-Rieux',   'Beaujolais',       'France', 4,  'soumis'],
-                ['Cantina Verdicchio',      'Italie',           'Monde',  12, 'a-controler'],
+                ['Cantina Verdicchio',      'Italie',           'Monde',  12, 'a-verifier'],
                 ['Maison Joseph Drouhin',   'Côte de Beaune',   'France', 22, 'soumis'],
-                ['Bodegas Ribera Sur',      'Espagne',          'Monde',  6,  'a-controler'],
+                ['Bodegas Ribera Sur',      'Espagne',          'Monde',  6,  'a-verifier'],
                 ['Domaine des 3 Pierres',   'Mâconnais',        'France', 9,  'soumis'],
               ].map(([nom, region, concours, ech, status], i) => (
                 <tr key={i} style={{ cursor: 'pointer' }}>
@@ -377,7 +377,7 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
     return () => clearInterval(t);
   }, [ctrlState]);
   const ALL_ROWS = [
-    ['INS-2026-0184', 'Domaine de la Chevalière', 'Mâconnais', 8, 'a-controler', 480, '12/04/26'],
+    ['INS-2026-0184', 'Domaine de la Chevalière', 'Mâconnais', 8, 'a-verifier', 480, '12/04/26'],
     ['INS-2026-0183', 'Château Pied-de-Rieux', 'Beaujolais', 4, 'attente-virement', 240, '11/04/26'],
     ['INS-2026-0182', 'Maison Joseph Drouhin', 'Côte de Beaune', 22, 'soumis', 1320, '11/04/26'],
     ['INS-2026-0181', 'Domaine des 3 Pierres', 'Mâconnais', 9, 'paye', 540, '10/04/26'],
@@ -388,7 +388,7 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
     ['INS-2026-0176', 'Château de Pierreclos', 'Mâconnais', 14, 'valide', 840, '08/04/26'],
     ['INS-2026-0175', 'Domaine Bouchard Père', 'Côte de Beaune', 18, 'paye', 1080, '07/04/26'],
     ['INS-2026-0174', 'Château Dubreuil',     'Côte de Beaune',  11, 'attente-cheque', 660, '07/04/26'],
-    ['INS-2026-0173', 'Domaine Servan',       'Beaujolais',      7,  'a-controler',420, '06/04/26'],
+    ['INS-2026-0173', 'Domaine Servan',       'Beaujolais',      7,  'a-verifier',420, '06/04/26'],
     ['INS-2026-0172', 'Cave de Lugny',        'Mâconnais',       16, 'valide',     960, '06/04/26'],
     ['INS-2026-0171', 'Domaine Bouland',      'Beaujolais',      9,  'paye',       540, '05/04/26'],
     ['INS-2026-0170', 'Château Saint-Pierre', 'Côte Chalonnaise',5,  'soumis',     300, '05/04/26'],
@@ -440,7 +440,7 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
           progress={ctrlProgress}
           total={TOTAL}
           onSeeDetail={() => {}}
-          onSeeAControler={() => { setFilter('À contrôler'); setCtrlState('idle'); }}
+          onSeeAControler={() => { setFilter('À vérifier'); setCtrlState('idle'); }}
           onClose={() => setCtrlState('idle')}
         />
       )}
@@ -456,9 +456,9 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 24, borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
-        {['Tous', 'Brouillon', 'Soumis', 'Att. virement', 'Att. chèque', 'À contrôler', 'Validés', 'Payés', 'Rejetés'].map(t => {
+        {['Tous', 'Brouillon', 'Soumis', 'Att. virement', 'Att. chèque', 'À vérifier', 'Validés', 'Payés', 'Rejetés'].map(t => {
           const active = filter === t;
-          const counts = { 'Tous': 847, 'Brouillon': 24, 'Soumis': 142, 'Att. virement': 18, 'Att. chèque': 7, 'À contrôler': 47, 'Validés': 386, 'Payés': 240, 'Rejetés': 8 };
+          const counts = { 'Tous': 847, 'Brouillon': 24, 'Soumis': 142, 'Att. virement': 18, 'Att. chèque': 7, 'À vérifier': 47, 'Validés': 386, 'Payés': 240, 'Rejetés': 8 };
           return (
             <button key={t} onClick={() => setFilter(t)} style={{
               padding: '12px 0',
@@ -1234,8 +1234,8 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
 
   // Stats Concours
   const concoursStats = isFrance
-    ? { delta: '+12 %', large: [['847','Inscrits'],['241','Validés'],['198','Payés'],['2148','Échantillons']], small: [['612','Soumis'],['47','À contrôler'],['12','Rejetés']] }
-    : { delta: '+48 %', large: [['312','Inscrits'],['80','Validés'],['65','Payés'],['612','Échantillons']], small: [['180','Soumis'],['22','À contrôler'],['5','Rejetés']] };
+    ? { delta: '+12 %', large: [['847','Inscrits'],['241','Validés'],['198','Payés'],['2148','Échantillons']], small: [['612','Soumis'],['47','À vérifier'],['12','Rejetés']] }
+    : { delta: '+48 %', large: [['312','Inscrits'],['80','Validés'],['65','Payés'],['612','Échantillons']], small: [['180','Soumis'],['22','À vérifier'],['5','Rejetés']] };
 
   // Contrôle des échantillons (gauge)
   const ctrl = isFrance
@@ -1244,7 +1244,7 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
 
   // Dossiers à traiter
   const dossiers = [
-    { nom: 'Domaine de la Chevalière', region: 'Mâconnais',     concours: 'France', ech: 8,  status: 'a-controler' },
+    { nom: 'Domaine de la Chevalière', region: 'Mâconnais',     concours: 'France', ech: 8,  status: 'a-verifier' },
     { nom: 'Château Pied-de-Rieux',    region: 'Beaujolais',    concours: 'France', ech: 4,  status: 'soumis' },
     { nom: 'Maison Joseph Drouhin',    region: 'Côte de Beaune',concours: 'France', ech: 22, status: 'soumis' },
     { nom: 'Domaine des 3 Pierres',    region: 'Mâconnais',     concours: 'France', ech: 9,  status: 'soumis' },
@@ -1350,7 +1350,7 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 }}>
             <CtrlLine label="Validés automatiquement" value={ctrl.valides}/>
-            <CtrlLine label="À contrôler manuellement" value={ctrl.manuel}/>
+            <CtrlLine label="À vérifier manuellement" value={ctrl.manuel}/>
             <CtrlLine label="Rejetés" value={ctrl.rejet}/>
             <CtrlLine label="Non traités" value={ctrl.nonTraite}/>
           </div>
@@ -1683,7 +1683,7 @@ const ControlBanner = ({ state, progress, total, onSeeAControler, onClose }) => 
             <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
               <span><strong style={{ color: '#16a34a', fontWeight: 600 }} className="tnum">{validated}</strong> validés auto</span>
               <span style={{ color: 'var(--border)' }}>·</span>
-              <span><strong style={{ color: '#b45309', fontWeight: 600 }} className="tnum">{toReview}</strong> à contrôler</span>
+              <span><strong style={{ color: '#b45309', fontWeight: 600 }} className="tnum">{toReview}</strong> à vérifier</span>
               <span style={{ color: 'var(--border)' }}>·</span>
               <span><strong style={{ color: '#b91c1c', fontWeight: 600 }} className="tnum">{rejected}</strong> rejetés</span>
             </div>
@@ -1694,7 +1694,7 @@ const ControlBanner = ({ state, progress, total, onSeeAControler, onClose }) => 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
         {isDone ? (
           <button className="btn btn-primary btn-sm" onClick={onSeeAControler}>
-            Voir les "À contrôler" <Icon.ArrowRight size={13}/>
+            Voir les "À vérifier" <Icon.ArrowRight size={13}/>
           </button>
         ) : (
           <button className="btn btn-ghost btn-sm" style={{ color: 'var(--burgundy-800)' }}>

@@ -2,7 +2,7 @@
 // Périmètre : tous les dossiers à traiter. Tri par défaut : Score OCR croissant.
 
 const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
-  const [tab, setTab] = React.useState('a-controler');
+  const [tab, setTab] = React.useState('a-verifier');
   const [ctrlState, setCtrlState] = React.useState('idle'); // idle | confirm | running | done
   const [ctrlProgress, setCtrlProgress] = React.useState(0);
   const TOTAL_SOUMIS = 142;
@@ -20,15 +20,15 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
     return () => clearInterval(t);
   }, [ctrlState]);
 
-  // [ref, producteur, region, ech, scoreOCR, statut (a-controler|soumis), lastAction]
+  // [ref, producteur, region, ech, scoreOCR, statut (a-verifier|soumis), lastAction]
   const allRows = [
-    ['INS-2026-0184', 'Domaine de la Chevalière',  'Mâconnais',         8, 32, 'a-controler', 'Contrôle lancé il y a 2h'],
-    ['INS-2026-0166', 'Domaine Tabard',             'Beaujolais',        3, 41, 'a-controler', 'Ouvert par Sophie L. · 14h22'],
-    ['INS-2026-0158', 'Vignobles Lacroix',          'Côte Chalonnaise', 12, 48, 'a-controler', 'Document manquant signalé'],
-    ['INS-2026-0182', 'Maison Joseph Drouhin',      'Côte de Beaune',   22, 56, 'a-controler', 'Contrôle lancé il y a 4h'],
-    ['INS-2026-0177', 'Domaine Sainte-Anne',        'Mâconnais',         5, 63, 'a-controler', 'OCR partiel · 3 champs incertains'],
-    ['INS-2026-0171', 'Château de Pierreclos',      'Mâconnais',        14, 68, 'a-controler', 'Contrôle lancé il y a 1h'],
-    ['INS-2026-0169', 'Cellier de Solutré',         'Mâconnais',         6, 74, 'a-controler', 'Aucun écart détecté'],
+    ['INS-2026-0184', 'Domaine de la Chevalière',  'Mâconnais',         8, 32, 'a-verifier', 'Contrôle lancé il y a 2h'],
+    ['INS-2026-0166', 'Domaine Tabard',             'Beaujolais',        3, 41, 'a-verifier', 'Ouvert par Sophie L. · 14h22'],
+    ['INS-2026-0158', 'Vignobles Lacroix',          'Côte Chalonnaise', 12, 48, 'a-verifier', 'Document manquant signalé'],
+    ['INS-2026-0182', 'Maison Joseph Drouhin',      'Côte de Beaune',   22, 56, 'a-verifier', 'Contrôle lancé il y a 4h'],
+    ['INS-2026-0177', 'Domaine Sainte-Anne',        'Mâconnais',         5, 63, 'a-verifier', 'OCR partiel · 3 champs incertains'],
+    ['INS-2026-0171', 'Château de Pierreclos',      'Mâconnais',        14, 68, 'a-verifier', 'Contrôle lancé il y a 1h'],
+    ['INS-2026-0169', 'Cellier de Solutré',         'Mâconnais',         6, 74, 'a-verifier', 'Aucun écart détecté'],
     ['INS-2026-0163', 'Domaine Bouchard Père',      'Côte de Beaune',   18, 81, 'soumis',      'Soumis il y a 12 min'],
     ['INS-2026-0162', 'Château Pied-de-Rieux',      'Beaujolais',        4, 87, 'soumis',      'Soumis il y a 28 min'],
     ['INS-2026-0161', 'Domaine des 3 Pierres',      'Mâconnais',         9, 91, 'soumis',      'Soumis il y a 1h'],
@@ -36,16 +36,16 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
     ['INS-2026-0157', 'Vignerons de Buxy',          'Côte Chalonnaise', 11, 96, 'soumis',      'Soumis il y a 3h'],
   ];
 
-  const tabCounts = { 'a-controler': 47, soumis: 142, traites: 18, tous: 207 };
+  const tabCounts = { 'a-verifier': 47, soumis: 142, traites: 18, tous: 207 };
   const tabsDef = [
-    { id: 'a-controler', label: 'À contrôler' },
+    { id: 'a-verifier', label: 'À vérifier' },
     { id: 'soumis',      label: 'Soumis' },
     { id: 'traites',     label: "Traités aujourd'hui" },
     { id: 'tous',        label: 'Tous' },
   ];
 
   const filtered = allRows.filter(r => {
-    if (tab === 'a-controler') return r[5] === 'a-controler';
+    if (tab === 'a-verifier') return r[5] === 'a-verifier';
     if (tab === 'soumis')      return r[5] === 'soumis';
     if (tab === 'traites')     return false; // mode "Traités aujourd'hui" — vue dédiée
     return true;
@@ -92,7 +92,7 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
           validated={98}
           aControler={36}
           rejected={8}
-          onSeeAControler={() => { setTab('a-controler'); setCtrlState('idle'); }}
+          onSeeAControler={() => { setTab('a-verifier'); setCtrlState('idle'); }}
           onDismiss={() => setCtrlState('idle')}
         />
       )}
@@ -176,8 +176,8 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
                   <td className="num tnum">{r[3]}</td>
                   <td><ScoreOCRCell score={r[4]}/></td>
                   <td>
-                    {r[5] === 'a-controler'
-                      ? <span className="badge badge-warning" style={{ whiteSpace: 'nowrap' }}><Icon.AlertCircle size={11}/> À contrôler</span>
+                    {r[5] === 'a-verifier'
+                      ? <span className="badge badge-warning" style={{ whiteSpace: 'nowrap' }}><Icon.AlertCircle size={11}/> À vérifier</span>
                       : <span className="badge badge-info"    style={{ whiteSpace: 'nowrap' }}><Icon.Clock size={11}/> Soumis</span>
                     }
                   </td>
@@ -240,7 +240,7 @@ const CtrlConfirmDialog = ({ total, onCancel, onConfirm }) => (
         </p>
       </div>
       <div style={{ padding: '16px 24px', background: 'var(--slate-50)', fontSize: 12.5, color: 'var(--fg-muted)' }}>
-        Les dossiers avec un score OCR &lt; 80% seront marqués <strong style={{ color: 'var(--fg)' }}>« À contrôler »</strong>.
+        Les dossiers avec un score OCR &lt; 80% seront marqués <strong style={{ color: 'var(--fg)' }}>« À vérifier »</strong>.
         Vous pouvez continuer à travailler pendant l'analyse.
       </div>
       <div style={{ padding: 16, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>

@@ -30,7 +30,7 @@ const PRODUCTEUR_DETAIL = {
   adresseFact:   '12 chemin des Vignes, 71960 Solutré-Pouilly',
 
   inscriptions: [
-    { ref: 'INS-2026-0184', concours: 'France', edition: '2026', ech: 8, status: 'a-controler' },
+    { ref: 'INS-2026-0184', concours: 'France', edition: '2026', ech: 8, status: 'a-verifier' },
     { ref: 'INS-2025-0142', concours: 'France', edition: '2025', ech: 6, status: 'terminee' },
     { ref: 'INS-2024-0098', concours: 'France', edition: '2024', ech: 4, status: 'terminee' },
     { ref: 'INS-2024-0042', concours: 'Monde',  edition: '2024', ech: 2, status: 'terminee' },
@@ -634,11 +634,11 @@ const ProdTabInscriptions = ({ list, onOpen }) => (
 
 const DossierStatusBadge = ({ kind }) => {
   const map = {
-    'a-controler': { bg: '#fef3c7',           fg: '#a16207',         dot: '#f59e0b', label: 'À contrôler' },
+    'a-verifier': { bg: '#fef3c7',           fg: '#a16207',         dot: '#f59e0b', label: 'À vérifier' },
     'terminee':    { bg: '#dcfce7',           fg: '#166534',         dot: '#16a34a', label: 'Payée' },
     'en-cours':    { bg: 'var(--burgundy-50)',fg: 'var(--burgundy-800)',dot:'var(--burgundy-500)',label: 'En cours' },
   };
-  const s = map[kind] || map['a-controler'];
+  const s = map[kind] || map['a-verifier'];
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 6,

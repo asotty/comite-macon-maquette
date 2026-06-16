@@ -61,7 +61,7 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
     { id: 'selection', label: `Sélection (${selectionCount} producteur${selectionCount > 1 ? 's' : ''})`, count: selectionCount, disabled: selectionCount === 0 },
     { id: 'view', label: `Vue actuelle (${currentFilter} · ${rows.length} dossiers)`, count: rows.length },
     { id: 'soumis', label: 'Tous — Soumis', count: 142 },
-    { id: 'controler', label: 'Tous — À contrôler', count: 47 },
+    { id: 'verifier', label: 'Tous — À vérifier', count: 47 },
   ];
   const recipientCount = audienceOptions.find(o => o.id === audience)?.count || 0;
 

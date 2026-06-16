@@ -26,14 +26,14 @@ const PAGE_GUIDES = {
     icon: 'FileText',
     what: 'Liste exhaustive des dossiers d\'inscription. Chaque ligne représente un producteur avec ses échantillons soumis. Permet de filtrer par statut, rechercher un producteur, et accéder au détail d\'un dossier.',
     elements: [
-      { label: 'Onglets de statut', desc: 'Filtrage rapide par état — Brouillon (en cours de saisie), Soumis (en attente contrôle), Validé, Payé, Att. virement, Att. chèque, À contrôler (anomalie détectée), Rejeté.' },
+      { label: 'Onglets de statut', desc: 'Filtrage rapide par état — Brouillon (en cours de saisie), Soumis (en attente contrôle), Validé, Payé, Att. virement, Att. chèque, À vérifier (anomalie détectée), Rejeté.' },
       { label: 'Barre de recherche & filtres', desc: 'Recherche par nom, n° dossier, région ou appellation.' },
       { label: 'Actions groupées', desc: 'Sélection multiple pour relances email, exports CSV, ou lancement du contrôle automatique.' },
       { label: 'Colonne Statut', desc: 'Badge coloré indiquant l\'état précis du dossier — à mettre à jour manuellement pour virements et chèques.' },
     ],
     steps: [
       { label: 'Soumission', desc: 'Producteur soumet son dossier → statut "Soumis"' },
-      { label: 'Contrôle', desc: 'Admin lance le contrôle automatique → statut "À contrôler" ou "Validé"' },
+      { label: 'Contrôle', desc: 'Admin lance le contrôle automatique → statut "À vérifier" ou "Validé"' },
       { label: 'Paiement', desc: 'Producteur paie (carte, virement ou chèque) → statut "Payé" ou "Att. virement/chèque"' },
       { label: 'Confirmation', desc: 'Admin confirme paiement virement/chèque → statut "Payé"' },
     ],
@@ -45,14 +45,14 @@ const PAGE_GUIDES = {
     icon: 'FileText',
     what: 'Liste exhaustive des dossiers d\'inscription pour le Concours International. Chaque ligne représente un producteur avec ses échantillons soumis. Permet de filtrer par statut, rechercher un producteur, et accéder au détail d\'un dossier.',
     elements: [
-      { label: 'Onglets de statut', desc: 'Filtrage rapide par état — Brouillon (en cours de saisie), Soumis (en attente contrôle), Validé, Payé, Att. virement, Att. chèque, À contrôler (anomalie détectée), Rejeté.' },
+      { label: 'Onglets de statut', desc: 'Filtrage rapide par état — Brouillon (en cours de saisie), Soumis (en attente contrôle), Validé, Payé, Att. virement, Att. chèque, À vérifier (anomalie détectée), Rejeté.' },
       { label: 'Barre de recherche & filtres', desc: 'Recherche par nom, n° dossier, région ou appellation.' },
       { label: 'Actions groupées', desc: 'Sélection multiple pour relances email, exports CSV, ou lancement du contrôle automatique.' },
       { label: 'Colonne Statut', desc: 'Badge coloré indiquant l\'état précis du dossier — à mettre à jour manuellement pour virements et chèques.' },
     ],
     steps: [
       { label: 'Soumission', desc: 'Producteur soumet son dossier → statut "Soumis"' },
-      { label: 'Contrôle', desc: 'Admin lance le contrôle automatique → statut "À contrôler" ou "Validé"' },
+      { label: 'Contrôle', desc: 'Admin lance le contrôle automatique → statut "À vérifier" ou "Validé"' },
       { label: 'Paiement', desc: 'Producteur paie (carte, virement ou chèque) → statut "Payé" ou "Att. virement/chèque"' },
       { label: 'Confirmation', desc: 'Admin confirme paiement virement/chèque → statut "Payé"' },
     ],
@@ -64,14 +64,14 @@ const PAGE_GUIDES = {
     icon: 'FileText',
     what: 'Liste exhaustive des dossiers d\'inscription. Chaque ligne représente un producteur avec ses échantillons soumis. Permet de filtrer par statut, rechercher un producteur, et accéder au détail d\'un dossier.',
     elements: [
-      { label: 'Onglets de statut', desc: 'Filtrage rapide par état — Brouillon, Soumis, Validé, Payé, Att. virement, Att. chèque, À contrôler, Rejeté.' },
+      { label: 'Onglets de statut', desc: 'Filtrage rapide par état — Brouillon, Soumis, Validé, Payé, Att. virement, Att. chèque, À vérifier, Rejeté.' },
       { label: 'Barre de recherche & filtres', desc: 'Recherche par nom, n° dossier, région ou appellation.' },
       { label: 'Actions groupées', desc: 'Sélection multiple pour relances email, exports CSV, ou contrôle automatique.' },
       { label: 'Colonne Statut', desc: 'Badge coloré indiquant l\'état précis du dossier.' },
     ],
     steps: [
       { label: 'Soumission', desc: 'Producteur soumet son dossier → statut "Soumis"' },
-      { label: 'Contrôle', desc: 'Admin lance le contrôle automatique → statut "À contrôler" ou "Validé"' },
+      { label: 'Contrôle', desc: 'Admin lance le contrôle automatique → statut "À vérifier" ou "Validé"' },
       { label: 'Paiement', desc: 'Producteur paie → statut "Payé" ou "Att. virement/chèque"' },
       { label: 'Confirmation', desc: 'Admin confirme paiement virement/chèque → statut "Payé"' },
     ],
@@ -99,7 +99,7 @@ const PAGE_GUIDES = {
     what: 'Interface centrale du contrôle qualité. Le système croise les données déclarées par les producteurs avec les documents officiels (DREV, analyses) via OCR et parsing automatique. L\'admin valide, corrige ou rejette les résultats.',
     elements: [
       { label: 'Score de fiabilité', desc: 'Note 0-100 % indiquant la cohérence entre données déclarées et données extraites des documents.' },
-      { label: 'Statuts d\'échantillon', desc: 'Validé automatiquement, À contrôler manuellement, Rejeté (incohérence majeure).' },
+      { label: 'Statuts d\'échantillon', desc: 'Validé automatiquement, À vérifier manuellement, Rejeté (incohérence majeure).' },
       { label: 'Vue comparaison', desc: 'Données déclarées vs données extraites côte à côte pour faciliter la vérification humaine.' },
       { label: 'Actions groupées', desc: 'Validation ou rejet en masse des échantillons conformes.' },
     ],
@@ -112,7 +112,7 @@ const PAGE_GUIDES = {
     what: 'Interface centrale du contrôle qualité pour le Concours Monde. Le système croise les données déclarées avec les documents officiels via OCR et parsing automatique. L\'admin valide, corrige ou rejette les résultats.',
     elements: [
       { label: 'Score de fiabilité', desc: 'Note 0-100 % indiquant la cohérence entre données déclarées et données extraites.' },
-      { label: 'Statuts d\'échantillon', desc: 'Validé automatiquement, À contrôler manuellement, Rejeté (incohérence majeure).' },
+      { label: 'Statuts d\'échantillon', desc: 'Validé automatiquement, À vérifier manuellement, Rejeté (incohérence majeure).' },
       { label: 'Vue comparaison', desc: 'Données déclarées vs données extraites côte à côte.' },
       { label: 'Actions groupées', desc: 'Validation ou rejet en masse des échantillons conformes.' },
     ],

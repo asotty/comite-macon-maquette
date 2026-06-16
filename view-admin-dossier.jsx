@@ -6,7 +6,7 @@ const DOSSIER = {
   domaine: 'Domaine de la Chevalière',
   region: 'Mâconnais',
   concours: 'Concours France 2026',
-  status: 'a-controler',
+  status: 'a-verifier',
   submittedAt: '12/04/2026 14h32',
   totalEch: 8,
   totalDocs: 16,
@@ -530,7 +530,7 @@ const TabControle = ({ onPreview }) => {
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span className="display" style={{ fontSize: 17, fontWeight: 500 }}>Score de contrôle</span>
-            <StatusBadge status="a-controler"/>
+            <StatusBadge status="a-verifier"/>
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>Analysé le 12/04/2026 à 15h28 par le système automatique</div>
           <div style={{ display: 'flex', gap: 14, marginTop: 12, fontSize: 12 }}>
@@ -1028,7 +1028,7 @@ const TabPaiement = ({ paid, onMarkPaid }) => {
 const TabHistorique = ({ paid }) => {
   const events12 = [
     paid && { time: '16h44', s: 'success', icon: <Icon.Check size={12}/>, title: 'Paiement confirmé', detail: DOSSIER.methode_paiement === 'virement' ? '480 € · Virement bancaire reçu · Confirmé par Sophie L.' : DOSSIER.methode_paiement === 'cheque' ? '480 € · Chèque reçu · Confirmé par Sophie L.' : '480 € · CB Visa ****4521 · Réf. TXN-2026-08412', actor: null },
-    { time: '15h28', s: 'warn',    icon: <Icon.AlertCircle size={12}/>, title: 'Statut → À contrôler (score 74%)', detail: 'Anomalies détectées : volume éch. 2, cuve éch. 5, pH éch. 7', actor: 'Contrôle automatique' },
+    { time: '15h28', s: 'warn',    icon: <Icon.AlertCircle size={12}/>, title: 'Statut → À vérifier (score 74%)', detail: 'Anomalies détectées : volume éch. 2, cuve éch. 5, pH éch. 7', actor: 'Contrôle automatique' },
     { time: '15h10', s: 'info',    icon: <Icon.Sparkles size={12}/>,    title: 'Contrôle automatique lancé', actor: 'Sophie L. (admin)' },
     { time: '14h32', s: 'neutral', icon: <Icon.Mail size={12}/>,        title: 'Email de confirmation envoyé', detail: 'À : marie@chevaliere.fr' },
     { time: '14h32', s: 'neutral', icon: <Icon.FileText size={12}/>,    title: 'Dossier soumis par le producteur', detail: '8 échantillons · 16 documents' },

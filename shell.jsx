@@ -722,7 +722,7 @@ const Topbar = ({ portal, onLogout, onNavigate }) => {
             style={{ marginRight: 8, cursor: 'pointer', background: 'none', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 6 }}
             title="Aller aux dossiers à contrôler"
           >
-            <Icon.AlertCircle size={12}/> 3 dossiers à contrôler
+            <Icon.AlertCircle size={12}/> 3 dossiers à vérifier
           </button>
         )}
 
