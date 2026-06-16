@@ -20,15 +20,16 @@ const DOSSIER = {
 };
 
 // R23 — colonnes tableau échantillons redessinées : N°ECH / Appellation / Mill. / Couleur / Qte / Unité / Cuvée / Lot / Statut
+// R24 — drawer : ajout complement, renommage dénomination + unité de volume
 const ECHANTILLONS = [
-  { n: 1, nom: 'Mâcon-Villages Blanc',   appellation: 'Mâcon-Villages',  mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-08', lot: 'L-2023-04', qte: 4200, unite: 'BT', denom: 'Mâcon-Villages Blanc Tradition' },
-  { n: 2, nom: 'Pouilly-Fuissé',         appellation: 'Pouilly-Fuissé',  mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-14', lot: 'L-2022-08', qte: 2400, unite: 'BT', denom: 'Pouilly-Fuissé Vieilles Vignes', anomaly: 'Volume DREV : 850hl déclaré, 920hl extrait du document' },
-  { n: 3, nom: 'Viré-Clessé',            appellation: 'Viré-Clessé',     mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Blanc tranquille', cuve: 'C-09', lot: 'L-2023-11', qte: 1800, unite: 'BT', denom: 'Viré-Clessé Cuvée Anaïs' },
-  { n: 4, nom: 'Mâcon-Solutré',          appellation: 'Mâcon-Villages',  mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-11', lot: 'L-2023-07', qte:   48, unite: 'HL', denom: 'Mâcon-Solutré Les Cras' },
-  { n: 5, nom: 'Saint-Véran',            appellation: 'Saint-Véran',     mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'err',  type: 'Blanc tranquille', cuve: 'C-12A',lot: 'L-2022-03', qte: 1900, unite: 'BT', denom: 'Saint-Véran Premier Jus', anomaly: 'Cuve déclarée "C-12A" ≠ document "C-12B"' },
-  { n: 6, nom: 'Mâcon Rouge',            appellation: 'Mâcon',           mill: 2022, cep: 'Pinot Noir', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Rouge tranquille', cuve: 'C-22', lot: 'L-2022-15', qte:   32, unite: 'HL', denom: 'Mâcon Rouge Tradition' },
-  { n: 7, nom: 'Bourgogne Blanc',        appellation: 'Bourgogne',       mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-05', lot: 'L-2023-02', qte: 5100, unite: 'BT', denom: 'Bourgogne Chardonnay', anomaly: 'pH manquant dans le bulletin d\'analyses' },
-  { n: 8, nom: 'Crémant de Bourgogne',   appellation: 'Crémant',         mill: 2021, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Effervescent',     cuve: 'C-30', lot: 'L-2021-09', qte:  420, unite: 'HL', denom: 'Crémant Brut Réserve' },
+  { n: 1, nom: 'Mâcon-Villages Blanc',   appellation: 'Mâcon-Villages',  complement: 'Climat Les Crays',         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-08', lot: 'L-2023-04', qte: 4200, unite: 'BT', denom: 'Domaine de la Chevalière' },
+  { n: 2, nom: 'Pouilly-Fuissé',         appellation: 'Pouilly-Fuissé',  complement: 'Lieu-dit En Vers Cras',    mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-14', lot: 'L-2022-08', qte: 2400, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'Volume DREV : 850hl déclaré, 920hl extrait du document' },
+  { n: 3, nom: 'Viré-Clessé',            appellation: 'Viré-Clessé',     complement: '',                         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Blanc tranquille', cuve: 'C-09', lot: 'L-2023-11', qte: 1800, unite: 'BT', denom: 'Domaine de la Chevalière' },
+  { n: 4, nom: 'Mâcon-Solutré',          appellation: 'Mâcon-Villages',  complement: 'Lieu-dit Solutré',         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-11', lot: 'L-2023-07', qte:   48, unite: 'HL', denom: 'Domaine de la Chevalière' },
+  { n: 5, nom: 'Saint-Véran',            appellation: 'Saint-Véran',     complement: 'Climat Les Pommards',      mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'err',  type: 'Blanc tranquille', cuve: 'C-12A',lot: 'L-2022-03', qte: 1900, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'Cuve déclarée "C-12A" ≠ document "C-12B"' },
+  { n: 6, nom: 'Mâcon Rouge',            appellation: 'Mâcon',           complement: '',                         mill: 2022, cep: 'Pinot Noir', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Rouge tranquille', cuve: 'C-22', lot: 'L-2022-15', qte:   32, unite: 'HL', denom: 'Domaine de la Chevalière' },
+  { n: 7, nom: 'Bourgogne Blanc',        appellation: 'Bourgogne',       complement: '',                         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-05', lot: 'L-2023-02', qte: 5100, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'pH manquant dans le bulletin d\'analyses' },
+  { n: 8, nom: 'Crémant de Bourgogne',   appellation: 'Crémant',         complement: 'Blanc de Blancs',          mill: 2021, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Effervescent',     cuve: 'C-30', lot: 'L-2021-09', qte:  420, unite: 'HL', denom: 'Domaine de la Chevalière' },
 ];
 
 const sStyles = {
@@ -393,19 +394,26 @@ const EchantillonDrawer = ({ ech, onClose }) => {
             </div>
           )}
 
+          {/* R24 — libellés mis à jour + complément d'appellation */}
           <SectionLabel>Informations générales</SectionLabel>
           <KV label="Appellation">{ech.appellation}</KV>
+          {ech.complement && <KV label="Complément d'appellation (lieu-dit ou climat)">{ech.complement}</KV>}
           <KV label="Millésime">{ech.mill}</KV>
           <KV label="Type">{ech.type}</KV>
           <KV label="Cépage(s)">{ech.cep}</KV>
-          <KV label="Dénomination commerciale">{ech.denom}</KV>
+          <KV label="Nom de Château, Domaine ou Marque commerciale">{ech.denom}</KV>
 
           <div style={{ height: 1, background: 'var(--border)', margin: '14px 0 18px' }}/>
 
           <SectionLabel>Caractéristiques techniques</SectionLabel>
           <KV label="Degré alcoolique">{ech.deg}</KV>
-          <KV label="Volume bouteille">{ech.vol}</KV>
-          <KV label="Quantité disponible"><span className="tnum">{ech.qte.toLocaleString('fr-FR')} bouteilles</span></KV>
+          <KV label="Unité de volume">
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: 'var(--slate-100)', color: 'var(--fg-muted)', letterSpacing: '0.04em' }}>{ech.unite}</span>
+              <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{ech.unite === 'HL' ? 'Hectolitre' : 'Bouteille (75 cl)'}</span>
+            </span>
+          </KV>
+          <KV label="Quantité disponible"><span className="tnum">{ech.qte.toLocaleString('fr-FR')} {ech.unite === 'HL' ? 'hl' : 'bouteilles'}</span></KV>
           <KV label="Numéro de cuve" mono>{ech.cuve}</KV>
           <KV label="Numéro de lot" mono>{ech.lot}</KV>
 
