@@ -304,10 +304,7 @@ const DossierAside = ({ onNavigate }) => (
 
 const TabEchantillons = ({ onOpen }) => (
   <div>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-      <div style={{ fontSize: 13, color: 'var(--fg-muted)' }}>
-        Cliquez sur une ligne pour consulter le détail complet (caractéristiques techniques, documents associés).
-      </div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 12 }}>
       <button className="btn btn-outline btn-sm"><Icon.Download size={13}/> Export Excel</button>
     </div>
     <div className="table-wrap">
