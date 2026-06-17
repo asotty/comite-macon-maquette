@@ -1991,7 +1991,8 @@ const ProducteurCommandesHistorique = ({ onNavigate }) => {
   return <ProducteurCommandesListe onOpenCommande={setViewing} onOpenNew={() => onNavigate('p-commandes')}/>;
 };
 
-const UNIT_PER = { autocollants: 1, autocollants_rect: 1, plaques: 10, diplomes: 5, boites: 100 };
+const UNIT_PER  = { autocollants: 1, autocollants_rect: 1, plaques: 10, diplomes: 5, boites: 100 };
+const PRICE_PER = { autocollants: 0.15, autocollants_rect: 0.20, plaques: 25.00, diplomes: 8.00, boites: 45.00 };
 const ALL_FORMAT_KEYS = Object.keys(UNIT_PER);
 const FORMAT_LABELS = {
   autocollants:      { label: 'autocollant rond',       plural: 'autocollants ronds'         },
@@ -2040,6 +2041,7 @@ const ProducteurCommandes = ({ onNavigate }) => {
     .filter(l => l.units > 0);
   const totalItems = cartLines.reduce((s, l) => s + ALL_FORMAT_KEYS.filter(k => (l.qty[k] || 0) > 0).length, 0);
   const totalUnits = cartLines.reduce((s, l) => s + l.units, 0);
+  const totalPrice = cartLines.reduce((s, l) => s + ALL_FORMAT_KEYS.reduce((ps, k) => ps + (l.qty[k] || 0) * PRICE_PER[k], 0), 0);
   const hasOverflow = medailles.some(m => remainingAfter(m) < 0);
 
   const handleSubmit = () => {
@@ -2086,6 +2088,7 @@ const ProducteurCommandes = ({ onNavigate }) => {
             lines={cartLines}
             totalItems={totalItems}
             totalUnits={totalUnits}
+            totalPrice={totalPrice}
             disabled={cartLines.length === 0 || hasOverflow}
             hasOverflow={hasOverflow}
             onSubmit={handleSubmit}
@@ -2296,7 +2299,12 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
                   </div>
                   {/* Texte */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 600, color: active ? 'var(--burgundy-900)' : 'var(--fg)' }}>{row.label}</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 600, color: active ? 'var(--burgundy-900)' : 'var(--fg)' }}>{row.label}</div>
+                      <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontVariantNumeric: 'tabular-nums' }}>
+                        {PRICE_PER[row.key].toLocaleString('fr-FR', { minimumFractionDigits: 2 })} € / pce
+                      </div>
+                    </div>
                     <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 1 }}>{row.sub}</div>
                     <div style={{ fontSize: 11, color: active ? row.color : 'var(--fg-subtle)', marginTop: 3, fontWeight: active ? 500 : 400 }}>
                       {row.equiv}
@@ -2309,14 +2317,18 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
                     disabled={isExhausted}
                     max={maxForType}
                   />
-                  {/* Équivalent unités */}
-                  <div className="tnum" style={{
-                    fontSize: 12, color: 'var(--fg-muted)',
-                    minWidth: 82, textAlign: 'right',
-                  }}>
-                    = <span style={{ color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)', fontWeight: active ? 600 : 400 }}>
-                      {unitsForType}
-                    </span> unité{unitsForType !== 1 ? 's' : ''}
+                  {/* Montant ligne + équivalent unités */}
+                  <div className="tnum" style={{ minWidth: 90, textAlign: 'right', flexShrink: 0 }}>
+                    {active ? (
+                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--burgundy-800)', marginBottom: 2 }}>
+                        {(counts[row.key] * PRICE_PER[row.key]).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 12, color: 'var(--fg-subtle)', marginBottom: 2 }}>—</div>
+                    )}
+                    <div style={{ fontSize: 11.5, color: active ? 'var(--fg-muted)' : 'var(--fg-subtle)', fontWeight: active ? 500 : 400 }}>
+                      = {unitsForType} unité{unitsForType !== 1 ? 's' : ''}
+                    </div>
                   </div>
                 </div>
               );
@@ -2370,7 +2382,7 @@ const Stepper = ({ value, onChange, disabled, max }) => (
   </div>
 );
 
-const CommandeCart = ({ lines, totalItems, totalUnits, disabled, hasOverflow, onSubmit }) => (
+const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, hasOverflow, onSubmit }) => (
   <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
     <div style={{ padding: '18px 22px 4px' }}>
       <div style={{ fontSize: 16, fontWeight: 600, letterSpacing: '-0.01em' }}>Votre commande</div>
@@ -2395,24 +2407,24 @@ const CommandeCart = ({ lines, totalItems, totalUnits, disabled, hasOverflow, on
               borderBottom: i < lines.length - 1 ? '1px solid var(--border)' : 'none',
             }}>
               <div style={{ fontSize: 13.5, fontWeight: 500, marginBottom: 4 }}>{l.wine.name}</div>
-              {l.qty.autocollants > 0 && (
-                <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', paddingLeft: 8, display: 'flex', justifyContent: 'space-between' }}>
-                  <span>· {l.qty.autocollants} autocollant{l.qty.autocollants > 1 ? 's' : ''}</span>
-                  <span className="tnum">{l.qty.autocollants * UNIT_PER.autocollants} u.</span>
-                </div>
-              )}
-              {l.qty.plaques > 0 && (
-                <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', paddingLeft: 8, display: 'flex', justifyContent: 'space-between' }}>
-                  <span>· {l.qty.plaques} plaque{l.qty.plaques > 1 ? 's' : ''}</span>
-                  <span className="tnum">{l.qty.plaques * UNIT_PER.plaques} u.</span>
-                </div>
-              )}
-              {l.qty.boites > 0 && (
-                <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', paddingLeft: 8, display: 'flex', justifyContent: 'space-between' }}>
-                  <span>· {l.qty.boites} boîte{l.qty.boites > 1 ? 's' : ''}</span>
-                  <span className="tnum">{l.qty.boites * UNIT_PER.boites} u.</span>
-                </div>
-              )}
+              {[
+                { k: 'autocollants',      sing: 'autocollant rond',        plur: 'autocollants ronds' },
+                { k: 'autocollants_rect', sing: 'autocollant rect.',       plur: 'autocollants rect.' },
+                { k: 'plaques',           sing: 'plaque métal',            plur: 'plaques métal' },
+                { k: 'diplomes',          sing: 'certificat',              plur: 'certificats' },
+                { k: 'boites',            sing: 'boîte vrac',              plur: 'boîtes vrac' },
+              ].filter(f => (l.qty[f.k] || 0) > 0).map(f => {
+                const qty = l.qty[f.k];
+                const lineTotal = qty * PRICE_PER[f.k];
+                return (
+                  <div key={f.k} style={{ fontSize: 12, color: 'var(--fg-muted)', paddingLeft: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, marginTop: 2 }}>
+                    <span>· {qty} {qty > 1 ? f.plur : f.sing}</span>
+                    <span className="tnum" style={{ fontWeight: 500, color: 'var(--fg)', whiteSpace: 'nowrap' }}>
+                      {lineTotal.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -2421,11 +2433,17 @@ const CommandeCart = ({ lines, totalItems, totalUnits, disabled, hasOverflow, on
 
     {/* Totaux */}
     <div style={{ padding: '14px 22px', background: 'var(--surface-2)', borderTop: '1px solid var(--border)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 13 }}>
-        <span style={{ color: 'var(--fg-muted)' }}>{totalItems} article{totalItems > 1 ? 's' : ''}</span>
-        <span className="tnum display" style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg)' }}>
-          {totalUnits.toLocaleString('fr-FR')} <span style={{ fontSize: 12, color: 'var(--fg-muted)', fontWeight: 400 }}>unités</span>
-        </span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{totalItems} article{totalItems > 1 ? 's' : ''}</div>
+          <div style={{ fontSize: 11.5, color: 'var(--fg-subtle)', marginTop: 2 }} className="tnum">{totalUnits.toLocaleString('fr-FR')} unités</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600, marginBottom: 2 }}>Total</div>
+          <div className="tnum display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--burgundy-800)', letterSpacing: '-0.02em' }}>
+            {(totalPrice || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} <span style={{ fontSize: 16 }}>€</span>
+          </div>
+        </div>
       </div>
     </div>
 
