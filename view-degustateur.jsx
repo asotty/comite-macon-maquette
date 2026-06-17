@@ -216,49 +216,45 @@ const DegustateurDashboard = ({ onNavigate }) => {
           </button>
         </div>
 
-        {/* Inscription */}
-        <div className="card" style={{ gridColumn: 'span 2', padding: 22 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 8, flexShrink: 0,
-                background: INSCRIPTION_STATUT === 'valide' ? 'var(--success-bg, #f0fdf4)' : 'var(--gold-100)',
-                color:      INSCRIPTION_STATUT === 'valide' ? 'var(--success)'              : 'var(--gold-700)',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Icon.User size={16}/>
-              </div>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>Mon inscription</span>
-                  {INSCRIPTION_STATUT === 'valide'
-                    ? <span className="badge badge-success"><Icon.Check size={11}/> Validée</span>
-                    : <span className="badge badge-warning"><Icon.Clock size={11}/> À valider</span>
-                  }
-                </div>
-                <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 3 }}>
-                  {INSCRIPTION_STATUT === 'valide'
-                    ? 'Votre inscription a été validée par le Comité. Vous recevrez les convocations par email.'
-                    : 'Votre pré-inscription est enregistrée. Le Comité vous contactera pour validation. Un email de confirmation vous sera envoyé.'
-                  }
-                </div>
-              </div>
+        {/* Inscription — côte à côte avec Mon historique (R66) */}
+        <div className="card" style={{ padding: 22 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 8, flexShrink: 0,
+              background: INSCRIPTION_STATUT === 'valide' ? 'var(--success-bg, #f0fdf4)' : 'var(--gold-100)',
+              color:      INSCRIPTION_STATUT === 'valide' ? 'var(--success)'              : 'var(--gold-700)',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Icon.User size={16}/>
             </div>
-            {INSCRIPTION_STATUT !== 'valide' && (
-              <a
-                href="https://concours-des-vins.com/devenir-degustateur"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-outline btn-sm"
-                style={{ flexShrink: 0 }}
-              >
-                <Icon.FileText size={13}/> Formulaire sur le site
-              </a>
-            )}
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>Mon inscription</div>
+              {INSCRIPTION_STATUT === 'valide'
+                ? <span className="badge badge-success" style={{ marginTop: 4 }}><Icon.Check size={11}/> Validée</span>
+                : <span className="badge badge-warning" style={{ marginTop: 4 }}><Icon.Clock size={11}/> À valider</span>
+              }
+            </div>
           </div>
-          <div style={{ marginTop: 14, padding: '10px 14px', background: 'var(--surface-2)', borderRadius: 8, fontSize: 12, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Icon.Info size={13} style={{ flexShrink: 0 }}/>
-            Inscription sous réserve de validation par le Comité · un mail automatique vous sera envoyé à chaque changement de statut.
+          <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 14 }}>
+            {INSCRIPTION_STATUT === 'valide'
+              ? 'Votre inscription a été validée par le Comité. Vous recevrez les convocations par email.'
+              : 'Votre pré-inscription est enregistrée. Le Comité vous contactera pour validation.'
+            }
+          </div>
+          {INSCRIPTION_STATUT !== 'valide' && (
+            <a
+              href="https://concours-des-vins.com/devenir-degustateur"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline btn-sm"
+              style={{ width: '100%', marginBottom: 12 }}
+            >
+              <Icon.FileText size={13}/> Formulaire sur le site
+            </a>
+          )}
+          <div style={{ padding: '9px 12px', background: 'var(--surface-2)', borderRadius: 8, fontSize: 12, color: 'var(--fg-muted)', display: 'flex', alignItems: 'flex-start', gap: 7 }}>
+            <Icon.Info size={13} style={{ flexShrink: 0, marginTop: 1 }}/>
+            Sous réserve de validation · mail automatique à chaque changement de statut.
           </div>
         </div>
       </div>
