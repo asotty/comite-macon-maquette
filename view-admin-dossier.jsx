@@ -111,7 +111,7 @@ const AdminDossierDetail = ({ onBack, onNavigate }) => {
     { id: 'echantillons', label: '\u00c9chantillons', count: 8 },
     { id: 'documents',    label: 'Documents',    count: 16 },
     { id: 'controle',     label: 'Contr\u00f4le',     warn: true },
-    { id: 'derogations',  label: DEROGATIONS.length > 1 ? 'D\u00e9rogations' : 'D\u00e9rogation', count: DEROGATIONS.length, warn: pendingDerog > 0 },
+    { id: 'derogations',  label: 'Commentaires', count: DEROGATIONS.length, warn: pendingDerog > 0 },
     { id: 'paiement',     label: 'Paiement' },
     { id: 'historique',   label: 'Historique' },
   ];
