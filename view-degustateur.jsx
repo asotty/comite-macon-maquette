@@ -1212,7 +1212,7 @@ const DegustCompteEnvies = () => {
       <div className="card" style={{ padding: 24, marginBottom: 20 }}>
         <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', marginBottom: 4 }}>Préférences de dégustation</div>
         <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 20 }}>
-          Ces informations aident à composer les jurys en cohérence avec votre profil. Elles ne sont pas obligatoires.
+          Ces informations sont prises en compte pour la composition des jurys, sans garantie d'affectation. Elles ne sont pas obligatoires.
         </div>
 
         {/* Couleur préférée */}
