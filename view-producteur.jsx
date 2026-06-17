@@ -1733,16 +1733,16 @@ const CommandeConfirmation = ({ order, onNavigate }) => (
 // ============================================================
 const ProducteurCommandesListe = ({ onOpenCommande, onOpenNew }) => {
   const commandes = [
-    { ref: 'CMD-2026-184022', date: '03 juin 2026',  detail: 'Vieilles Vignes 2024 · Cuvée Prestige 2023',  units: 320, status: 'preparation' },
-    { ref: 'CMD-2025-148901', date: '12 mai 2025',   detail: 'Cuvée Prestige 2023 · Les Hauts 2023',        units: 850, status: 'expediee' },
-    { ref: 'CMD-2025-127044', date: '03 avril 2025', detail: 'Tradition 2022',                              units: 200, status: 'livree' },
-    { ref: 'CMD-2024-108812', date: '18 juin 2024',  detail: 'Clos Saint-Pierre 2022 · Tradition 2022',     units: 540, status: 'livree' },
+    { ref: 'CMD-2026-184022', date: '03 juin 2026',  detail: 'Vieilles Vignes 2024 · Cuvée Prestige 2023',  units: 320, status: 'en_cours' },
+    { ref: 'CMD-2025-148901', date: '12 mai 2025',   detail: 'Cuvée Prestige 2023 · Les Hauts 2023',        units: 850, status: 'recue' },
+    { ref: 'CMD-2025-127044', date: '03 avril 2025', detail: 'Tradition 2022',                              units: 200, status: 'transmise' },
+    { ref: 'CMD-2024-108812', date: '18 juin 2024',  detail: 'Clos Saint-Pierre 2022 · Tradition 2022',     units: 540, status: 'transmise' },
   ];
 
   const statusInfo = {
-    preparation: { label: 'En préparation', cls: 'badge badge-info' },
-    expediee:    { label: 'Expédiée',       cls: 'badge badge-success' },
-    livree:      { label: 'Livrée',         cls: 'badge badge-success' },
+    en_cours:  { label: 'En cours',                  cls: 'badge badge-info' },
+    recue:     { label: 'Reçue',                     cls: 'badge badge-warning' },
+    transmise: { label: 'Transmise à l\'imprimeur',  cls: 'badge badge-success' },
   };
 
   return (
@@ -1798,24 +1798,23 @@ const ProducteurCommandesListe = ({ onOpenCommande, onOpenNew }) => {
 // Détail d'une commande
 // ============================================================
 const ProducteurCommandeDetail = ({ commande, onBack }) => {
-  const c = commande || { ref: 'CMD-2026-184022', date: '03 juin 2026', detail: '', units: 320, status: 'preparation' };
+  const c = commande || { ref: 'CMD-2026-184022', date: '03 juin 2026', detail: '', units: 320, status: 'en_cours' };
 
-  const stepByStatus = { preparation: 1, expediee: 2, livree: 3 };
-  const current = stepByStatus[c.status] ?? 1;
+  const stepByStatus = { en_cours: 0, recue: 1, transmise: 2 };
+  const current = stepByStatus[c.status] ?? 0;
 
   const tlSteps = [
-    { id: 0, label: 'Reçue',          icon: <Icon.Check size={13}/> },
-    { id: 1, label: 'En préparation', icon: <Icon.Package size={13}/> },
-    { id: 2, label: 'Expédiée',       icon: <Icon.ArrowRight size={13}/> },
-    { id: 3, label: 'Livrée',         icon: <Icon.Home size={13}/> },
+    { id: 0, label: 'En cours',                 icon: <Icon.Clock size={13}/> },
+    { id: 1, label: 'Reçue',                    icon: <Icon.Check size={13}/> },
+    { id: 2, label: 'Transmise à l\'imprimeur', icon: <Icon.Printer size={13}/> },
   ];
 
   // Articles fictifs basés sur le détail (parsing rapide ou exemple)
-  const articles = c.status === 'livree' ? [
+  const articles = c.units >= 800 ? [
+    { wine: 'Cuvée Prestige 2023', appell: 'Pouilly-Fuissé', medal: 'or',     concours: 'france', items: [{ k: 'autocollants', n: 350 }, { k: 'plaques', n: 30 }], units: 650 },
+    { wine: 'Les Hauts 2023',      appell: 'Saint-Véran',    medal: 'argent', concours: 'france', items: [{ k: 'autocollants', n: 200 }], units: 200 },
+  ] : c.status === 'transmise' ? [
     { wine: 'Tradition 2022', appell: 'Mâcon-Villages', medal: 'bronze', concours: 'france', items: [{ k: 'autocollants', n: 200 }], units: 200 },
-  ] : c.units >= 800 ? [
-    { wine: 'Cuvée Prestige 2023', appell: 'Pouilly-Fuissé', medal: 'or', concours: 'france', items: [{ k: 'autocollants', n: 350 }, { k: 'plaques', n: 30 }], units: 650 },
-    { wine: 'Les Hauts 2023',      appell: 'Saint-Véran',    medal: 'or', concours: 'france', items: [{ k: 'autocollants', n: 200 }], units: 200 },
   ] : [
     { wine: 'Vieilles Vignes 2024', appell: 'Mâcon-Villages', medal: 'or', concours: 'france', items: [{ k: 'autocollants', n: 120 }, { k: 'plaques', n: 10 }], units: 220 },
     { wine: 'Cuvée Prestige 2023',  appell: 'Pouilly-Fuissé', medal: 'or', concours: 'france', items: [{ k: 'autocollants', n: 100 }], units: 100 },
@@ -1823,15 +1822,14 @@ const ProducteurCommandeDetail = ({ commande, onBack }) => {
 
   const livraison = {
     adresse: 'Domaine de la Chevalière · Lieu-dit Les Crays, 71960 Vergisson',
-    suivi: c.status !== 'preparation' ? '8X12340987654FR' : null,
-    dateSouhaitee: c.status === 'preparation' ? '8 juin 2026' : c.status === 'expediee' ? '5 juin 2026' : null,
-    livreLe: c.status === 'livree' ? '06 avril 2025' : null,
+    dateSouhaitee: c.status === 'en_cours' || c.status === 'recue' ? '8 juin 2026' : null,
+    transmiseLe: c.status === 'transmise' ? '06 avril 2025' : null,
   };
 
   const statusInfo = {
-    preparation: { label: 'En préparation', cls: 'badge badge-info' },
-    expediee:    { label: 'Expédiée',       cls: 'badge badge-success' },
-    livree:      { label: 'Livrée',         cls: 'badge badge-success' },
+    en_cours:  { label: 'En cours',                 cls: 'badge badge-info' },
+    recue:     { label: 'Reçue',                    cls: 'badge badge-warning' },
+    transmise: { label: 'Transmise à l\'imprimeur', cls: 'badge badge-success' },
   }[c.status];
 
   const itemLabels = { autocollants: 'autocollant rond', autocollants_rect: 'autocollant rect.', plaques: 'plaque métal', diplomes: 'certificat', boites: 'boîte vrac' };
@@ -1945,25 +1943,16 @@ const ProducteurCommandeDetail = ({ commande, onBack }) => {
               <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Adresse</div>
               <div style={{ fontSize: 13, marginTop: 4 }}>{livraison.adresse}</div>
             </div>
-            {livraison.suivi && (
-              <div>
-                <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>N° de suivi</div>
-                <div className="tnum" style={{ fontSize: 13, marginTop: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {livraison.suivi}
-                  <button className="btn btn-outline btn-sm" style={{ height: 26, padding: '0 8px' }}>Suivre →</button>
-                </div>
-              </div>
-            )}
             {livraison.dateSouhaitee && (
               <div style={{ padding: '10px 12px', background: 'var(--burgundy-50)', borderRadius: 8 }}>
                 <div style={{ fontSize: 11.5, color: 'var(--burgundy-800)', fontWeight: 500 }}>Date de livraison souhaitée</div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--burgundy-900)', marginTop: 2 }}>{livraison.dateSouhaitee}</div>
               </div>
             )}
-            {livraison.livreLe && (
+            {livraison.transmiseLe && (
               <div style={{ padding: '10px 12px', background: 'var(--success-bg)', borderRadius: 8 }}>
-                <div style={{ fontSize: 11.5, color: '#166534', fontWeight: 500 }}>Livrée le</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#166534', marginTop: 2 }}>{livraison.livreLe}</div>
+                <div style={{ fontSize: 11.5, color: '#166534', fontWeight: 500 }}>Transmise à l'imprimeur le</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#166534', marginTop: 2 }}>{livraison.transmiseLe}</div>
               </div>
             )}
           </div>
