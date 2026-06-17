@@ -363,11 +363,11 @@ const DegustateurFormationDetail = ({ formation, onBack }) => {
             Pas d'inscription automatique en ligne. Pour réserver votre place ou poser une question, contactez directement le secrétariat du Comité.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <a href="mailto:formations@comite-macon.fr" className="btn btn-primary" style={{ width: '100%' }}>
-              <Icon.Mail size={14}/> formations@comite-macon.fr
+            <a href="mailto:clementine.revel@concours-des-vins.com" className="btn btn-primary" style={{ width: '100%' }}>
+              <Icon.Mail size={14}/> clementine.revel@concours-des-vins.com
             </a>
-            <a href="tel:+33385350000" className="btn btn-outline" style={{ width: '100%' }}>
-              <Icon.Phone size={14}/> 03 85 35 00 00
+            <a href="tel:+33385213005" className="btn btn-outline" style={{ width: '100%' }}>
+              <Icon.Phone size={14}/> 03 85 21 30 05
             </a>
           </div>
         </div>
