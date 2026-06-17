@@ -2210,17 +2210,12 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
         onMouseEnter={e => { if (!isExhausted) e.currentTarget.style.background = 'var(--surface-2)'; }}
         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
       >
-        {/* Pastille médaille */}
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          padding: '4px 10px', borderRadius: 999,
-          background: medalColors.bg, color: medalColors.fg,
-          fontSize: 12, fontWeight: 600,
-          flexShrink: 0,
-        }}>
-          <span className="badge-dot" style={{ background: 'currentColor' }}/>
-          {medalColors.label}
-        </div>
+        {/* Image médaille */}
+        <img
+          src={medalImg(wine.medal, wine.concours)}
+          alt={medalColors.label}
+          style={{ width: 52, height: 52, objectFit: 'contain', flexShrink: 0 }}
+        />
 
         {/* Identité vin */}
         <div style={{ flex: '0 1 280px', minWidth: 0 }}>
