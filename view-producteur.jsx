@@ -1263,7 +1263,11 @@ const WizardStep1 = () => (
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 14 }}>
         <div className="field"><label className="field-label">Raison sociale</label><input className="input" defaultValue="Domaine des 3 Pierres"/></div>
         <div className="field"><label className="field-label">N° SIRET</label><input className="input tnum" defaultValue="487 219 035 00018"/></div>
-        <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Adresse</label><input className="input" defaultValue="Lieu-dit Les Crays, 71960 Vergisson"/></div>
+        <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Adresse 1</label><input className="input" defaultValue="Lieu-dit Les Crays"/></div>
+        <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Adresse 2 <span style={{ fontWeight: 400, color: 'var(--fg-muted)' }}>(optionnel)</span></label><input className="input" defaultValue=""/></div>
+        <div className="field"><label className="field-label">Code postal</label><input className="input tnum" defaultValue="71960"/></div>
+        <div className="field"><label className="field-label">Ville</label><input className="input" defaultValue="Vergisson"/></div>
+        <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Pays</label><select className="select" defaultValue="France"><option>France</option><option>Belgique</option><option>Suisse</option><option>Luxembourg</option></select></div>
         <div className="field"><label className="field-label">Code APE</label><input className="input" defaultValue="0121Z"/></div>
         <div className="field"><label className="field-label">N° TVA intracommunautaire</label><input className="input tnum" defaultValue="FR42487219035"/></div>
         <div className="field" style={{ gridColumn: 'span 2' }}>
@@ -2860,8 +2864,12 @@ const ProducteurCompte = ({ initial }) => {
 // 1 — Mes informations
 const CompteInfos = () => {
   const initial = {
-    raison:  'Domaine de la Chevalière',
-    adresse: 'Lieu-dit Les Crays, 71960 Vergisson',
+    raison:   'Domaine de la Chevalière',
+    adresse1: 'Lieu-dit Les Crays',
+    adresse2: '',
+    cp:       '71960',
+    ville:    'Vergisson',
+    pays:     'France',
     ape:     '0121Z',
     siret:   '487 219 035 00018',
     tva:     'FR42487219035',
@@ -2906,8 +2914,26 @@ const CompteInfos = () => {
             <input className="input" value={form.raison} onChange={setField('raison')}/>
           </div>
           <div className="field" style={{ gridColumn: 'span 2' }}>
-            <label className="field-label">Adresse complète</label>
-            <input className="input" value={form.adresse} onChange={setField('adresse')}/>
+            <label className="field-label">Adresse 1</label>
+            <input className="input" value={form.adresse1} onChange={setField('adresse1')}/>
+          </div>
+          <div className="field" style={{ gridColumn: 'span 2' }}>
+            <label className="field-label">Adresse 2 <span style={{ fontWeight: 400, color: 'var(--fg-muted)' }}>(optionnel)</span></label>
+            <input className="input" value={form.adresse2} onChange={setField('adresse2')}/>
+          </div>
+          <div className="field">
+            <label className="field-label">Code postal</label>
+            <input className="input tnum" value={form.cp} onChange={setField('cp')}/>
+          </div>
+          <div className="field">
+            <label className="field-label">Ville</label>
+            <input className="input" value={form.ville} onChange={setField('ville')}/>
+          </div>
+          <div className="field" style={{ gridColumn: 'span 2' }}>
+            <label className="field-label">Pays</label>
+            <select className="select" value={form.pays} onChange={setField('pays')}>
+              <option>France</option><option>Belgique</option><option>Suisse</option><option>Luxembourg</option>
+            </select>
           </div>
           <div className="field">
             <label className="field-label">Code APE</label>
@@ -2971,7 +2997,7 @@ const CompteInfos = () => {
 // 2 — Facturation
 const CompteFacturation = () => {
   const [sameAsDomain, setSameAsDomain] = React.useState(true);
-  const [addr, setAddr] = React.useState({ ligne1: '', cp: '', ville: '', pays: 'France' });
+  const [addr, setAddr] = React.useState({ ligne1: '', ligne2: '', cp: '', ville: '', pays: 'France' });
 
   const factures = [
     { date: '03 juin 2026', ref: 'FAC-2026-184022', montant: 576.00, type: 'inscription' },
@@ -3009,8 +3035,12 @@ const CompteFacturation = () => {
         {!sameAsDomain && (
           <div className="slide-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
             <div className="field" style={{ gridColumn: 'span 2' }}>
-              <label className="field-label">Adresse</label>
-              <input className="input" value={addr.ligne1} onChange={e => setAddr({ ...addr, ligne1: e.target.value })} placeholder="N° et rue, complément…"/>
+              <label className="field-label">Adresse 1</label>
+              <input className="input" value={addr.ligne1} onChange={e => setAddr({ ...addr, ligne1: e.target.value })} placeholder="N° et rue"/>
+            </div>
+            <div className="field" style={{ gridColumn: 'span 2' }}>
+              <label className="field-label">Adresse 2 <span style={{ fontWeight: 400, color: 'var(--fg-muted)' }}>(optionnel)</span></label>
+              <input className="input" value={addr.ligne2} onChange={e => setAddr({ ...addr, ligne2: e.target.value })} placeholder="Bâtiment, lieu-dit, complément…"/>
             </div>
             <div className="field"><label className="field-label">Code postal</label><input className="input tnum" value={addr.cp} onChange={e => setAddr({ ...addr, cp: e.target.value })}/></div>
             <div className="field"><label className="field-label">Ville</label><input className="input" value={addr.ville} onChange={e => setAddr({ ...addr, ville: e.target.value })}/></div>

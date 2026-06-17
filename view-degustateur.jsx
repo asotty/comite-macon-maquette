@@ -8,7 +8,11 @@ const USER_DEGUSTATEUR = {
   nom: 'Bouvier',
   email: 'pierre.bouvier@oenologue.fr',
   telephone: '06 14 22 89 03',
-  adresse: '12 rue des Carmes, 71000 Mâcon',
+  adresse1: '12 rue des Carmes',
+  adresse2: '',
+  cp: '71000',
+  ville: 'Mâcon',
+  pays: 'France',
   organisme: 'Cabinet Bouvier Œnologie',
   regionHabituelle: 'Mâconnais',
   // Régime alimentaire (par défaut, transmis à chaque réservation de repas)
@@ -1140,7 +1144,11 @@ const DegustCompteInfos = () => {
           <div className="field"><label className="field-label">Prénom</label><input className="input" value={f.prenom} onChange={setField('prenom')}/></div>
           <div className="field"><label className="field-label">Email</label><input className="input" value={f.email} onChange={setField('email')}/></div>
           <div className="field"><label className="field-label">Téléphone</label><input className="input tnum" value={f.telephone} onChange={setField('telephone')}/></div>
-          <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Adresse complète</label><input className="input" value={f.adresse} onChange={setField('adresse')}/></div>
+          <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Adresse 1</label><input className="input" value={f.adresse1} onChange={setField('adresse1')}/></div>
+          <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Adresse 2 <span style={{ fontWeight: 400, color: 'var(--fg-muted)' }}>(optionnel)</span></label><input className="input" value={f.adresse2} onChange={setField('adresse2')}/></div>
+          <div className="field"><label className="field-label">Code postal</label><input className="input tnum" value={f.cp} onChange={setField('cp')}/></div>
+          <div className="field"><label className="field-label">Ville</label><input className="input" value={f.ville} onChange={setField('ville')}/></div>
+          <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Pays</label><select className="select" value={f.pays} onChange={setField('pays')}><option>France</option><option>Belgique</option><option>Suisse</option><option>Luxembourg</option></select></div>
         </div>
       </div>
 
