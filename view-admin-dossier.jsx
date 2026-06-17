@@ -777,7 +777,7 @@ const EchantillonCorrectionCard = ({ ech, defaultOpen, saved, onSave, onReset, o
         <div>
           <table className="table" style={{ margin: 0 }}>
             <thead>
-              <tr><th>Champ</th><th>Déclaré</th><th>DREV / analyse</th><th>Écart</th><th style={{ width: '40%' }}>Valeur retenue</th></tr>
+              <tr><th>Champ</th><th>Inscrit producteur</th><th>DREV / analyse</th><th>Écart</th><th style={{ width: '40%' }}>Valeur retenue</th></tr>
             </thead>
             <tbody>
               {ech.fields.map(f => (
@@ -845,7 +845,7 @@ const EchantillonCorrectionCard = ({ ech, defaultOpen, saved, onSave, onReset, o
 
 const ValeurRetenueSelector = ({ f, draft, onChange }) => {
   const opts = [
-    { id: 'declared',  label: 'Déclaré', value: f.declared },
+    { id: 'declared',  label: 'Inscrit producteur', value: f.declared },
     { id: 'extracted', label: 'Extrait',  value: f.extracted },
     { id: 'custom',    label: 'Manuel',   value: null },
   ];
