@@ -23,7 +23,7 @@ const DOSSIER = {
 // R24 — drawer : ajout complement, renommage dénomination + unité de volume
 const ECHANTILLONS = [
   { n: 1, nom: 'Mâcon-Villages Blanc',   appellation: 'Mâcon-Villages',  complement: 'Climat Les Crays',         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-08', lot: 'L-2023-04', qte: 4200, unite: 'BT', denom: 'Domaine de la Chevalière', refProd: 'CHV-2023-001' },
-  { n: 2, nom: 'Pouilly-Fuissé',         appellation: 'Pouilly-Fuissé',  complement: 'Lieu-dit En Vers Cras',    mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-14', lot: 'L-2022-08', qte: 2400, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'Volume DREV : 850hl déclaré, 920hl extrait du document', refProd: 'CHV-2022-004' },
+  { n: 2, nom: 'Pouilly-Fuissé',         appellation: 'Pouilly-Fuissé',  complement: 'Lieu-dit En Vers Cras',    mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-14', lot: 'L-2022-08', qte: 2400, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'Volume DREV : DREV 850 hl < inscrit producteur 920 hl', refProd: 'CHV-2022-004' },
   { n: 3, nom: 'Viré-Clessé',            appellation: 'Viré-Clessé',     complement: '',                         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Blanc tranquille', cuve: 'C-09', lot: 'L-2023-11', qte: 1800, unite: 'BT', denom: 'Domaine de la Chevalière', refProd: 'CHV-2023-002' },
   { n: 4, nom: 'Mâcon-Solutré',          appellation: 'Mâcon-Villages',  complement: 'Lieu-dit Solutré',         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-11', lot: 'L-2023-07', qte:   48, unite: 'HL', denom: 'Domaine de la Chevalière', refProd: 'CHV-2023-003' },
   { n: 5, nom: 'Saint-Véran',            appellation: 'Saint-Véran',     complement: 'Climat Les Pommards',      mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'err',  type: 'Blanc tranquille', cuve: 'C-12A',lot: 'L-2022-03', qte: 1900, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'Cuve déclarée "C-12A" ≠ document "C-12B"', refProd: 'CHV-2022-005' },
@@ -519,7 +519,7 @@ const TabControle = ({ onPreview }) => {
     { rule: 'Champs obligatoires présents',                  s: 'ok',   detail: 'Tous les champs requis sont remplis.' },
     { rule: 'Appellations reconnues dans le référentiel',    s: 'ok',   detail: '8 / 8 appellations valides.' },
     { rule: 'Millésimes autorisés par région',               s: 'ok',   detail: 'Tous autorisés.' },
-    { rule: 'Volume ≤ DREV déclaré',                          s: 'warn', detail: 'Éch. 2 : 850 hl déclaré, DREV = 920 hl.' },
+    { rule: 'Volume DREV ≥ inscrit producteur',               s: 'warn', detail: 'Éch. 2 : DREV 850 hl < inscrit producteur 920 hl.' },
     { rule: 'Correspondance numéro de cuve / lot',           s: 'err',  detail: 'Éch. 5 : cuve "C-12A" ≠ document "C-12B".' },
     { rule: 'Données analyses physicochimiques complètes',   s: 'warn', detail: 'Éch. 7 : pH manquant dans le bulletin.' },
     { rule: 'Cohérence appellation ↔ document revendication', s: 'ok',  detail: '8 / 8 concordants.' },
@@ -635,7 +635,7 @@ const ECARTS = [
     n: 2, nom: 'Pouilly-Fuissé Vieilles Vignes', appellation: 'Pouilly-Fuissé', mill: '2022',
     fields: [
       { key: 'degre',  label: 'Degré',       declared: '13°',     extracted: '13.2°',  gap: { text: '+0.2°',  kind: 'warn' } },
-      { key: 'volume', label: 'Volume DREV', declared: '850 hl',  extracted: '920 hl', gap: { text: '−70 hl', kind: 'err'  } },
+      { key: 'volume', label: 'Volume DREV', declared: '920 hl',  extracted: '850 hl', gap: { text: '−70 hl', kind: 'err'  } },
     ],
     sourceDoc: { name: 'bulletin-analyses-pouilly-fuisse.pdf', size: '1.9 Mo', echIdx: 1 },
   },
