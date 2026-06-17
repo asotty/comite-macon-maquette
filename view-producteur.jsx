@@ -2013,11 +2013,18 @@ const ProducteurCommandes = ({ onNavigate }) => {
 
   // Vins médaillés disponibles à la commande + quota basé sur volumes déclarés
   const medailles = [
-    { id: 'vv24',  name: 'Vieilles Vignes 2024',  appell: 'Mâcon-Villages', edition: '2026', medal: 'or',     quota: 500,  used: 420 },
-    { id: 'cp23',  name: 'Cuvée Prestige 2023',   appell: 'Pouilly-Fuissé', edition: '2025', medal: 'or',     quota: 1200, used: 350 },
-    { id: 'lh23',  name: 'Les Hauts 2023',        appell: 'Saint-Véran',    edition: '2025', medal: 'argent', quota: 800,  used: 800 },
-    { id: 't22',   name: 'Tradition 2022',        appell: 'Mâcon-Villages', edition: '2024', medal: 'bronze', quota: 600,  used: 540 },
+    // — Concours France —
+    { id: 'vv24',    name: 'Vieilles Vignes 2024', appell: 'Mâcon-Villages', edition: '2026', concours: 'france', medal: 'or',     quota: 500,  used: 420 },
+    { id: 'cp23',    name: 'Cuvée Prestige 2023',  appell: 'Pouilly-Fuissé', edition: '2025', concours: 'france', medal: 'or',     quota: 1200, used: 350 },
+    { id: 'lh23',    name: 'Les Hauts 2023',       appell: 'Saint-Véran',    edition: '2025', concours: 'france', medal: 'argent', quota: 800,  used: 800 },
+    { id: 't22',     name: 'Tradition 2022',       appell: 'Mâcon-Villages', edition: '2024', concours: 'france', medal: 'bronze', quota: 600,  used: 540 },
+    // — Concours Monde —
+    { id: 'vv24m',   name: 'Vieilles Vignes 2024', appell: 'Mâcon-Villages', edition: '2026', concours: 'monde',  medal: 'or',     quota: 300,  used: 180 },
+    { id: 'cp23m',   name: 'Cuvée Prestige 2023',  appell: 'Pouilly-Fuissé', edition: '2025', concours: 'monde',  medal: 'argent', quota: 500,  used: 120 },
   ];
+
+  const [concourTab, setConcourTab] = React.useState('france');
+  const medaillesTab = medailles.filter(m => m.concours === concourTab);
 
   // État panier : { wineId: { autocollants, plaques, boites } }
   const [cart, setCart] = React.useState(() =>
@@ -2035,14 +2042,14 @@ const ProducteurCommandes = ({ onNavigate }) => {
     setCart(c => ({ ...c, [wineId]: { ...c[wineId], [key]: v } }));
   };
 
-  // Totaux panier
-  const cartLines = medailles
+  // Totaux panier — filtrés sur l'onglet actif
+  const cartLines = medaillesTab
     .map(m => ({ wine: m, qty: cart[m.id], units: unitsOrdered(m.id) }))
     .filter(l => l.units > 0);
   const totalItems = cartLines.reduce((s, l) => s + ALL_FORMAT_KEYS.filter(k => (l.qty[k] || 0) > 0).length, 0);
   const totalUnits = cartLines.reduce((s, l) => s + l.units, 0);
   const totalPrice = cartLines.reduce((s, l) => s + ALL_FORMAT_KEYS.reduce((ps, k) => ps + (l.qty[k] || 0) * PRICE_PER[k], 0), 0);
-  const hasOverflow = medailles.some(m => remainingAfter(m) < 0);
+  const hasOverflow = medaillesTab.some(m => remainingAfter(m) < 0);
 
   const handleSubmit = () => {
     const ref = 'CMD-2026-' + Math.floor(100000 + Math.random() * 900000);
@@ -2066,10 +2073,23 @@ const ProducteurCommandes = ({ onNavigate }) => {
         subtitle="Sélectionnez vos quantités — quota basé sur vos volumes déclarés"
       />
 
+      {/* Onglets Concours France / Concours Monde */}
+      <div style={{ display: 'flex', gap: 0, marginBottom: 20, borderBottom: '1px solid var(--border)' }}>
+        {[{ k: 'france', label: 'Concours France' }, { k: 'monde', label: 'Concours Monde' }].map(t => (
+          <button key={t.k} onClick={() => setConcourTab(t.k)} style={{
+            padding: '10px 20px', border: 'none', background: 'transparent',
+            borderBottom: concourTab === t.k ? '2px solid var(--burgundy-800)' : '2px solid transparent',
+            fontWeight: concourTab === t.k ? 600 : 400,
+            color: concourTab === t.k ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+            cursor: 'pointer', fontSize: 14, fontFamily: 'inherit',
+          }}>{t.label}</button>
+        ))}
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, alignItems: 'flex-start' }}>
         {/* Gauche — vins médaillés */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {medailles.map(m => (
+          {medaillesTab.map(m => (
             <WineOrderBlock
               key={m.id}
               wine={m}
