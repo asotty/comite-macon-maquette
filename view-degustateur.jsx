@@ -1202,10 +1202,20 @@ const DegustCompteInfos = () => {
   );
 };
 
+const GRANDES_REGIONS = ['Mâconnais', 'Beaujolais', 'Côte de Beaune', 'Côte de Nuits', 'Chablisien', 'Côte chalonnaise'];
+const GENE_OPTIONS = [
+  { id: 'vdn',       label: 'VDN' },
+  { id: 'liquoreux', label: 'Liquoreux / Moelleux' },
+  { id: 'effervescent', label: 'Effervescents' },
+];
+
 const DegustCompteEnvies = () => {
-  const [couleur, setCouleur] = React.useState('blanc');
-  const [region, setRegion]   = React.useState('Mâconnais');
-  const [type, setType]       = React.useState('Vins blancs secs');
+  const [couleur,   setCouleur]   = React.useState('blanc');
+  const [souhait1,  setSouhait1]  = React.useState('Mâconnais');
+  const [souhait2,  setSouhait2]  = React.useState('');
+  const [gene,      setGene]      = React.useState([]);
+
+  const toggleGene = (id) => setGene(prev => prev.includes(id) ? prev.filter(g => g !== id) : [...prev, id]);
 
   return (
     <div style={{ maxWidth: 880 }}>
@@ -1234,12 +1244,8 @@ const DegustCompteEnvies = () => {
                   border: '1px solid ' + (isActive ? 'var(--burgundy-800)' : 'var(--border)'),
                   background: isActive ? 'var(--burgundy-50)' : 'var(--surface)',
                   color: isActive ? 'var(--burgundy-800)' : 'var(--fg)',
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  fontSize: 13,
-                  fontWeight: isActive ? 600 : 500,
-                  transition: 'all .12s',
+                  borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
+                  fontSize: 13, fontWeight: isActive ? 600 : 500, transition: 'all .12s',
                 }}>
                   <span style={{ width: 14, height: 14, borderRadius: '50%', background: c.dot, border: '1px solid rgba(0,0,0,0.1)' }}/>
                   {c.label}
@@ -1249,25 +1255,48 @@ const DegustCompteEnvies = () => {
           </div>
         </div>
 
-        {/* Région préférée */}
-        <div className="field" style={{ marginBottom: 22 }}>
-          <label className="field-label">Région préférée</label>
-          <select className="select" value={region} onChange={e => setRegion(e.target.value)} style={{ maxWidth: 340 }}>
-            <option>Mâconnais</option>
-            <option>Beaujolais</option>
-            <option>Côte de Beaune</option>
-            <option>Côte de Nuits</option>
-            <option>Chablisien</option>
-            <option>Côte chalonnaise</option>
-            <option>Toutes</option>
-          </select>
+        {/* Souhaits région */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 22 }}>
+          <div className="field">
+            <label className="field-label">Souhait 1 — Région</label>
+            <select className="select" value={souhait1} onChange={e => setSouhait1(e.target.value)}>
+              <option value="">— Aucune préférence</option>
+              {GRANDES_REGIONS.map(r => <option key={r}>{r}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label className="field-label">Souhait 2 — Région</label>
+            <select className="select" value={souhait2} onChange={e => setSouhait2(e.target.value)}>
+              <option value="">— Aucune préférence</option>
+              {GRANDES_REGIONS.map(r => <option key={r}>{r}</option>)}
+            </select>
+          </div>
         </div>
 
-        {/* Type de vin préféré */}
+        {/* Gêne à la dégustation */}
         <div className="field">
-          <label className="field-label">Type de vin préféré</label>
-          <input className="input" value={type} onChange={e => setType(e.target.value)} placeholder="Ex. Vins blancs secs, Crémants, Vins moelleux…" style={{ maxWidth: 480 }}/>
-          <span className="field-hint">Texte libre — décrivez vos vins favoris</span>
+          <label className="field-label">Gêne à la dégustation</label>
+          <div style={{ display: 'flex', gap: 10, marginTop: 6, flexWrap: 'wrap' }}>
+            {GENE_OPTIONS.map(opt => {
+              const checked = gene.includes(opt.id);
+              return (
+                <label key={opt.id} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '8px 14px',
+                  border: '1px solid ' + (checked ? 'var(--burgundy-800)' : 'var(--border)'),
+                  background: checked ? 'var(--burgundy-50)' : 'var(--surface)',
+                  color: checked ? 'var(--burgundy-800)' : 'var(--fg)',
+                  borderRadius: 8, cursor: 'pointer', fontSize: 13,
+                  fontWeight: checked ? 600 : 500, transition: 'all .12s',
+                }}>
+                  <input type="checkbox" checked={checked} onChange={() => toggleGene(opt.id)}
+                    style={{ width: 14, height: 14, accentColor: 'var(--burgundy-800)', cursor: 'pointer' }}/>
+                  {opt.label}
+                </label>
+              );
+            })}
+          </div>
+          <span className="field-hint">Ces types de vins seront évités lors de votre affectation dans un jury.</span>
         </div>
       </div>
 
