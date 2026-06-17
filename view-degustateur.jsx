@@ -585,7 +585,7 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
             <div>
               <div style={{ fontSize: 13.5, fontWeight: 500 }}>Nombre d'accompagnateurs</div>
               <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2 }}>
-                {isFree ? 'Gratuit · invités du comité' : formatPrix(prixAccomp) + ' / personne'}
+                {isFree ? 'Gratuit · invités du comité' : formatPrix(prixAccomp) + ' / personne'} · 1 maximum
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -596,7 +596,8 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
               >−</button>
               <span className="tnum" style={{ fontSize: 16, fontWeight: 600, minWidth: 24, textAlign: 'center' }}>{nbAccomp}</span>
               <button
-                onClick={() => setNbAccomp(nbAccomp + 1)}
+                onClick={() => setNbAccomp(Math.min(1, nbAccomp + 1))}
+                disabled={nbAccomp >= 1}
                 className="btn btn-primary btn-sm btn-icon"
                 style={{ width: 32, height: 32, borderRadius: '50%', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >+</button>
