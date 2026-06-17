@@ -586,32 +586,33 @@ const AdminPalmares = ({ concours = 'france' }) => {
 
   // Colonnes : [producteur, région, appellation, couleur, millésime, médaille, note, n°éch]
   //              r[0]       r[1]    r[2]          r[3]    r[4]       r[5]      r[6]  r[7]
+  // Colonnes : [0]Producteur [1]Région [2]Appellation [3]Couleur [4]Millésime [5]Médaille [6]Note [7]N°éch [8]Complément [9]Cuvée
   const ALL_ROWS_FRANCE = [
-    ['Domaine de la Chevalière',  'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2024, 'or',     92.4, 'ECH-2026-0184'],
-    ['Maison Joseph Drouhin',     'Côte de Beaune',    'Beaune 1er Cru',    'Rouge', 2023, 'or',     91.8, 'ECH-2026-0201'],
-    ['Château de Pierreclos',     'Mâconnais',         'Saint-Véran',       'Blanc', 2024, 'or',     90.6, 'ECH-2026-0093'],
-    ['Domaine Bouchard Père',     'Côte de Beaune',    'Meursault',         'Blanc', 2023, 'or',     90.1, 'ECH-2026-0157'],
-    ['Domaine des 3 Pierres',     'Mâconnais',         'Mâcon-Villages',    'Blanc', 2024, 'argent', 88.2, 'ECH-2026-0042'],
-    ['Cellier de Solutré',        'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2023, 'argent', 87.9, 'ECH-2026-0118'],
-    ['Vignobles Lacroix',         'Côte Chalonnaise',  'Mercurey',          'Rouge', 2024, 'argent', 86.4, 'ECH-2026-0076'],
-    ['Domaine Sainte-Anne',       'Mâconnais',         'Mâcon-Villages',    'Blanc', 2024, 'argent', 85.7, 'ECH-2026-0209'],
-    ['Domaine Tabard',            'Beaujolais',        'Brouilly',          'Rouge', 2024, 'bronze', 84.5, 'ECH-2026-0033'],
-    ['Domaine de la Verrière',    'Beaujolais',        'Morgon',            'Rouge', 2023, 'bronze', 83.2, 'ECH-2026-0147'],
-    ['Vignerons de Buxy',         'Côte Chalonnaise',  'Bourgogne Aligoté', 'Blanc', 2024, 'bronze', 82.6, 'ECH-2026-0055'],
-    ['Domaine Sainte-Anne',       'Mâconnais',         'Saint-Véran',       'Blanc', 2023, 'sans',   78.4, 'ECH-2026-0218'],
-    ['Vignobles Lacroix',         'Côte Chalonnaise',  'Givry',             'Rouge', 2024, 'sans',   76.8, 'ECH-2026-0081'],
+    ['Domaine de la Chevalière',  'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2024, 'or',     92.4, 'ECH-2026-0184', 'Lieu-dit En Vers Cras',  'Vieilles Vignes'],
+    ['Maison Joseph Drouhin',     'Côte de Beaune',    'Beaune 1er Cru',    'Rouge', 2023, 'or',     91.8, 'ECH-2026-0201', 'Les Grèves',              'Élevé en fût de chêne'],
+    ['Château de Pierreclos',     'Mâconnais',         'Saint-Véran',       'Blanc', 2024, 'or',     90.6, 'ECH-2026-0093', 'Climat Les Pommards',    'Grande Réserve'],
+    ['Domaine Bouchard Père',     'Côte de Beaune',    'Meursault',         'Blanc', 2023, 'or',     90.1, 'ECH-2026-0157', 'Les Chevalières',         'Tradition'],
+    ['Domaine des 3 Pierres',     'Mâconnais',         'Mâcon-Villages',    'Blanc', 2024, 'argent', 88.2, 'ECH-2026-0042', '',                        'Prestige'],
+    ['Cellier de Solutré',        'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2023, 'argent', 87.9, 'ECH-2026-0118', '',                        'Élevé en fût de chêne'],
+    ['Vignobles Lacroix',         'Côte Chalonnaise',  'Mercurey',          'Rouge', 2024, 'argent', 86.4, 'ECH-2026-0076', '1er Cru',                 'Les Champs Martins'],
+    ['Domaine Sainte-Anne',       'Mâconnais',         'Mâcon-Villages',    'Blanc', 2024, 'argent', 85.7, 'ECH-2026-0209', '',                        'Réserve'],
+    ['Domaine Tabard',            'Beaujolais',        'Brouilly',          'Rouge', 2024, 'bronze', 84.5, 'ECH-2026-0033', '',                        'Vieilles Vignes'],
+    ['Domaine de la Verrière',    'Beaujolais',        'Morgon',            'Rouge', 2023, 'bronze', 83.2, 'ECH-2026-0147', 'Côte du Py',              'Tradition'],
+    ['Vignerons de Buxy',         'Côte Chalonnaise',  'Bourgogne Aligoté', 'Blanc', 2024, 'bronze', 82.6, 'ECH-2026-0055', '',                        'Signature'],
+    ['Domaine Sainte-Anne',       'Mâconnais',         'Saint-Véran',       'Blanc', 2023, 'sans',   78.4, 'ECH-2026-0218', '',                        'Les Parcelles'],
+    ['Vignobles Lacroix',         'Côte Chalonnaise',  'Givry',             'Rouge', 2024, 'sans',   76.8, 'ECH-2026-0081', '',                        'Blanc de Blancs'],
   ];
 
   // Monde : uniquement Or et Argent (pas de bronze)
   const ALL_ROWS_MONDE = [
-    ['Domaine de la Chevalière',  'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2024, 'or',     93.1, 'ECH-MONDE-2026-0012'],
-    ['Maison Joseph Drouhin',     'Côte de Beaune',    'Beaune 1er Cru',    'Rouge', 2023, 'or',     92.5, 'ECH-MONDE-2026-0034'],
-    ['Château de Pierreclos',     'Mâconnais',         'Saint-Véran',       'Blanc', 2024, 'or',     91.2, 'ECH-MONDE-2026-0008'],
-    ['Cellier de Solutré',        'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2023, 'argent', 88.7, 'ECH-MONDE-2026-0051'],
-    ['Vignobles Lacroix',         'Côte Chalonnaise',  'Mercurey',          'Rouge', 2024, 'argent', 87.3, 'ECH-MONDE-2026-0019'],
-    ['Domaine Bouchard Père',     'Côte de Beaune',    'Meursault',         'Blanc', 2023, 'argent', 86.1, 'ECH-MONDE-2026-0067'],
-    ['Domaine Sainte-Anne',       'Mâconnais',         'Mâcon-Villages',    'Blanc', 2024, 'sans',   77.9, 'ECH-MONDE-2026-0083'],
-    ['Domaine Tabard',            'Beaujolais',        'Brouilly',          'Rouge', 2024, 'sans',   75.2, 'ECH-MONDE-2026-0041'],
+    ['Domaine de la Chevalière',  'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2024, 'or',     93.1, 'ECH-MONDE-2026-0012', 'Lieu-dit En Vers Cras', 'Vieilles Vignes'],
+    ['Maison Joseph Drouhin',     'Côte de Beaune',    'Beaune 1er Cru',    'Rouge', 2023, 'or',     92.5, 'ECH-MONDE-2026-0034', 'Les Grèves',             'Élevé en fût de chêne'],
+    ['Château de Pierreclos',     'Mâconnais',         'Saint-Véran',       'Blanc', 2024, 'or',     91.2, 'ECH-MONDE-2026-0008', 'Climat Les Pommards',   'Grande Réserve'],
+    ['Cellier de Solutré',        'Mâconnais',         'Pouilly-Fuissé',    'Blanc', 2023, 'argent', 88.7, 'ECH-MONDE-2026-0051', '',                       'Élevé en fût de chêne'],
+    ['Vignobles Lacroix',         'Côte Chalonnaise',  'Mercurey',          'Rouge', 2024, 'argent', 87.3, 'ECH-MONDE-2026-0019', '1er Cru',                'Les Champs Martins'],
+    ['Domaine Bouchard Père',     'Côte de Beaune',    'Meursault',         'Blanc', 2023, 'argent', 86.1, 'ECH-MONDE-2026-0067', 'Les Chevalières',        'Tradition'],
+    ['Domaine Sainte-Anne',       'Mâconnais',         'Mâcon-Villages',    'Blanc', 2024, 'sans',   77.9, 'ECH-MONDE-2026-0083', '',                       'Réserve'],
+    ['Domaine Tabard',            'Beaujolais',        'Brouilly',          'Rouge', 2024, 'sans',   75.2, 'ECH-MONDE-2026-0041', '',                       'Vieilles Vignes'],
   ];
 
   const ALL_ROWS = isMonde ? ALL_ROWS_MONDE : ALL_ROWS_FRANCE;
@@ -790,26 +791,24 @@ const AdminPalmares = ({ concours = 'france' }) => {
           <thead>
             <tr>
               <th>Producteur</th>
-              <th>Région</th>
-              <PalmaresSortableTh label="Appellation" k="appellation" sortKey={sortKey} sortDir={sortDir} onSort={handleSort}/>
+              <PalmaresSortableTh label="Appellation"             k="appellation" sortKey={sortKey} sortDir={sortDir} onSort={handleSort}/>
+              <PalmaresSortableTh label="Millésime"               k="mill"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
               <th>Couleur</th>
-              <PalmaresSortableTh label="Millésime"   k="mill"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
+              <th>Complément d'appellation</th>
+              <th>Cuvée</th>
               <th>Médaille</th>
-              <PalmaresSortableTh label="Note"        k="note"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
-              <th className="num">N° éch.</th>
             </tr>
           </thead>
           <tbody>
             {sorted.slice(0, pageSize).map((r, i) => (
               <tr key={i}>
                 <td style={{ fontWeight: 500 }}>{r[0]}</td>
-                <td className="muted">{r[1]}</td>
                 <td>{r[2]}</td>
-                <td className="muted">{r[3]}</td>
                 <td className="num tnum">{r[4]}</td>
+                <td className="muted">{r[3]}</td>
+                <td className="muted">{r[8]}</td>
+                <td>{r[9]}</td>
                 <td><MedailleBadge kind={r[5]} concours={concours}/></td>
-                <td className="num tnum" style={{ fontWeight: 600, color: 'var(--burgundy-800)' }}>{r[6].toFixed(1)}</td>
-                <td className="num tnum muted" style={{ fontSize: 11.5 }}>{r[7]}</td>
               </tr>
             ))}
           </tbody>
