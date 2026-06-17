@@ -22,14 +22,14 @@ const DOSSIER = {
 // R23 — colonnes tableau échantillons redessinées : N°ECH / Appellation / Mill. / Couleur / Qte / Unité / Cuvée / Lot / Statut
 // R24 — drawer : ajout complement, renommage dénomination + unité de volume
 const ECHANTILLONS = [
-  { n: 1, nom: 'Mâcon-Villages Blanc',   appellation: 'Mâcon-Villages',  complement: 'Climat Les Crays',         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-08', lot: 'L-2023-04', qte: 4200, unite: 'BT', denom: 'Domaine de la Chevalière' },
-  { n: 2, nom: 'Pouilly-Fuissé',         appellation: 'Pouilly-Fuissé',  complement: 'Lieu-dit En Vers Cras',    mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-14', lot: 'L-2022-08', qte: 2400, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'Volume DREV : 850hl déclaré, 920hl extrait du document' },
-  { n: 3, nom: 'Viré-Clessé',            appellation: 'Viré-Clessé',     complement: '',                         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Blanc tranquille', cuve: 'C-09', lot: 'L-2023-11', qte: 1800, unite: 'BT', denom: 'Domaine de la Chevalière' },
-  { n: 4, nom: 'Mâcon-Solutré',          appellation: 'Mâcon-Villages',  complement: 'Lieu-dit Solutré',         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-11', lot: 'L-2023-07', qte:   48, unite: 'HL', denom: 'Domaine de la Chevalière' },
-  { n: 5, nom: 'Saint-Véran',            appellation: 'Saint-Véran',     complement: 'Climat Les Pommards',      mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'err',  type: 'Blanc tranquille', cuve: 'C-12A',lot: 'L-2022-03', qte: 1900, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'Cuve déclarée "C-12A" ≠ document "C-12B"' },
-  { n: 6, nom: 'Mâcon Rouge',            appellation: 'Mâcon',           complement: '',                         mill: 2022, cep: 'Pinot Noir', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Rouge tranquille', cuve: 'C-22', lot: 'L-2022-15', qte:   32, unite: 'HL', denom: 'Domaine de la Chevalière' },
-  { n: 7, nom: 'Bourgogne Blanc',        appellation: 'Bourgogne',       complement: '',                         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-05', lot: 'L-2023-02', qte: 5100, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'pH manquant dans le bulletin d\'analyses' },
-  { n: 8, nom: 'Crémant de Bourgogne',   appellation: 'Crémant',         complement: 'Blanc de Blancs',          mill: 2021, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Effervescent',     cuve: 'C-30', lot: 'L-2021-09', qte:  420, unite: 'HL', denom: 'Domaine de la Chevalière' },
+  { n: 1, nom: 'Mâcon-Villages Blanc',   appellation: 'Mâcon-Villages',  complement: 'Climat Les Crays',         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-08', lot: 'L-2023-04', qte: 4200, unite: 'BT', denom: 'Domaine de la Chevalière', refProd: 'CHV-2023-001' },
+  { n: 2, nom: 'Pouilly-Fuissé',         appellation: 'Pouilly-Fuissé',  complement: 'Lieu-dit En Vers Cras',    mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-14', lot: 'L-2022-08', qte: 2400, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'Volume DREV : 850hl déclaré, 920hl extrait du document', refProd: 'CHV-2022-004' },
+  { n: 3, nom: 'Viré-Clessé',            appellation: 'Viré-Clessé',     complement: '',                         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Blanc tranquille', cuve: 'C-09', lot: 'L-2023-11', qte: 1800, unite: 'BT', denom: 'Domaine de la Chevalière', refProd: 'CHV-2023-002' },
+  { n: 4, nom: 'Mâcon-Solutré',          appellation: 'Mâcon-Villages',  complement: 'Lieu-dit Solutré',         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12.5°', s: 'ok',   type: 'Blanc tranquille', cuve: 'C-11', lot: 'L-2023-07', qte:   48, unite: 'HL', denom: 'Domaine de la Chevalière', refProd: 'CHV-2023-003' },
+  { n: 5, nom: 'Saint-Véran',            appellation: 'Saint-Véran',     complement: 'Climat Les Pommards',      mill: 2022, cep: 'Chardonnay', vol: '75cl', deg: '13°',   s: 'err',  type: 'Blanc tranquille', cuve: 'C-12A',lot: 'L-2022-03', qte: 1900, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'Cuve déclarée "C-12A" ≠ document "C-12B"', refProd: 'CHV-2022-005' },
+  { n: 6, nom: 'Mâcon Rouge',            appellation: 'Mâcon',           complement: '',                         mill: 2022, cep: 'Pinot Noir', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Rouge tranquille', cuve: 'C-22', lot: 'L-2022-15', qte:   32, unite: 'HL', denom: 'Domaine de la Chevalière', refProd: 'CHV-2022-006' },
+  { n: 7, nom: 'Bourgogne Blanc',        appellation: 'Bourgogne',       complement: '',                         mill: 2023, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'warn', type: 'Blanc tranquille', cuve: 'C-05', lot: 'L-2023-02', qte: 5100, unite: 'BT', denom: 'Domaine de la Chevalière', anomaly: 'pH manquant dans le bulletin d\'analyses', refProd: 'CHV-2023-007' },
+  { n: 8, nom: 'Crémant de Bourgogne',   appellation: 'Crémant',         complement: 'Blanc de Blancs',          mill: 2021, cep: 'Chardonnay', vol: '75cl', deg: '12°',   s: 'ok',   type: 'Effervescent',     cuve: 'C-30', lot: 'L-2021-09', qte:  420, unite: 'HL', denom: 'Domaine de la Chevalière', refProd: 'CHV-2021-008' },
 ];
 
 const sStyles = {
@@ -320,6 +320,7 @@ const TabEchantillons = ({ onOpen }) => (
             <th style={{ width: 64 }}>Unité</th>
             <th>Cuvée</th>
             <th style={{ width: 110 }}>Lot</th>
+            <th style={{ width: 130 }}>Réf. Producteur</th>
             <th>Statut</th>
             <th></th>
           </tr>
@@ -335,6 +336,7 @@ const TabEchantillons = ({ onOpen }) => (
               <td><span style={{ fontSize: 11, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: 'var(--slate-100)', color: 'var(--fg-muted)', letterSpacing: '0.04em' }}>{e.unite}</span></td>
               <td style={{ fontWeight: 500 }}>{e.nom}</td>
               <td className="tnum muted" style={{ fontSize: 12 }}>{e.lot}</td>
+              <td className="tnum muted" style={{ fontSize: 12 }}>{e.refProd || '—'}</td>
               <td><DossierStatusPill s={e.s} withLabel/></td>
               <td><Icon.ChevronRight size={13} style={{ color: 'var(--fg-subtle)' }}/></td>
             </tr>
