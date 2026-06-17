@@ -513,6 +513,15 @@ const TabDocuments = ({ onPreview, decisions = {} }) => (
 const TabControle = ({ onPreview }) => {
   // corrections: { [echN]: { fields: { [fieldKey]: { value, source } }, justif } }
   const [corrections, setCorrections] = React.useState({});
+  // Validation manuelle
+  const [validManuel, setValidManuel]   = React.useState(null); // null | 'valide' | 'rejete'
+  const [showValForm, setShowValForm]   = React.useState(false);
+  const [validJustif, setValidJustif]   = React.useState('');
+  // Commentaire interne contrôle
+  const [ctrlComments, setCtrlComments] = React.useState([
+    { auteur: 'Sophie L.', date: '12/04 15h30', texte: 'Appelé Marie Dupont — confirme que la cuve C-12B est correcte, erreur de saisie.' },
+  ]);
+  const [ctrlNewComment, setCtrlNewComment] = React.useState('');
 
   const rules = [
     { rule: 'Champs obligatoires présents',                  s: 'ok',   detail: 'Tous les champs requis sont remplis.' },
@@ -621,6 +630,132 @@ const TabControle = ({ onPreview }) => {
       </div>
 
       <NoEcartsFooter count={TOTAL_ECHANTILLONS - ECARTS.length}/>
+
+      {/* ── Validation manuelle (R69) ── */}
+      <div className="card" style={{ padding: 22, marginTop: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: '-0.01em' }}>Validation manuelle</div>
+            <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>
+              Permet de passer outre le score automatique et de statuer manuellement sur ce dossier.
+            </div>
+          </div>
+          {validManuel && (
+            <span className={'badge ' + (validManuel === 'valide' ? 'badge-success' : 'badge-danger')} style={{ fontSize: 12.5, padding: '5px 12px' }}>
+              {validManuel === 'valide' ? <><Icon.Check size={11}/> Validé manuellement</> : <><Icon.X size={11}/> Rejeté manuellement</>}
+            </span>
+          )}
+        </div>
+
+        {!showValForm && !validManuel && (
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => { setShowValForm(true); setValidJustif(''); }}
+            >
+              <Icon.Check size={13}/> Valider manuellement
+            </button>
+            <button
+              className="btn btn-outline btn-sm"
+              style={{ borderColor: '#fecaca', color: '#b91c1c' }}
+              onClick={() => { setShowValForm('rejete'); setValidJustif(''); }}
+            >
+              <Icon.X size={13}/> Rejeter manuellement
+            </button>
+          </div>
+        )}
+
+        {showValForm && (
+          <div style={{ background: 'var(--surface-2)', borderRadius: 10, padding: 16 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 8 }}>
+              {showValForm === 'rejete' ? 'Motif du rejet' : 'Justification de la validation'}
+              <span style={{ color: 'var(--burgundy-800)', marginLeft: 4 }}>*</span>
+            </div>
+            <textarea
+              className="input"
+              rows={3}
+              value={validJustif}
+              onChange={e => setValidJustif(e.target.value)}
+              placeholder={showValForm === 'rejete'
+                ? "Expliquer le motif de rejet (visible dans l'historique)…"
+                : "Expliquer pourquoi le dossier est validé malgré le score automatique…"
+              }
+              style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit', marginBottom: 10 }}
+            />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowValForm(false)}>Annuler</button>
+              <button
+                className={'btn btn-sm ' + (showValForm === 'rejete' ? 'btn-outline' : 'btn-primary')}
+                style={showValForm === 'rejete' ? { borderColor: '#fecaca', color: '#b91c1c' } : {}}
+                disabled={!validJustif.trim()}
+                onClick={() => { setValidManuel(showValForm === 'rejete' ? 'rejete' : 'valide'); setShowValForm(false); }}
+              >
+                {showValForm === 'rejete' ? <><Icon.X size={13}/> Confirmer le rejet</> : <><Icon.Check size={13}/> Confirmer la validation</>}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {validManuel && (
+          <div style={{ marginTop: 10 }}>
+            <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 6, fontStyle: 'italic' }}>
+              {validManuel === 'valide' ? '✓ Dossier validé' : '✗ Dossier rejeté'} manuellement par <strong>Sophie L.</strong> — {validJustif && `« ${validJustif} »`}
+            </div>
+            <button className="btn btn-ghost btn-sm" style={{ color: 'var(--fg-muted)', fontSize: 12 }} onClick={() => { setValidManuel(null); setValidJustif(''); }}>
+              Annuler la décision manuelle
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Commentaire interne contrôle (R69) ── */}
+      <div className="card" style={{ padding: 22, marginTop: 12 }}>
+        <div style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: '-0.01em', marginBottom: 4 }}>
+          Commentaires internes
+          <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--fg-muted)', marginLeft: 8 }}>admin uniquement</span>
+        </div>
+        <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 14 }}>
+          Notes liées au contrôle de ce dossier, non visibles par le producteur.
+        </div>
+
+        {/* Commentaires existants */}
+        {ctrlComments.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+            {ctrlComments.map((c, i) => (
+              <div key={i} style={{ padding: '10px 14px', background: 'var(--slate-50)', borderRadius: 8, fontSize: 12.5 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                  <span className="avatar" style={{ width: 22, height: 22, fontSize: 10 }}>{c.auteur.split(' ').map(w => w[0]).join('')}</span>
+                  <span style={{ fontWeight: 600 }}>{c.auteur}</span>
+                  <span style={{ color: 'var(--fg-muted)' }}>· {c.date}</span>
+                </div>
+                <div style={{ color: 'var(--fg)', lineHeight: 1.5 }}>« {c.texte} »</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Nouveau commentaire */}
+        <textarea
+          className="input"
+          rows={3}
+          value={ctrlNewComment}
+          onChange={e => setCtrlNewComment(e.target.value)}
+          placeholder="Ajouter un commentaire interne sur le contrôle…"
+          style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit' }}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+          <button
+            className="btn btn-primary btn-sm"
+            disabled={!ctrlNewComment.trim()}
+            onClick={() => {
+              setCtrlComments(prev => [...prev, { auteur: 'Sophie L.', date: 'maintenant', texte: ctrlNewComment.trim() }]);
+              setCtrlNewComment('');
+            }}
+          >
+            <Icon.Plus size={13}/> Ajouter
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
