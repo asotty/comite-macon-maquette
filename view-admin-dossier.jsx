@@ -574,6 +574,31 @@ const TabControle = ({ onPreview }) => {
         </table>
       </div>
 
+      {/* Anomalies — règles avec statut 'err', mis en avant sous forme de cartes */}
+      {rules.some(r => r.s === 'err') && (<>
+        <SectionLabel>Anomalie{rules.filter(r => r.s === 'err').length > 1 ? 's' : ''} détectée{rules.filter(r => r.s === 'err').length > 1 ? 's' : ''}</SectionLabel>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+          {rules.filter(r => r.s === 'err').map((r, i) => (
+            <div key={i} className="card" style={{ padding: '16px 20px', borderColor: '#fecaca', background: '#fef2f2', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: '#fecaca', color: '#991b1b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon.AlertTriangle size={15}/>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: '#7f1d1d', marginBottom: 4 }}>{r.rule}</div>
+                <div style={{ fontSize: 13, color: '#991b1b' }}>{r.detail}</div>
+              </div>
+              <button
+                className="btn btn-outline btn-sm"
+                style={{ borderColor: '#fecaca', color: '#991b1b', whiteSpace: 'nowrap', flexShrink: 0 }}
+                onClick={() => onPreview && onPreview({ name: 'bulletin-analyses-pouilly-fuisse.pdf', size: '1.9 Mo', status: 'err', kind: 'bulletin', ech: ECHANTILLONS[4], anomaly: r })}
+              >
+                <Icon.Eye size={13}/> Voir la source
+              </button>
+            </div>
+          ))}
+        </div>
+      </>)}
+
       {/* Comparaison données */}
       <SectionLabel>Données extraites vs déclarées</SectionLabel>
       <DiscrepancyHeader
