@@ -214,9 +214,18 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
             <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--burgundy-900)', marginBottom: 4 }}>
               Paiement en attente
             </div>
-            <div style={{ fontSize: 13.5, color: 'var(--burgundy-700)' }}>
+            <div style={{ fontSize: 13.5, color: 'var(--burgundy-700)', marginBottom: 10 }}>
               Votre dossier <strong style={{ fontVariantNumeric: 'tabular-nums' }}>INS-2026-0184</strong> est en attente de paiement.
               Réglez avant la clôture pour valider votre participation.
+            </div>
+            {/* Message bloquant paiement */}
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              background: 'var(--burgundy-800)', color: '#fff',
+              borderRadius: 8, padding: '6px 12px', fontSize: 12.5, fontWeight: 600,
+            }}>
+              <Icon.Lock size={12}/>
+              Votre dossier ne sera traité qu'après paiement de votre inscription.
             </div>
           </div>
           <button className="btn btn-primary" onClick={() => onNavigate('p-inscription')} style={{ whiteSpace: 'nowrap' }}>
