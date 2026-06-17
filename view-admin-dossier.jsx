@@ -153,8 +153,7 @@ const AdminDossierDetail = ({ onBack, onNavigate }) => {
         </div>
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
           <button className="btn btn-outline btn-sm"><Icon.Mail size={13}/> Contacter</button>
-          <button className="btn btn-outline btn-sm" style={{ color: '#991b1b', borderColor: 'var(--border)' }}><Icon.X size={13}/> Rejeter</button>
-          <button className="btn btn-primary btn-sm"><Icon.Check size={14}/> Valider le dossier</button>
+<button className="btn btn-primary btn-sm"><Icon.Check size={14}/> Valider le dossier</button>
         </div>
       </div>
 
