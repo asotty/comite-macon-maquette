@@ -191,7 +191,7 @@ const navDegustateur = [
   { id: 'formations',     label: 'Formations',         route: 'd-formations',     match: ['d-formations', 'd-formation-detail'] },
   { id: 'repas',          label: 'Repas',              route: 'd-repas',          match: ['d-repas', 'd-repas-venir', 'd-repas-mes'] },
   { id: 'concours',       label: 'Prochains concours', route: 'd-concours',       match: ['d-concours'] },
-  { id: 'disponibilites', label: 'Mes disponibilités', route: 'd-disponibilites', match: ['d-disponibilites'] },
+  { id: 'historique',     label: 'Mon historique',      route: 'd-historique',     match: ['d-historique'] },
   { id: 'compte',         label: 'Mon compte',         route: 'd-compte',         match: ['d-compte', 'd-compte-infos', 'd-compte-prefs', 'd-compte-mdp'], hidden: true },
 ];
 

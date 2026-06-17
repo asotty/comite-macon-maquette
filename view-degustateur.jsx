@@ -179,26 +179,18 @@ const DegustateurDashboard = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Mes disponibilités */}
+        {/* Mon historique */}
         <div className="card" style={{ padding: 22 }}>
-          <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>Mes disponibilités</div>
+          <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>Mon historique</div>
           <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2, marginBottom: 18 }}>
-            Pour les prochaines sessions de dégustation
+            Vos participations aux concours
           </div>
-          <div style={{
-            display: 'flex', alignItems: 'baseline', gap: 8,
-            marginBottom: 14,
-          }}>
-            <span className="display tnum" style={{ fontSize: 30, fontWeight: 500, color: 'var(--burgundy-800)' }}>{dispoCount}</span>
-            <span style={{ fontSize: 13, color: 'var(--fg-muted)' }}>
-              créneaux déclarés sur <span style={{ color: 'var(--fg)' }}>{dispoTotal}</span> proposés
-            </span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 14 }}>
+            <span className="display tnum" style={{ fontSize: 30, fontWeight: 500, color: 'var(--burgundy-800)' }}>4</span>
+            <span style={{ fontSize: 13, color: 'var(--fg-muted)' }}>éditions · <span style={{ color: 'var(--fg)' }}>5</span> sessions de dégustation</span>
           </div>
-          <div style={{ height: 6, borderRadius: 999, background: 'var(--slate-100)', overflow: 'hidden', marginBottom: 16 }}>
-            <div style={{ height: '100%', width: (dispoCount / dispoTotal * 100) + '%', background: 'var(--burgundy-800)' }}/>
-          </div>
-          <button onClick={() => onNavigate('d-disponibilites')} className="btn btn-outline" style={{ width: '100%' }}>
-            <Icon.Edit size={13}/> Mettre à jour mes disponibilités
+          <button onClick={() => onNavigate('d-historique')} className="btn btn-outline" style={{ width: '100%' }}>
+            <Icon.History size={13}/> Voir mon historique complet
           </button>
         </div>
       </div>
@@ -980,100 +972,123 @@ const DegustateurConcours = () => {
 };
 
 // =====================================================================
-// 7 — Mes disponibilités (créneaux uniquement — préférences dans Mon compte)
+// 7 — Mon historique (anciennes inscriptions aux concours)
 // =====================================================================
 
-const DegustateurDisponibilites = () => {
-  const initial = { 'cf-s1': true, 'cf-s2': true, 'cf-s3': false, 'cm-s1': true, 'cm-s2': true };
-  const [dispos, setDispos] = React.useState(initial);
-  const dirty = Object.keys(initial).some(k => initial[k] !== dispos[k]) || Object.keys(dispos).some(k => initial[k] !== dispos[k]);
+const HISTORIQUE_PARTICIPATIONS = [
+  {
+    id: 'h1',
+    concours: 'Concours des Grands Vins de France',
+    type: 'france',
+    edition: '2025',
+    date: '23 mai 2025',
+    lieu: 'Mâcon',
+    sessions: [
+      { jury: 'Jury n°3', region: 'Mâconnais blanc', date: '23 mai 2025', heure: '9h – 13h', nbVins: 28 },
+      { jury: 'Jury n°7', region: 'Beaujolais rouge', date: '23 mai 2025', heure: '14h – 17h', nbVins: 22 },
+    ],
+  },
+  {
+    id: 'h2',
+    concours: 'Concours des Grands Vins du Monde',
+    type: 'monde',
+    edition: '2025',
+    date: '14 juin 2025',
+    lieu: 'Mâcon',
+    sessions: [
+      { jury: 'Jury n°2', region: 'Vins blancs internationaux', date: '14 juin 2025', heure: '8h30 – 12h', nbVins: 24 },
+    ],
+  },
+  {
+    id: 'h3',
+    concours: 'Concours des Grands Vins de France',
+    type: 'france',
+    edition: '2024',
+    date: '25 mai 2024',
+    lieu: 'Mâcon',
+    sessions: [
+      { jury: 'Jury n°4', region: 'Mâconnais blanc', date: '25 mai 2024', heure: '9h – 13h', nbVins: 30 },
+    ],
+  },
+  {
+    id: 'h4',
+    concours: 'Concours des Grands Vins de France',
+    type: 'france',
+    edition: '2023',
+    date: '26 mai 2023',
+    lieu: 'Mâcon',
+    sessions: [
+      { jury: 'Jury n°5', region: 'Mâconnais blanc', date: '26 mai 2023', heure: '9h – 12h30', nbVins: 26 },
+      { jury: 'Jury n°9', region: 'Beaujolais blanc', date: '26 mai 2023', heure: '14h – 17h', nbVins: 18 },
+    ],
+  },
+];
 
-  // Regrouper par concours
-  const grouped = DEGUST_CRENEAUX.reduce((acc, c) => {
-    if (!acc[c.concours]) acc[c.concours] = [];
-    acc[c.concours].push(c);
-    return acc;
-  }, {});
-
-  const totalChecked = Object.values(dispos).filter(Boolean).length;
+const DegustateurHistorique = () => {
+  const totalSessions = HISTORIQUE_PARTICIPATIONS.reduce((s, p) => s + p.sessions.length, 0);
+  const totalVins     = HISTORIQUE_PARTICIPATIONS.reduce((s, p) => s + p.sessions.reduce((ss, j) => ss + j.nbVins, 0), 0);
 
   return (
     <div>
       <PageHeader
-        title="Mes disponibilités"
-        subtitle="Indiquez vos disponibilités pour les prochaines sessions de dégustation"
+        title="Mon historique"
+        subtitle="Récapitulatif de vos participations aux concours"
       />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, padding: '12px 16px', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10 }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: 8,
-          background: 'var(--burgundy-50)', color: 'var(--burgundy-800)',
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon.Activity size={15}/>
-        </div>
-        <div style={{ flex: 1, fontSize: 13.5 }}>
-          <strong>{totalChecked}</strong> créneau{totalChecked > 1 ? 'x' : ''} déclaré{totalChecked > 1 ? 's' : ''} disponible{totalChecked > 1 ? 's' : ''} sur {DEGUST_CRENEAUX.length} proposés.
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>
-          La composition des jurys dépend de vos disponibilités.
-        </div>
+      {/* Chiffres clés */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+        {[
+          { label: 'Éditions', value: HISTORIQUE_PARTICIPATIONS.length },
+          { label: 'Sessions de dégustation', value: totalSessions },
+          { label: 'Vins dégustés', value: totalVins },
+        ].map(k => (
+          <div key={k.label} className="card" style={{ padding: '16px 20px' }}>
+            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500, marginBottom: 6 }}>{k.label}</div>
+            <div className="tnum display" style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--burgundy-800)' }}>{k.value}</div>
+          </div>
+        ))}
       </div>
 
-      {Object.entries(grouped).map(([concours, items]) => (
-        <div key={concours} className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 16 }}>
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+      {/* Liste par édition */}
+      {HISTORIQUE_PARTICIPATIONS.map(p => (
+        <div key={p.id} className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 16 }}>
+          {/* En-tête édition */}
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
-              width: 28, height: 28, borderRadius: 7,
-              background: concours.includes('Monde') ? '#eef4ff' : 'var(--burgundy-50)',
-              color: concours.includes('Monde') ? '#1e40af' : 'var(--burgundy-800)',
+              width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+              background: p.type === 'monde' ? '#eef4ff' : 'var(--burgundy-50)',
+              color:      p.type === 'monde' ? '#1e40af' : 'var(--burgundy-800)',
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              {concours.includes('Monde') ? <Icon.Globe size={14}/> : <Icon.Trophy size={14}/>}
+              {p.type === 'monde' ? <Icon.Globe size={15}/> : <Icon.Trophy size={15}/>}
             </div>
-            <div style={{ fontSize: 15, fontWeight: 600 }}>{concours}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14.5, fontWeight: 600 }}>{p.concours}</div>
+              <div style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>Édition {p.edition} · {p.date} · {p.lieu}</div>
+            </div>
+            <span className="badge badge-success" style={{ fontSize: 12 }}>
+              <Icon.Check size={11}/> {p.sessions.length} session{p.sessions.length > 1 ? 's' : ''}
+            </span>
           </div>
-          <div>
-            {items.map((c, i) => {
-              const checked = dispos[c.id];
-              return (
-                <label key={c.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  padding: '14px 20px',
-                  cursor: 'pointer',
-                  borderTop: i > 0 ? '1px solid var(--border)' : 'none',
-                  background: checked ? 'rgba(83,20,66,0.025)' : 'transparent',
-                  transition: 'background .12s',
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={e => setDispos({ ...dispos, [c.id]: e.target.checked })}
-                    style={{ accentColor: 'var(--burgundy-800)', width: 18, height: 18, margin: 0, cursor: 'pointer' }}
-                  />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 500 }}>{c.label} · {c.date}</div>
-                    <div style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>{c.heure} · {c.lieu}</div>
-                  </div>
-                  <span style={{
-                    fontSize: 12, fontWeight: 500,
-                    color: checked ? 'var(--success)' : 'var(--fg-muted)',
-                  }}>
-                    {checked ? 'Disponible' : 'Indisponible'}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
+          {/* Détail sessions */}
+          {p.sessions.map((s, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', gap: 16,
+              padding: '12px 20px',
+              borderTop: i > 0 ? '1px solid var(--border)' : 'none',
+              fontSize: 13.5,
+            }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 500 }}>{s.jury} — {s.region}</div>
+                <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>{s.date} · {s.heure}</div>
+              </div>
+              <div className="tnum" style={{ fontSize: 13, color: 'var(--fg-muted)', flexShrink: 0 }}>
+                {s.nbVins} vins
+              </div>
+            </div>
+          ))}
         </div>
       ))}
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
-        {dirty && <button onClick={() => setDispos(initial)} className="btn btn-outline">Annuler</button>}
-        <button disabled={!dirty} className="btn btn-primary">
-          <Icon.Check size={14}/> Enregistrer mes disponibilités
-        </button>
-      </div>
     </div>
   );
 };
@@ -1283,7 +1298,7 @@ Object.assign(window, {
   DegustateurRepas,
   DegustateurReservations,
   DegustateurConcours,
-  DegustateurDisponibilites,
+  DegustateurHistorique,
   DegustateurCompte,
   DegustateurGeneric,
 });

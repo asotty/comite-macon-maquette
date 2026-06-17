@@ -28,11 +28,11 @@
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-<script type="text/babel" src="icons.jsx?v=3"></script>
+<script type="text/babel" src="icons.jsx?v=4"></script>
 <script type="text/babel" src="components-shared.jsx?v=5"></script>
 <script type="text/babel" src="tweaks-panel.jsx?v=3"></script>
 <script type="text/babel" src="view-login.jsx?v=3"></script>
-<script type="text/babel" src="shell.jsx?v=10"></script>
+<script type="text/babel" src="shell.jsx?v=11"></script>
 <script type="text/babel" src="view-admin.jsx?v=14"></script>
 <script type="text/babel" src="view-admin-email.jsx?v=4"></script>
 <script type="text/babel" src="view-admin-dossier.jsx?v=17"></script>
@@ -46,7 +46,7 @@
 <script type="text/babel" src="view-admin-finances.jsx?v=3"></script>
 <script type="text/babel" src="view-admin-parametres.jsx?v=4"></script>
 <script type="text/babel" src="view-producteur.jsx?v=18"></script>
-<script type="text/babel" src="view-degustateur.jsx?v=4"></script>
+<script type="text/babel" src="view-degustateur.jsx?v=5"></script>
 <script type="text/babel" src="page-guide.jsx?v=3"></script>
 
 <script type="text/babel" data-presets="react">
@@ -168,7 +168,7 @@ function App() {
     else if (route === 'd-repas' || route === 'd-repas-venir') view = <DegustateurRepas onNavigate={setRoute}/>;
     else if (route === 'd-repas-mes') view = <DegustateurReservations onNavigate={setRoute}/>;
     else if (route === 'd-concours') view = <DegustateurConcours/>;
-    else if (route === 'd-disponibilites') view = <DegustateurDisponibilites/>;
+    else if (route === 'd-historique') view = <DegustateurHistorique/>;
     else if (route === 'd-compte' || route === 'd-compte-infos') view = <DegustateurCompte initial="infos"/>;
     else if (route === 'd-compte-prefs') view = <DegustateurCompte initial="prefs"/>;
     else if (route === 'd-compte-mdp') view = <DegustateurCompte initial="mdp"/>;
