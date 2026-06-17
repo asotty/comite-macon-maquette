@@ -35,7 +35,7 @@
 <script type="text/babel" src="shell.jsx?v=10"></script>
 <script type="text/babel" src="view-admin.jsx?v=13"></script>
 <script type="text/babel" src="view-admin-email.jsx?v=4"></script>
-<script type="text/babel" src="view-admin-dossier.jsx?v=6"></script>
+<script type="text/babel" src="view-admin-dossier.jsx?v=7"></script>
 <script type="text/babel" src="view-admin-controle.jsx?v=4"></script>
 <script type="text/babel" src="view-admin-derogations.jsx?v=3"></script>
 <script type="text/babel" src="view-admin-commandes.jsx?v=3"></script>
@@ -102,7 +102,7 @@ function App() {
     // Concours France sub-routes
     if (route === 'fr-dashboard') view = <AdminConcoursDashboard concours="France"/>;
     else if (route === 'monde-dashboard') view = <AdminConcoursDashboard concours="Monde"/>;
-    else if (route === 'fr-dossier') view = <AdminDossierDetail onBack={() => setRoute('fr-inscriptions')}/>;
+    else if (route === 'fr-dossier') view = <AdminDossierDetail onBack={() => setRoute('fr-inscriptions')} onNavigate={setRoute}/>;
     else if (route === 'inscriptions-fr' || route === 'fr-inscriptions') view = <AdminInscriptions concours="France" onOpenDossier={() => setRoute('fr-dossier')}/>;
     else if (route === 'fr-echantillons') view = <AdminGeneric title="Échantillons — Concours France" sub="2 184 échantillons reçus · 1 940 contrôlés" icon={<Icon.Wine size={26}/>} breadcrumb={['Administration', 'Concours France', 'Échantillons']}/>;
     else if (route === 'fr-controle') view = <AdminControleOptimise concours="France" onOpenDossier={() => setRoute('fr-dossier')}/>;

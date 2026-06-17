@@ -69,7 +69,7 @@ const KV = ({ label, children, mono }) => (
 
 // ─── Page principale ───────────────────────────────────────────────
 
-const AdminDossierDetail = ({ onBack }) => {
+const AdminDossierDetail = ({ onBack, onNavigate }) => {
   const [tab, setTab] = React.useState('echantillons');
   const [drawerEch, setDrawerEch] = React.useState(null);
   const [paid, setPaid] = React.useState(false);
@@ -210,7 +210,7 @@ const AdminDossierDetail = ({ onBack }) => {
         </div>
 
         {/* Colonne droite : panneau infos */}
-        <DossierAside/>
+        <DossierAside onNavigate={onNavigate}/>
       </div>
 
       {/* Drawer échantillon */}
@@ -233,7 +233,7 @@ const AdminDossierDetail = ({ onBack }) => {
 
 // ─── Panneau latéral ───────────────────────────────────────────────
 
-const DossierAside = () => (
+const DossierAside = ({ onNavigate }) => (
   <div style={{
     position: 'sticky', top: 80,
     background: 'var(--surface)',
@@ -245,7 +245,7 @@ const DossierAside = () => (
     <SectionLabel>Producteur</SectionLabel>
     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg)', marginBottom: 2 }}>{DOSSIER.domaine}</div>
     <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 8 }}>{DOSSIER.region}</div>
-    <a href="#" onClick={e => e.preventDefault()} style={{ fontSize: 12.5, color: 'var(--burgundy-800)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+    <a href="#" onClick={e => { e.preventDefault(); onNavigate && onNavigate('producteur-detail'); }} style={{ fontSize: 12.5, color: 'var(--burgundy-800)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
       Voir la fiche producteur <Icon.ArrowRight size={11}/>
     </a>
 
