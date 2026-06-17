@@ -33,11 +33,13 @@ const DEGUST_CRENEAUX = [
 // Statut d'inscription dégustateur : 'a_valider' | 'valide'
 const INSCRIPTION_STATUT = 'a_valider';
 
+// Disponibilité dégustateur par concours : 'disponible' | 'indisponible' | null (non renseigné)
+const CONCOURS_DISPO = [
+  { id: 'france', nom: 'Comité des Grands Vins de France',  logo: null, dispo: 'disponible'   },
+  { id: 'monde',  nom: 'Comité des Grands Vins du Monde',   logo: null, dispo: 'indisponible' },
+];
+
 const DegustateurDashboard = ({ onNavigate }) => {
-  const sessions = [
-    { id: 's1', date: '24 mai 2026',  heure: '9h – 18h', concours: 'Concours France',  jury: 'Jury n°4 · Mâconnais blanc',  table: 'Table 7', lieu: 'Mâcon' },
-    { id: 's2', date: '14 juin 2026', heure: '9h – 17h', concours: 'Concours Monde',   jury: 'Jury n°2 · Vins blancs',      table: 'Table 3', lieu: 'Mâcon' },
-  ];
   const formations = [
     { id: 'f1', titre: 'Nouvelles méthodes OIV', date: '21 juin 2026', lieu: 'En ligne', duree: '3 h' },
   ];
@@ -45,8 +47,6 @@ const DegustateurDashboard = ({ onNavigate }) => {
     { id: 'r1', date: '25 mai 2026',  evt: 'Repas du Comité',       lieu: 'Restaurant Saint-Vincent · Mâcon' },
     { id: 'r2', date: '14 juin 2026', evt: 'Déjeuner Concours Monde', lieu: 'Salle du Comité · Mâcon' },
   ];
-  const dispoCount = 4;
-  const dispoTotal = DEGUST_CRENEAUX.length;
 
   return (
     <div>
@@ -60,38 +60,44 @@ const DegustateurDashboard = ({ onNavigate }) => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        {/* Mes prochaines sessions */}
+        {/* Mes concours — disponibilité */}
         <div className="card" style={{ padding: 0 }}>
           <DashCardHeader
-            title="Mes prochaines sessions"
-            sub="Dégustations auxquelles vous êtes convoqué"
-            onSeeAll={() => onNavigate('d-concours')}
+            title="Mes concours"
+            sub="Votre disponibilité pour chaque édition"
           />
           <div style={{ padding: '4px 22px 18px' }}>
-            {sessions.length === 0 ? (
-              <EmptyDash icon={<Icon.Trophy size={18}/>} label="Aucune session assignée"
-                hint="Le jury n'est pas encore composé. Vous serez notifié par email."/>
-            ) : (
-              sessions.map((s, i) => (
-                <div key={s.id} style={{
+            {CONCOURS_DISPO.map((c, i) => {
+              const isOk = c.dispo === 'disponible';
+              const isNon = c.dispo === 'indisponible';
+              return (
+                <div key={c.id} style={{
                   display: 'flex', alignItems: 'center', gap: 14,
-                  padding: '12px 0',
+                  padding: '14px 0',
                   borderTop: i > 0 ? '1px solid var(--border)' : 'none',
                 }}>
+                  {/* Logo placeholder — remplacer par <img> quand logos reçus */}
                   <div style={{
-                    width: 40, height: 40, borderRadius: 8,
-                    background: 'var(--burgundy-50)', color: 'var(--burgundy-800)',
+                    width: 44, height: 44, borderRadius: 8, flexShrink: 0,
+                    background: 'var(--burgundy-50)',
+                    border: '1px solid var(--burgundy-200)',
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--burgundy-800)',
+                    fontSize: 10, fontWeight: 700, textAlign: 'center', lineHeight: 1.2,
                   }}>
-                    <Icon.Calendar size={16}/>
+                    {c.id === 'france' ? 'FR' : 'MO'}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 500 }}>{s.concours} · {s.date}</div>
-                    <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>{s.jury} · {s.table} · {s.heure}</div>
+                    <div style={{ fontSize: 13.5, fontWeight: 600 }}>{c.nom}</div>
+                  </div>
+                  <div>
+                    {isOk  && <span className="badge badge-success"><Icon.Check size={11}/> Disponible</span>}
+                    {isNon && <span className="badge badge-danger" style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }}><Icon.X size={11}/> Indisponible</span>}
+                    {!c.dispo && <span className="badge badge-outline" style={{ color: 'var(--fg-muted)' }}>Non renseigné</span>}
                   </div>
                 </div>
-              ))
-            )}
+              );
+            })}
           </div>
         </div>
 
