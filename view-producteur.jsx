@@ -1472,10 +1472,9 @@ const WizardStep4 = ({ nbVins, payMethod, setPayMethod }) => (
         </div>
         <span className="badge badge-success"><Icon.Check size={11}/> Dossier complet</span>
       </div>
-      <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+      <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
         <div><div className="muted" style={{ fontSize: 12 }}>Échantillons</div><div className="tnum display" style={{ fontSize: 22, fontWeight: 500 }}>{nbVins}</div></div>
         <div><div className="muted" style={{ fontSize: 12 }}>Documents</div><div className="tnum display" style={{ fontSize: 22, fontWeight: 500 }}>13</div></div>
-        <div><div className="muted" style={{ fontSize: 12 }}>Régions</div><div className="display" style={{ fontSize: 22, fontWeight: 500 }}>1</div></div>
       </div>
     </div>
 
