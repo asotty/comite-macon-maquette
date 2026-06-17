@@ -554,27 +554,7 @@ const TabControle = ({ onPreview }) => {
         <button className="btn btn-outline btn-sm"><Icon.Sparkles size={13}/> Relancer le contrôle</button>
       </div>
 
-      {/* Règles */}
-      <SectionLabel>Règles de contrôle</SectionLabel>
-      <div className="table-wrap" style={{ marginBottom: 28 }}>
-        <table className="table">
-          <thead>
-            <tr><th style={{ width: 40 }}></th><th>Règle</th><th>Détail</th><th></th></tr>
-          </thead>
-          <tbody>
-            {rules.map((r, i) => (
-              <tr key={i}>
-                <td><DossierStatusPill s={r.s}/></td>
-                <td style={{ fontWeight: 500 }}>{r.rule}</td>
-                <td className={r.s === 'ok' ? 'muted' : ''} style={{ color: r.s === 'err' ? '#991b1b' : r.s === 'warn' ? '#92400e' : undefined }}>{r.detail}</td>
-                <td>{r.s !== 'ok' && <button className="btn btn-icon btn-sm btn-ghost" title="Voir source" onClick={() => onPreview && onPreview({ name: 'bulletin-analyses-pouilly-fuisse.pdf', size: '1.9 Mo', status: r.s, kind: 'bulletin', ech: ECHANTILLONS[1], anomaly: r })}><Icon.Eye size={13}/></button>}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Anomalies — règles avec statut 'err', mis en avant sous forme de cartes */}
+      {/* Anomalies — règles avec statut 'err', affichées en premier sous forme de cartes */}
       {rules.some(r => r.s === 'err') && (<>
         <SectionLabel>Anomalie{rules.filter(r => r.s === 'err').length > 1 ? 's' : ''} détectée{rules.filter(r => r.s === 'err').length > 1 ? 's' : ''}</SectionLabel>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
@@ -598,6 +578,26 @@ const TabControle = ({ onPreview }) => {
           ))}
         </div>
       </>)}
+
+      {/* Règles */}
+      <SectionLabel>Règles de contrôle</SectionLabel>
+      <div className="table-wrap" style={{ marginBottom: 28 }}>
+        <table className="table">
+          <thead>
+            <tr><th style={{ width: 40 }}></th><th>Règle</th><th>Détail</th><th></th></tr>
+          </thead>
+          <tbody>
+            {rules.map((r, i) => (
+              <tr key={i}>
+                <td><DossierStatusPill s={r.s}/></td>
+                <td style={{ fontWeight: 500 }}>{r.rule}</td>
+                <td className={r.s === 'ok' ? 'muted' : ''} style={{ color: r.s === 'err' ? '#991b1b' : r.s === 'warn' ? '#92400e' : undefined }}>{r.detail}</td>
+                <td>{r.s !== 'ok' && <button className="btn btn-icon btn-sm btn-ghost" title="Voir source" onClick={() => onPreview && onPreview({ name: 'bulletin-analyses-pouilly-fuisse.pdf', size: '1.9 Mo', status: r.s, kind: 'bulletin', ech: ECHANTILLONS[1], anomaly: r })}><Icon.Eye size={13}/></button>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Comparaison données */}
       <SectionLabel>Données extraites vs déclarées</SectionLabel>
