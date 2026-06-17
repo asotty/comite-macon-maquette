@@ -15,25 +15,8 @@ const USER_DEGUSTATEUR = {
   pays: 'France',
   organisme: 'Cabinet Bouvier Œnologie',
   regionHabituelle: 'Mâconnais',
-  // Régime alimentaire (par défaut, transmis à chaque réservation de repas)
-  regime: { vegetarien: false, vegan: false, sansGluten: false, sansPorc: true, allergieFruitsACoque: false, autre: '' },
 };
 
-const REGIME_OPTIONS = [
-  { id: 'vegetarien',           label: 'Végétarien' },
-  { id: 'vegan',                label: 'Végan' },
-  { id: 'sansGluten',           label: 'Sans gluten' },
-  { id: 'sansPorc',             label: 'Sans porc' },
-  { id: 'allergieFruitsACoque', label: 'Allergie aux fruits à coque' },
-];
-
-// Résumé textuel d'un objet régime
-function regimeSummary(r) {
-  const yes = REGIME_OPTIONS.filter(o => r[o.id]).map(o => o.label);
-  if (r.autre) yes.push(r.autre);
-  if (yes.length === 0) return 'Aucune restriction déclarée';
-  return yes.join(' · ');
-}
 
 const DEGUST_CRENEAUX = [
   { id: 'cf-s1', concours: 'Concours France 2026', label: 'Session 1', date: '14 mars 2026', heure: '8h – 12h',   lieu: 'Mâcon' },
@@ -410,12 +393,12 @@ const DegustateurRepas = ({ onNavigate }) => {
   const [confirmedPayment, setConfirmedPayment] = React.useState(null); // { repas, regime, payment }
   const upcoming = repas.filter(r => !r.reserved || r.status === 'confirmee');
 
-  const handleConfirm = ({ repas: r, regime, paid, nbAccomp = 0, montant }) => {
-    setRepas(rs => rs.map(x => x.id === r.id ? { ...x, reserved: true, status: 'confirmee', paye: paid, places: x.places - 1, regime } : x));
+  const handleConfirm = ({ repas: r, paid, nbAccomp = 0, montant }) => {
+    setRepas(rs => rs.map(x => x.id === r.id ? { ...x, reserved: true, status: 'confirmee', paye: paid, places: x.places - 1 } : x));
     setReserving(null);
     if (paid && r.prix > 0) {
       setConfirmedPayment({
-        repas: r, regime, nbAccomp,
+        repas: r, nbAccomp,
         montant: montant || r.prix,
         ref: 'PAY-RPS-' + Math.floor(100000 + Math.random() * 900000),
       });
@@ -514,9 +497,8 @@ const DegustateurRepas = ({ onNavigate }) => {
   );
 };
 
-// Modale de réservation — récap + régime alimentaire + CTA paiement/confirmation
+// Modale de réservation — récap + accompagnateurs + CTA paiement/confirmation
 const ReservationModal = ({ repas, onClose, onConfirm }) => {
-  const [regime, setRegime] = React.useState(USER_DEGUSTATEUR.regime);
   const [nbAccomp, setNbAccomp] = React.useState(0);
   const isFree = repas.prix === 0;
   const prixAccomp = 28.00; // prix accompagnateur (issu des paramètres concours)
@@ -605,21 +587,6 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
           </div>
         </div>
 
-        {/* Bloc 4 — Régime alimentaire */}
-        <div style={{ padding: '16px 24px 0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-            <div>
-              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Régime alimentaire
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2 }}>
-                Pré-rempli depuis votre profil · modifiable pour ce repas uniquement
-              </div>
-            </div>
-          </div>
-          <RegimeFields regime={regime} onChange={setRegime}/>
-        </div>
-
         {/* Total */}
         <div style={{ margin: '16px 24px 0', padding: '14px 16px', background: 'var(--burgundy-50)', border: '1px solid var(--burgundy-200)', borderRadius: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
@@ -638,11 +605,11 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
         <div style={{ padding: '16px 24px 22px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button onClick={onClose} className="btn btn-outline">Annuler</button>
           {isFree ? (
-            <button onClick={() => onConfirm({ repas, regime, paid: false, nbAccomp, montant: 0 })} className="btn btn-primary">
+            <button onClick={() => onConfirm({ repas, paid: false, nbAccomp, montant: 0 })} className="btn btn-primary">
               <Icon.Check size={14}/> Confirmer ma réservation
             </button>
           ) : (
-            <button onClick={() => onConfirm({ repas, regime, paid: true, nbAccomp, montant: totalAmount })} className="btn btn-primary">
+            <button onClick={() => onConfirm({ repas, paid: true, nbAccomp, montant: totalAmount })} className="btn btn-primary">
               Réserver et payer · {formatPrix(totalAmount)} <Icon.ArrowRight size={14}/>
             </button>
           )}
@@ -652,45 +619,6 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
   );
 };
 
-// Champs régime alimentaire (checkboxes + champ texte autre)
-const RegimeFields = ({ regime, onChange }) => {
-  const toggle = (id) => onChange({ ...regime, [id]: !regime[id] });
-  return (
-    <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        {REGIME_OPTIONS.map(opt => {
-          const checked = !!regime[opt.id];
-          return (
-            <label key={opt.id} style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '10px 12px',
-              border: '1px solid ' + (checked ? 'var(--burgundy-300)' : 'var(--border)'),
-              background: checked ? 'var(--burgundy-50)' : 'var(--surface)',
-              borderRadius: 8,
-              cursor: 'pointer',
-              transition: 'all .12s',
-              fontSize: 13.5,
-              fontWeight: checked ? 500 : 400,
-              color: checked ? 'var(--burgundy-900)' : 'var(--fg)',
-            }}>
-              <input type="checkbox" checked={checked} onChange={() => toggle(opt.id)}
-                style={{ accentColor: 'var(--burgundy-800)', margin: 0, width: 16, height: 16, cursor: 'pointer' }}/>
-              {opt.label}
-            </label>
-          );
-        })}
-      </div>
-      <div className="field" style={{ marginTop: 12 }}>
-        <input
-          className="input"
-          placeholder="Autre — précisez (ex. allergie aux crustacés, intolérance lactose…)"
-          value={regime.autre || ''}
-          onChange={e => onChange({ ...regime, autre: e.target.value })}
-        />
-      </div>
-    </div>
-  );
-};
 
 // Confirmation post-paiement repas
 const RepasPaymentConfirmation = ({ payment, onContinue, onClose }) => (
@@ -738,18 +666,6 @@ const RepasPaymentConfirmation = ({ payment, onContinue, onClose }) => (
               </div>
             )}
           </div>
-          {!(payment.nbAccomp > 0) && (
-            <div>
-              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Régime alimentaire</div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>{regimeSummary(payment.regime)}</div>
-            </div>
-          )}
-          {payment.nbAccomp > 0 && (
-            <div style={{ gridColumn: 'span 2', paddingTop: 12, borderTop: '1px solid var(--border)' }}>
-              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Régime alimentaire</div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>{regimeSummary(payment.regime)}</div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -1144,10 +1060,9 @@ const DegustateurCompte = ({ initial }) => {
 
 const DegustCompteInfos = () => {
   const i = USER_DEGUSTATEUR;
-  const initial = { ...i, regime: { ...i.regime } };
+  const initial = { ...i };
   const [f, setF] = React.useState(initial);
   const setField = (k) => (e) => setF(s => ({ ...s, [k]: e.target.value }));
-  const setRegime = (newR) => setF(s => ({ ...s, regime: newR }));
   const dirty = JSON.stringify(initial) !== JSON.stringify(f);
 
   return (
@@ -1183,15 +1098,6 @@ const DegustCompteInfos = () => {
             </select>
           </div>
         </div>
-      </div>
-
-      {/* Régime alimentaire */}
-      <div className="card" style={{ padding: 24, marginBottom: 20 }}>
-        <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', marginBottom: 4 }}>Régime alimentaire</div>
-        <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 18 }}>
-          Ces informations sont transmises à l'organisateur pour chaque repas auquel vous participez. Elles restent modifiables au moment de la réservation.
-        </div>
-        <RegimeFields regime={f.regime} onChange={setRegime}/>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
