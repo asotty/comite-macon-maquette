@@ -34,12 +34,20 @@ const DEGUST_CRENEAUX = [
 const INSCRIPTION_STATUT = 'a_valider';
 
 // Disponibilité dégustateur par concours : 'disponible' | 'indisponible' | null (non renseigné)
-const CONCOURS_DISPO = [
-  { id: 'france', nom: 'Comité des Grands Vins de France',  logo: null, dispo: 'disponible'   },
-  { id: 'monde',  nom: 'Comité des Grands Vins du Monde',   logo: null, dispo: 'indisponible' },
+const CONCOURS_DISPO_INIT = [
+  { id: 'france', nom: 'Comité des Grands Vins de France', logo: null, dispo: 'disponible'   },
+  { id: 'monde',  nom: 'Comité des Grands Vins du Monde',  logo: null, dispo: 'indisponible' },
 ];
 
 const DegustateurDashboard = ({ onNavigate }) => {
+  const [concoursDispo, setConcoursDispo] = React.useState(CONCOURS_DISPO_INIT);
+  const [editing, setEditing] = React.useState(null); // id du concours en cours d'édition
+
+  const setDispo = (id, val) => {
+    setConcoursDispo(prev => prev.map(c => c.id === id ? { ...c, dispo: val } : c));
+    setEditing(null);
+  };
+
   const formations = [
     { id: 'f1', titre: 'Nouvelles méthodes OIV', date: '21 juin 2026', lieu: 'En ligne', duree: '3 h' },
   ];
@@ -60,46 +68,68 @@ const DegustateurDashboard = ({ onNavigate }) => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        {/* Mes concours — disponibilité */}
-        <div className="card" style={{ padding: 0 }}>
-          <DashCardHeader
-            title="Mes concours"
-            sub="Votre disponibilité pour chaque édition"
-          />
-          <div style={{ padding: '4px 22px 18px' }}>
-            {CONCOURS_DISPO.map((c, i) => {
-              const isOk = c.dispo === 'disponible';
-              const isNon = c.dispo === 'indisponible';
-              return (
-                <div key={c.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  padding: '14px 0',
-                  borderTop: i > 0 ? '1px solid var(--border)' : 'none',
+        {/* Mes concours — 2 blocs séparés */}
+        {concoursDispo.map(c => {
+          const isOk  = c.dispo === 'disponible';
+          const isNon = c.dispo === 'indisponible';
+          const isEditingThis = editing === c.id;
+          return (
+            <div key={c.id} className="card" style={{ padding: 22 }}>
+              {/* En-tête : logo + nom */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+                {/* Logo placeholder — remplacer par <img src={c.logo}> quand logos reçus */}
+                <div style={{
+                  width: 44, height: 44, borderRadius: 8, flexShrink: 0,
+                  background: 'var(--burgundy-50)', border: '1px solid var(--burgundy-200)',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--burgundy-800)', fontSize: 10, fontWeight: 700,
                 }}>
-                  {/* Logo placeholder — remplacer par <img> quand logos reçus */}
-                  <div style={{
-                    width: 44, height: 44, borderRadius: 8, flexShrink: 0,
-                    background: 'var(--burgundy-50)',
-                    border: '1px solid var(--burgundy-200)',
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'var(--burgundy-800)',
-                    fontSize: 10, fontWeight: 700, textAlign: 'center', lineHeight: 1.2,
-                  }}>
-                    {c.id === 'france' ? 'FR' : 'MO'}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 600 }}>{c.nom}</div>
-                  </div>
-                  <div>
-                    {isOk  && <span className="badge badge-success"><Icon.Check size={11}/> Disponible</span>}
-                    {isNon && <span className="badge badge-danger" style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }}><Icon.X size={11}/> Indisponible</span>}
-                    {!c.dispo && <span className="badge badge-outline" style={{ color: 'var(--fg-muted)' }}>Non renseigné</span>}
-                  </div>
+                  {c.id === 'france' ? 'FR' : 'MO'}
                 </div>
-              );
-            })}
-          </div>
-        </div>
+                <div style={{ fontSize: 13.5, fontWeight: 600, lineHeight: 1.3 }}>{c.nom}</div>
+              </div>
+
+              {/* Statut courant */}
+              <div style={{ marginBottom: 14 }}>
+                {isOk  && <span className="badge badge-success" style={{ fontSize: 13, padding: '6px 12px' }}><Icon.Check size={12}/> Disponible</span>}
+                {isNon && <span className="badge badge-danger"  style={{ fontSize: 13, padding: '6px 12px', background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }}><Icon.X size={12}/> Indisponible</span>}
+                {!c.dispo && <span className="badge badge-outline" style={{ fontSize: 13, padding: '6px 12px', color: 'var(--fg-muted)' }}>Non renseigné</span>}
+              </div>
+
+              {/* Modifier */}
+              {!isEditingThis ? (
+                <button
+                  onClick={() => setEditing(c.id)}
+                  className="btn btn-outline btn-sm"
+                  style={{ width: '100%' }}
+                >
+                  <Icon.Edit size={12}/> Modifier ma disponibilité
+                </button>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 4 }}>Choisir votre disponibilité :</div>
+                  <button
+                    onClick={() => setDispo(c.id, 'disponible')}
+                    className={'btn btn-sm' + (isOk ? ' btn-primary' : ' btn-outline')}
+                    style={{ justifyContent: 'flex-start', gap: 8 }}
+                  >
+                    <Icon.Check size={12}/> Disponible
+                  </button>
+                  <button
+                    onClick={() => setDispo(c.id, 'indisponible')}
+                    className={'btn btn-sm' + (isNon ? ' btn-primary' : ' btn-outline')}
+                    style={{ justifyContent: 'flex-start', gap: 8 }}
+                  >
+                    <Icon.X size={12}/> Indisponible
+                  </button>
+                  <button onClick={() => setEditing(null)} className="btn btn-ghost btn-sm" style={{ marginTop: 2 }}>
+                    Annuler
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {/* Formations à venir */}
         <div className="card" style={{ padding: 0 }}>
