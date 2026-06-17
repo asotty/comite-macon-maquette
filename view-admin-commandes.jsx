@@ -51,9 +51,9 @@ const EditionPicker = ({ editions, value, onChange }) => {
 };
 
 const COMMON_EDITIONS = [
-  { id: '2026', label: 'Concours France 2026' },
-  { id: '2025', label: 'Concours France 2025', archive: true },
-  { id: '2024', label: 'Concours France 2024', archive: true },
+  { id: '2026', label: 'Concours des Grands Vins de France 2026' },
+  { id: '2025', label: 'Concours des Grands Vins de France 2025', archive: true },
+  { id: '2024', label: 'Concours des Grands Vins de France 2024', archive: true },
 ];
 
 // ─── Page 1 — Commandes médailles ─────────────────────────────────
@@ -142,7 +142,7 @@ const AdminCommandesMedailles = () => {
             <EditionPicker editions={COMMON_EDITIONS} value={editionId} onChange={setEditionId}/>
           </div>
         }
-        subtitle="Concours France 2026 · 312 commandes · 1 840 médailles commandées"
+        subtitle="Concours des Grands Vins de France 2026 · 312 commandes · 1 840 médailles commandées"
         actions={<>
           <button className="btn btn-outline btn-sm"><Icon.Download size={14}/> Export</button>
         </>}

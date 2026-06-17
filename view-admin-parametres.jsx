@@ -80,9 +80,9 @@ const AdminParamConcours = () => {
             <span>Configuration concours</span>
             <SalonPicker
               salons={[
-                { id: 'france-2026', label: 'Concours France 2026' },
-                { id: 'monde-2026',  label: 'Concours Monde 2026' },
-                { id: 'france-2025', label: 'Concours France 2025' },
+                { id: 'france-2026', label: 'Concours des Grands Vins de France 2026' },
+                { id: 'monde-2026',  label: 'Concours des Grands Vins du Monde 2026' },
+                { id: 'france-2025', label: 'Concours des Grands Vins de France 2025' },
               ]}
               value={concours}
               onChange={(v) => { setConcours(v); setDirty(false); }}
@@ -1080,7 +1080,7 @@ const AdminParamEmails = () => {
 const EmailTemplateEditor = ({ template, onBack }) => {
   const isDraft = template.status === 'brouillon';
   const [objet, setObjet] = React.useState(isDraft ? '' : `Confirmation de votre inscription au concours France 2026`);
-  const [corps, setCorps] = React.useState(isDraft ? '' : `Bonjour {prenom},\n\nNous avons bien reçu votre dossier d'inscription n° {numero_dossier} au Concours France 2026.\n\nVotre dossier comporte {nb_echantillons} échantillon(s) pour un montant total de {montant} €.\n\nVotre paiement sera traité dans les prochains jours. Vous recevrez un email de confirmation dès validation.\n\nCordialement,\nLe Comité des Vins de Mâcon`);
+  const [corps, setCorps] = React.useState(isDraft ? '' : `Bonjour {prenom},\n\nNous avons bien reçu votre dossier d'inscription n° {numero_dossier} au Concours des Grands Vins de France 2026.\n\nVotre dossier comporte {nb_echantillons} échantillon(s) pour un montant total de {montant} €.\n\nVotre paiement sera traité dans les prochains jours. Vous recevrez un email de confirmation dès validation.\n\nCordialement,\nLe Comité des Vins de Mâcon`);
 
   const renderPreview = (text) => text
     .replace(/\{prenom\}/g,           'Marie')

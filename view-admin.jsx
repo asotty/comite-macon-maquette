@@ -74,15 +74,15 @@ const AdminDashboard = ({ kpiVariant, showKpiIcons }) => {
         </>}
       />
 
-      {/* Ligne 1 — Concours France + Concours Monde, 4 stats inline chacun */}
+      {/* Ligne 1 — Concours des Grands Vins de France + Concours des Grands Vins du Monde, 4 stats inline chacun */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <ConcoursStatsCard label="Concours France" delta="+12 %" stats={[
+        <ConcoursStatsCard label="Concours des Grands Vins de France" delta="+12 %" stats={[
           { value: '847',  label: 'Inscrits' },
           { value: '241',  label: 'Validés' },
           { value: '198',  label: 'Payés' },
           { value: '2 148', label: 'Échantillons' },
         ]}/>
-        <ConcoursStatsCard label="Concours Monde" delta="+48 %" stats={[
+        <ConcoursStatsCard label="Concours des Grands Vins du Monde" delta="+48 %" stats={[
           { value: '97',  label: 'Inscrits' },
           { value: '80',  label: 'Validés' },
           { value: '65',  label: 'Payés' },
@@ -145,7 +145,7 @@ const AdminDashboard = ({ kpiVariant, showKpiIcons }) => {
           <div style={{ padding: '0 22px 18px' }}>
             {[
               { mois: 'mai',  jour: '12', t: 'Clôture inscriptions France', sub: 'dans 7 jours' },
-              { mois: 'mai',  jour: '24', t: 'Dégustation Concours France', sub: 'dans 19 jours' },
+              { mois: 'mai',  jour: '24', t: 'Dégustation Concours des Grands Vins de France', sub: 'dans 19 jours' },
               { mois: 'juin', jour: '02', t: 'Publication palmarès',         sub: 'dans 28 jours' },
               { mois: 'juin', jour: '14', t: 'Clôture inscriptions Monde',   sub: 'dans 40 jours' },
             ].map((e, i, arr) => (
@@ -250,7 +250,7 @@ const AdminDashboard = ({ kpiVariant, showKpiIcons }) => {
   );
 };
 
-// Carte stats consolidée Concours France/Monde — 4 chiffres en ligne + delta vert
+// Carte stats consolidée Concours des Grands Vins de France/Monde — 4 chiffres en ligne + delta vert
 const ConcoursStatsCard = ({ label, delta, stats }) => (
   <div className="card" style={{ padding: '20px 24px' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
@@ -549,12 +549,12 @@ const AdminPalmares = ({ concours = 'france' }) => {
 
   // Editions selon le concours
   const EDITIONS = isMonde ? [
-    { id: '2026', label: 'Concours Monde 2026', published: false, mode: 'edition' },
-    { id: '2025', label: 'Concours Monde 2025', published: true,  publishedAt: '20/06/2025', publishedBy: 'Sophie L.', mode: 'archive' },
+    { id: '2026', label: 'Concours des Grands Vins du Monde 2026', published: false, mode: 'edition' },
+    { id: '2025', label: 'Concours des Grands Vins du Monde 2025', published: true,  publishedAt: '20/06/2025', publishedBy: 'Sophie L.', mode: 'archive' },
   ] : [
-    { id: '2026', label: 'Concours France 2026', published: false, mode: 'edition' },
-    { id: '2025', label: 'Concours France 2025', published: true,  publishedAt: '15/06/2025', publishedBy: 'Sophie L.', mode: 'archive' },
-    { id: '2024', label: 'Concours France 2024', published: true,  publishedAt: '12/06/2024', publishedBy: 'Sophie L.', mode: 'archive' },
+    { id: '2026', label: 'Concours des Grands Vins de France 2026', published: false, mode: 'edition' },
+    { id: '2025', label: 'Concours des Grands Vins de France 2025', published: true,  publishedAt: '15/06/2025', publishedBy: 'Sophie L.', mode: 'archive' },
+    { id: '2024', label: 'Concours des Grands Vins de France 2024', published: true,  publishedAt: '12/06/2024', publishedBy: 'Sophie L.', mode: 'archive' },
   ];
 
   const [editionId, setEditionId] = React.useState('2026');
@@ -626,7 +626,7 @@ const AdminPalmares = ({ concours = 'france' }) => {
     return 0;
   });
 
-  // Pas de tab Bronze pour le Concours Monde
+  // Pas de tab Bronze pour le Concours des Grands Vins du Monde
   const tabsDef = [
     { id: 'tous',   label: 'Tous',         count: totalMedailles + counts.sans },
     { id: 'or',     label: 'Or',           count: counts.or },
@@ -1257,7 +1257,7 @@ const AdminGeneric = ({ title, icon, sub, breadcrumb }) => (
 );
 
 // =====================================================================
-// Concours Dashboard (France / Monde) — figma "Concours France - Dashboard"
+// Concours Dashboard (France / Monde) — figma "Concours des Grands Vins de France - Dashboard"
 // =====================================================================
 
 const AdminConcoursDashboard = ({ concours = 'France' }) => {
@@ -1310,11 +1310,11 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
   // Échéances
   const echeances = isFrance ? [
     { mois: 'mai',  jour: '12', t: 'Clôture inscriptions France', sub: 'dans 7 jours' },
-    { mois: 'mai',  jour: '24', t: 'Dégustation Concours France', sub: 'dans 19 jours' },
+    { mois: 'mai',  jour: '24', t: 'Dégustation Concours des Grands Vins de France', sub: 'dans 19 jours' },
     { mois: 'juin', jour: '02', t: 'Publication palmarès',         sub: 'dans 28 jours' },
   ] : [
     { mois: 'juin', jour: '14', t: 'Clôture inscriptions Monde',  sub: 'dans 40 jours' },
-    { mois: 'juin', jour: '20', t: 'Dégustation Concours Monde',  sub: 'dans 46 jours' },
+    { mois: 'juin', jour: '20', t: 'Dégustation Concours des Grands Vins du Monde',  sub: 'dans 46 jours' },
     { mois: 'juin', jour: '28', t: 'Publication palmarès Monde',  sub: 'dans 54 jours' },
   ];
 
@@ -1323,7 +1323,7 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
       <PageHeader
         title="Tableau de bord"
         subtitle="Vue d'ensemble de l'édition 2026 · mise à jour il y a 4 minutes"
-        breadcrumb={['Administration', isFrance ? 'Concours France' : 'Concours Monde', 'Tableau de bord']}
+        breadcrumb={['Administration', isFrance ? 'Concours des Grands Vins de France' : 'Concours des Grands Vins du Monde', 'Tableau de bord']}
         actions={<>
           <button className="btn btn-outline btn-sm"><Icon.Refresh size={14}/> Actualiser</button>
           <button className="btn btn-outline btn-sm"><Icon.Download size={14}/> Export</button>

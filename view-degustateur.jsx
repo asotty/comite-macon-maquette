@@ -19,11 +19,11 @@ const USER_DEGUSTATEUR = {
 
 
 const DEGUST_CRENEAUX = [
-  { id: 'cf-s1', concours: 'Concours France 2026', label: 'Session 1', date: '14 mars 2026', heure: '8h – 12h',   lieu: 'Mâcon' },
-  { id: 'cf-s2', concours: 'Concours France 2026', label: 'Session 2', date: '14 mars 2026', heure: '14h – 18h',  lieu: 'Mâcon' },
-  { id: 'cf-s3', concours: 'Concours France 2026', label: 'Session 3', date: '21 mars 2026', heure: '8h – 12h',   lieu: 'Mâcon' },
-  { id: 'cm-s1', concours: 'Concours Monde 2026',  label: 'Session 1', date: '04 avril 2026', heure: '8h – 12h',  lieu: 'Mâcon' },
-  { id: 'cm-s2', concours: 'Concours Monde 2026',  label: 'Session 2', date: '04 avril 2026', heure: '14h – 18h', lieu: 'Mâcon' },
+  { id: 'cf-s1', concours: 'Concours des Grands Vins de France 2026', label: 'Session 1', date: '14 mars 2026', heure: '8h – 12h',   lieu: 'Mâcon' },
+  { id: 'cf-s2', concours: 'Concours des Grands Vins de France 2026', label: 'Session 2', date: '14 mars 2026', heure: '14h – 18h',  lieu: 'Mâcon' },
+  { id: 'cf-s3', concours: 'Concours des Grands Vins de France 2026', label: 'Session 3', date: '21 mars 2026', heure: '8h – 12h',   lieu: 'Mâcon' },
+  { id: 'cm-s1', concours: 'Concours des Grands Vins du Monde 2026',  label: 'Session 1', date: '04 avril 2026', heure: '8h – 12h',  lieu: 'Mâcon' },
+  { id: 'cm-s2', concours: 'Concours des Grands Vins du Monde 2026',  label: 'Session 2', date: '04 avril 2026', heure: '14h – 18h', lieu: 'Mâcon' },
 ];
 
 // =====================================================================
@@ -53,7 +53,7 @@ const DegustateurDashboard = ({ onNavigate }) => {
   ];
   const repas = [
     { id: 'r1', date: '25 mai 2026',  evt: 'Repas du Comité',       lieu: 'Restaurant Saint-Vincent · Mâcon' },
-    { id: 'r2', date: '14 juin 2026', evt: 'Déjeuner Concours Monde', lieu: 'Salle du Comité · Mâcon' },
+    { id: 'r2', date: '14 juin 2026', evt: 'Déjeuner Concours des Grands Vins du Monde', lieu: 'Salle du Comité · Mâcon' },
   ];
 
   return (
@@ -459,9 +459,9 @@ const DegustateurFormationsWrapper = () => {
 // =====================================================================
 
 const REPAS_INIT = [
-  { id: 'r1', date: '24 mai 2026',  evt: 'Déjeuner Concours France', lieu: 'Salle du Comité · Mâcon',         places: 8,  prix: 0,     reserved: true,  paye: true, status: 'confirmee' },
+  { id: 'r1', date: '24 mai 2026',  evt: 'Déjeuner Concours des Grands Vins de France', lieu: 'Salle du Comité · Mâcon',         places: 8,  prix: 0,     reserved: true,  paye: true, status: 'confirmee' },
   { id: 'r2', date: '25 mai 2026',  evt: 'Repas du Comité',          lieu: 'Restaurant Saint-Vincent · Mâcon', places: 12, prix: 38.00, reserved: true,  paye: true, status: 'confirmee' },
-  { id: 'r3', date: '14 juin 2026', evt: 'Déjeuner Concours Monde',  lieu: 'Salle du Comité · Mâcon',         places: 24, prix: 18.00, reserved: false, paye: false, status: null },
+  { id: 'r3', date: '14 juin 2026', evt: 'Déjeuner Concours des Grands Vins du Monde',  lieu: 'Salle du Comité · Mâcon',         places: 24, prix: 18.00, reserved: false, paye: false, status: null },
   { id: 'r4', date: '14 juin 2026', evt: 'Soirée de gala — Palmarès',lieu: 'Château de Pierreclos',           places: 4,  prix: 65.00, reserved: false, paye: false, status: null },
   { id: 'r5', date: '21 juin 2026', evt: 'Buffet formation OIV',     lieu: 'Maison du Vin · Mâcon',           places: 0,  prix: 0,     reserved: false, paye: false, status: null },
 ];
@@ -773,10 +773,10 @@ const RepasPaymentConfirmation = ({ payment, onContinue, onClose }) => (
 
 const DegustateurReservations = ({ onNavigate }) => {
   const reservations = [
-    { date: '24 mai 2026',  evt: 'Déjeuner Concours France',  lieu: 'Salle du Comité · Mâcon',         prix: 0,     status: 'confirmee', payment: 'gratuit', canCancel: true },
+    { date: '24 mai 2026',  evt: 'Déjeuner Concours des Grands Vins de France',  lieu: 'Salle du Comité · Mâcon',         prix: 0,     status: 'confirmee', payment: 'gratuit', canCancel: true },
     { date: '25 mai 2026',  evt: 'Repas du Comité',           lieu: 'Restaurant Saint-Vincent · Mâcon', prix: 38.00, status: 'confirmee', payment: 'paye',    canCancel: true },
-    { date: '14 juin 2026', evt: 'Déjeuner Concours Monde',   lieu: 'Salle du Comité · Mâcon',          prix: 18.00, status: 'confirmee', payment: 'en-attente', canCancel: true },
-    { date: '18 sept. 2025', evt: 'Déjeuner Concours France',  lieu: 'Salle du Comité · Mâcon',         prix: 0,     status: 'confirmee', payment: 'gratuit', canCancel: false },
+    { date: '14 juin 2026', evt: 'Déjeuner Concours des Grands Vins du Monde',   lieu: 'Salle du Comité · Mâcon',          prix: 18.00, status: 'confirmee', payment: 'en-attente', canCancel: true },
+    { date: '18 sept. 2025', evt: 'Déjeuner Concours des Grands Vins de France',  lieu: 'Salle du Comité · Mâcon',         prix: 0,     status: 'confirmee', payment: 'gratuit', canCancel: false },
     { date: '12 mars 2025', evt: 'Repas du Comité',           lieu: 'Restaurant Saint-Vincent · Mâcon', prix: 38.00, status: 'annulee',   payment: 'rembourse', canCancel: false },
   ];
   const statusMap = {
@@ -860,7 +860,7 @@ const DegustateurConcours = () => {
   // Mock 3 cas
   const concours = [
     {
-      id: 'cf26', nom: 'Concours France', edition: '2026',
+      id: 'cf26', nom: 'Concours des Grands Vins de France', edition: '2026',
       date: '14 mars 2026', lieu: 'Mâcon · Salle des Concours',
       state: 'composed',
       sessions: [
@@ -869,7 +869,7 @@ const DegustateurConcours = () => {
       ],
     },
     {
-      id: 'cm26', nom: 'Concours Monde', edition: '2026',
+      id: 'cm26', nom: 'Concours des Grands Vins du Monde', edition: '2026',
       date: '04 avril 2026', lieu: 'Mâcon · Salle des Concours',
       state: 'pending',
     },

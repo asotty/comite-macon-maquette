@@ -4,14 +4,14 @@ const ProducteurInscriptionsList = ({ onOpenWizard }) => {
   const [duplicating, setDuplicating] = React.useState(null);
 
   const inscriptionsCours = [
-    { concours: 'Concours France', edition: '2026', dossier: 'INS-2026-0184', ech: 8, montant: 480, status: 'valide',     date: '03 juin 2026' },
-    { concours: 'Concours Monde',  edition: '2026', dossier: 'INS-2026-0021', ech: 3, montant: 180, status: 'brouillon',  date: '02 juin 2026' },
+    { concours: 'Concours des Grands Vins de France', edition: '2026', dossier: 'INS-2026-0184', ech: 8, montant: 480, status: 'valide',     date: '03 juin 2026' },
+    { concours: 'Concours des Grands Vins du Monde',  edition: '2026', dossier: 'INS-2026-0021', ech: 3, montant: 180, status: 'brouillon',  date: '02 juin 2026' },
   ];
   const inscriptionsHist = [
-    { concours: 'Concours France', edition: '2025', dossier: 'INS-2025-0142', ech: 7, montant: 420, status: 'paye',  date: '24 mai 2025' },
-    { concours: 'Concours Monde',  edition: '2025', dossier: 'INS-2025-0008', ech: 4, montant: 240, status: 'paye',  date: '20 mai 2025' },
-    { concours: 'Concours France', edition: '2024', dossier: 'INS-2024-0098', ech: 6, montant: 360, status: 'paye',  date: '18 mai 2024' },
-    { concours: 'Concours France', edition: '2023', dossier: 'INS-2023-0067', ech: 5, montant: 300, status: 'rejete',date: '15 mai 2023' },
+    { concours: 'Concours des Grands Vins de France', edition: '2025', dossier: 'INS-2025-0142', ech: 7, montant: 420, status: 'paye',  date: '24 mai 2025' },
+    { concours: 'Concours des Grands Vins du Monde',  edition: '2025', dossier: 'INS-2025-0008', ech: 4, montant: 240, status: 'paye',  date: '20 mai 2025' },
+    { concours: 'Concours des Grands Vins de France', edition: '2024', dossier: 'INS-2024-0098', ech: 6, montant: 360, status: 'paye',  date: '18 mai 2024' },
+    { concours: 'Concours des Grands Vins de France', edition: '2023', dossier: 'INS-2023-0067', ech: 5, montant: 300, status: 'rejete',date: '15 mai 2023' },
   ];
   const rows = tab === 'cours' ? inscriptionsCours : inscriptionsHist;
 
@@ -152,7 +152,7 @@ const ProducteurInscriptionsList = ({ onOpenWizard }) => {
           <div>
             <div style={{ fontSize: 13.5, fontWeight: 500 }}>Vous pouvez inscrire d'autres cuvées</div>
             <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>
-              Clôture Concours France · 15 juin 2026 · dans 12 jours
+              Clôture Concours des Grands Vins de France · 15 juin 2026 · dans 12 jours
             </div>
           </div>
           <button className="btn btn-primary" onClick={onOpenWizard}>
@@ -185,7 +185,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
           Bonjour, Domaine de la Chevalière
         </h1>
         <div style={{ marginTop: 8, fontSize: 14, color: 'var(--fg-muted)' }}>
-          Édition 2026 · Concours France · Clôture des inscriptions{' '}
+          Édition 2026 · Concours des Grands Vins de France · Clôture des inscriptions{' '}
           <span style={{ color: closeUrgent ? 'var(--burgundy-800)' : 'var(--fg)', fontWeight: closeUrgent ? 600 : 500 }}>
             dans {daysToClose} jours
           </span>
@@ -237,7 +237,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
       {/* 2 cards concours côte à côte */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
 
-        {/* Concours France — ACTIF */}
+        {/* Concours des Grands Vins de France — ACTIF */}
         <div className="card" style={{
           padding: 28,
           border: '2px solid var(--burgundy-200)',
@@ -259,7 +259,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
             }}>Inscriptions ouvertes</span>
           </div>
           <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg)', letterSpacing: '-0.02em', marginBottom: 4 }}>
-            Concours France
+            Concours des Grands Vins de France
           </div>
           <div style={{ fontSize: 13, color: 'var(--fg-muted)', marginBottom: 20 }}>
             Concours des Grands Vins de France · Édition 2026
@@ -286,7 +286,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
           </div>
         </div>
 
-        {/* Concours Monde — FERMÉ / à venir */}
+        {/* Concours des Grands Vins du Monde — FERMÉ / à venir */}
         <div className="card" style={{
           padding: 28,
           border: '1px solid var(--border)',
@@ -308,7 +308,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
             }}>Inscriptions fermées</span>
           </div>
           <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-muted)', letterSpacing: '-0.02em', marginBottom: 4 }}>
-            Concours Monde
+            Concours des Grands Vins du Monde
           </div>
           <div style={{ fontSize: 13, color: 'var(--fg-subtle)', marginBottom: 20 }}>
             Concours des Grands Vins du Monde · Édition 2027
@@ -374,8 +374,8 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
             </thead>
             <tbody>
               {[
-                { concours: 'Concours France', dossier: 'INS-2026-0184', ech: 8, montant: '480 €', status: 'valide' },
-                { concours: 'Concours Monde',  dossier: 'INS-2026-0021', ech: 3, montant: '180 €', status: 'brouillon' },
+                { concours: 'Concours des Grands Vins de France', dossier: 'INS-2026-0184', ech: 8, montant: '480 €', status: 'valide' },
+                { concours: 'Concours des Grands Vins du Monde',  dossier: 'INS-2026-0021', ech: 3, montant: '180 €', status: 'brouillon' },
               ].map((r, i) => (
                 <tr key={i} style={{ cursor: 'pointer' }} onClick={() => onNavigate(r.status === 'brouillon' ? 'p-inscription' : 'p-inscriptions')}>
                   <td>
@@ -434,8 +434,8 @@ const PKpi = ({ label, value, sub, cta }) => (
 const DuplicateInscriptionModal = ({ source, onClose, onConfirm }) => {
   const [target, setTarget] = React.useState('france-2027');
   const targets = [
-    { id: 'france-2027', label: 'Concours France 2027', sub: "Inscriptions ouvertes jusqu'au 15 mai 2027", icon: <Icon.Trophy size={14}/>, color: 'var(--burgundy-800)', bg: 'var(--burgundy-50)' },
-    { id: 'monde-2026',  label: 'Concours Monde 2026',  sub: "Inscriptions ouvertes jusqu'au 30 juin 2026", icon: <Icon.Globe size={14}/>,  color: '#1e40af',           bg: '#eef4ff' },
+    { id: 'france-2027', label: 'Concours des Grands Vins de France 2027', sub: "Inscriptions ouvertes jusqu'au 15 mai 2027", icon: <Icon.Trophy size={14}/>, color: 'var(--burgundy-800)', bg: 'var(--burgundy-50)' },
+    { id: 'monde-2026',  label: 'Concours des Grands Vins du Monde 2026',  sub: "Inscriptions ouvertes jusqu'au 30 juin 2026", icon: <Icon.Globe size={14}/>,  color: '#1e40af',           bg: '#eef4ff' },
   ];
 
   return (
@@ -595,7 +595,7 @@ const RowMenu = ({ items }) => {
 };
 const ProducteurInscriptionDetail = ({ inscription, onBack, onDuplicate }) => {
   const ins = inscription || {
-    concours: 'Concours France', edition: '2026', dossier: 'INS-2026-0184',
+    concours: 'Concours des Grands Vins de France', edition: '2026', dossier: 'INS-2026-0184',
     ech: 8, montant: 480, status: 'soumis', date: '03 juin 2026',
   };
   const [tab, setTab] = React.useState('dossier');
@@ -1092,7 +1092,7 @@ const InscriptionConfirmation = ({ nbVins, payMethod = 'carte', onExit, onViewDo
               <Icon.Trophy size={20}/>
             </div>
             <div style={{ flex: 1 }}>
-              <div className="display" style={{ fontSize: 17, fontWeight: 500, color: 'var(--fg)' }}>Concours France 2026</div>
+              <div className="display" style={{ fontSize: 17, fontWeight: 500, color: 'var(--fg)' }}>Concours des Grands Vins de France 2026</div>
               <div style={{ fontSize: 13, color: 'var(--fg-muted)', marginTop: 2 }}>Édition du 24 mai · Mâcon</div>
             </div>
             <span className="badge badge-success"><Icon.Check size={11}/> Soumis</span>
@@ -1476,7 +1476,7 @@ const WizardStep4 = ({ nbVins, payMethod, setPayMethod }) => (
     <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 16 }}>
       <div style={{ padding: 20, borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <div className="card-title">Concours France 2026</div>
+          <div className="card-title">Concours des Grands Vins de France 2026</div>
           <div className="card-subtitle">Édition du 24 mai · Mâcon</div>
         </div>
         <span className="badge badge-success"><Icon.Check size={11}/> Dossier complet</span>
@@ -1641,13 +1641,13 @@ const ProducteurMedailles = ({ onNavigate }) => {
         }
       />
       <Section
-        title="Concours France"
+        title="Concours des Grands Vins de France"
         icon={<Icon.Trophy size={16}/>}
         items={france}
         accent="var(--burgundy-800)"
       />
       <Section
-        title="Concours Monde"
+        title="Concours des Grands Vins du Monde"
         icon={<Icon.Globe size={16}/>}
         items={monde}
         accent="#1e40af"
@@ -2005,12 +2005,12 @@ const ProducteurCommandes = ({ onNavigate }) => {
 
   // Vins médaillés disponibles à la commande + quota basé sur volumes déclarés
   const medailles = [
-    // — Concours France —
+    // — Concours des Grands Vins de France —
     { id: 'vv24',    name: 'Vieilles Vignes 2024', appell: 'Mâcon-Villages', edition: '2026', concours: 'france', medal: 'or',     quota: 500,  used: 420 },
     { id: 'cp23',    name: 'Cuvée Prestige 2023',  appell: 'Pouilly-Fuissé', edition: '2025', concours: 'france', medal: 'or',     quota: 1200, used: 350 },
     { id: 'lh23',    name: 'Les Hauts 2023',       appell: 'Saint-Véran',    edition: '2025', concours: 'france', medal: 'argent', quota: 800,  used: 800 },
     { id: 't22',     name: 'Tradition 2022',       appell: 'Mâcon-Villages', edition: '2024', concours: 'france', medal: 'bronze', quota: 600,  used: 540 },
-    // — Concours Monde —
+    // — Concours des Grands Vins du Monde —
     { id: 'vv24m',   name: 'Vieilles Vignes 2024', appell: 'Mâcon-Villages', edition: '2026', concours: 'monde',  medal: 'or',     quota: 300,  used: 180 },
     { id: 'cp23m',   name: 'Cuvée Prestige 2023',  appell: 'Pouilly-Fuissé', edition: '2025', concours: 'monde',  medal: 'argent', quota: 500,  used: 120 },
   ];
@@ -2065,9 +2065,9 @@ const ProducteurCommandes = ({ onNavigate }) => {
         subtitle="Sélectionnez vos quantités — quota basé sur vos volumes déclarés"
       />
 
-      {/* Onglets Concours France / Concours Monde */}
+      {/* Onglets Concours des Grands Vins de France / Concours des Grands Vins du Monde */}
       <div style={{ display: 'flex', gap: 0, marginBottom: 20, borderBottom: '1px solid var(--border)' }}>
-        {[{ k: 'france', label: 'Concours France' }, { k: 'monde', label: 'Concours Monde' }].map(t => (
+        {[{ k: 'france', label: 'Concours des Grands Vins de France' }, { k: 'monde', label: 'Concours des Grands Vins du Monde' }].map(t => (
           <button key={t.k} onClick={() => setConcourTab(t.k)} style={{
             padding: '10px 20px', border: 'none', background: 'transparent',
             borderBottom: concourTab === t.k ? '2px solid var(--burgundy-800)' : '2px solid transparent',
@@ -2558,9 +2558,9 @@ const ProducteurDerogationForm = ({ onCancel, onSubmit }) => {
 
   const dossiers = [
     { value: '', label: '— Aucune inscription liée —' },
-    { value: 'INS-2026-0184', label: 'INS-2026-0184 · Concours France 2026' },
-    { value: 'INS-2026-0021', label: 'INS-2026-0021 · Concours Monde 2026' },
-    { value: 'INS-2025-0142', label: 'INS-2025-0142 · Concours France 2025' },
+    { value: 'INS-2026-0184', label: 'INS-2026-0184 · Concours des Grands Vins de France 2026' },
+    { value: 'INS-2026-0021', label: 'INS-2026-0021 · Concours des Grands Vins du Monde 2026' },
+    { value: 'INS-2025-0142', label: 'INS-2025-0142 · Concours des Grands Vins de France 2025' },
   ];
 
   const linkOptional = type === 'autre';

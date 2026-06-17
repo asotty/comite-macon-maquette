@@ -3,10 +3,10 @@
 const TEMPLATES = {
   relance: {
     label: 'Relance paiement',
-    subject: 'Concours France 2026 — Relance de paiement',
+    subject: 'Concours des Grands Vins de France 2026 — Relance de paiement',
     body: `Bonjour {prenom},
 
-Votre dossier INS-{numero_dossier} pour le Concours France 2026 a bien été enregistré, mais nous n'avons pas encore reçu votre règlement.
+Votre dossier INS-{numero_dossier} pour le Concours des Grands Vins de France 2026 a bien été enregistré, mais nous n'avons pas encore reçu votre règlement.
 
 Merci de procéder au paiement depuis votre espace producteur : {lien_espace}
 
@@ -15,7 +15,7 @@ Le Comité des Salons et Concours de Mâcon`,
   },
   complements: {
     label: 'Demande de compléments',
-    subject: 'Concours France 2026 — Votre dossier nécessite des compléments',
+    subject: 'Concours des Grands Vins de France 2026 — Votre dossier nécessite des compléments',
     body: `Bonjour {prenom},
 
 Votre dossier INS-{numero_dossier} est en attente de compléments. Merci de vous reconnecter à votre espace pour fournir les éléments manquants : {lien_espace}
@@ -25,7 +25,7 @@ Le Comité des Salons et Concours de Mâcon`,
   },
   validation: {
     label: 'Confirmation de validation',
-    subject: 'Concours France 2026 — Votre dossier est validé',
+    subject: 'Concours des Grands Vins de France 2026 — Votre dossier est validé',
     body: `Bonjour {prenom},
 
 Votre dossier INS-{numero_dossier} a été validé. Vos échantillons sont attendus à l'adresse de réception.
@@ -183,7 +183,7 @@ const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey
         {/* Objet */}
         <div>
           <FieldLabel>Objet</FieldLabel>
-          <input className="input" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Concours France 2026 — …" style={{ width: '100%' }}/>
+          <input className="input" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Concours des Grands Vins de France 2026 — …" style={{ width: '100%' }}/>
         </div>
 
         {/* Variables */}

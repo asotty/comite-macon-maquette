@@ -328,14 +328,14 @@ const SalonModal = ({ editing, onCancel, onConfirm }) => {
                 Concours lié <span style={{ color: '#dc2626' }}>*</span>
               </span>
               <select className="input" defaultValue="france-2026">
-                <optgroup label="Concours France">
-                  <option value="france-2026">Concours France 2026</option>
-                  <option value="france-2025">Concours France 2025</option>
-                  <option value="france-2024">Concours France 2024</option>
+                <optgroup label="Concours des Grands Vins de France">
+                  <option value="france-2026">Concours des Grands Vins de France 2026</option>
+                  <option value="france-2025">Concours des Grands Vins de France 2025</option>
+                  <option value="france-2024">Concours des Grands Vins de France 2024</option>
                 </optgroup>
-                <optgroup label="Concours Monde">
-                  <option value="monde-2026">Concours Monde 2026</option>
-                  <option value="monde-2025">Concours Monde 2025</option>
+                <optgroup label="Concours des Grands Vins du Monde">
+                  <option value="monde-2026">Concours des Grands Vins du Monde 2026</option>
+                  <option value="monde-2025">Concours des Grands Vins du Monde 2025</option>
                 </optgroup>
               </select>
               <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 6 }}>

@@ -5,7 +5,7 @@ const DOSSIER = {
   ref: 'INS-2026-0184',
   domaine: 'Domaine de la Chevalière',
   region: 'Mâconnais',
-  concours: 'Concours France 2026',
+  concours: 'Concours des Grands Vins de France 2026',
   status: 'a-verifier',
   submittedAt: '12/04/2026 14h32',
   totalEch: 8,
@@ -125,7 +125,7 @@ const AdminDossierDetail = ({ onBack, onNavigate }) => {
         </button>
         <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 4, display: 'flex', gap: 6, alignItems: 'center' }}>
           <span>Administration</span><Icon.ChevronRight size={11}/>
-          <span>Concours France</span><Icon.ChevronRight size={11}/>
+          <span>Concours des Grands Vins de France</span><Icon.ChevronRight size={11}/>
           <span>Inscriptions</span><Icon.ChevronRight size={11}/>
           <span style={{ color: 'var(--fg)', fontWeight: 500, fontFamily: 'Menlo, monospace' }}>{DOSSIER.ref}</span>
         </div>

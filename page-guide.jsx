@@ -21,7 +21,7 @@ const PAGE_GUIDES = {
   },
 
   'fr-inscriptions': {
-    title: 'Inscriptions Concours France',
+    title: 'Inscriptions Concours des Grands Vins de France',
     subtitle: 'Gestion centralisée des dossiers producteurs',
     icon: 'FileText',
     what: 'Liste exhaustive des dossiers d\'inscription. Chaque ligne représente un producteur avec ses échantillons soumis. Permet de filtrer par statut, rechercher un producteur, et accéder au détail d\'un dossier.',
@@ -40,7 +40,7 @@ const PAGE_GUIDES = {
   },
 
   'monde-inscriptions': {
-    title: 'Inscriptions Concours Monde',
+    title: 'Inscriptions Concours des Grands Vins du Monde',
     subtitle: 'Gestion centralisée des dossiers producteurs',
     icon: 'FileText',
     what: 'Liste exhaustive des dossiers d\'inscription pour le Concours International. Chaque ligne représente un producteur avec ses échantillons soumis. Permet de filtrer par statut, rechercher un producteur, et accéder au détail d\'un dossier.',
@@ -59,7 +59,7 @@ const PAGE_GUIDES = {
   },
 
   'inscriptions-fr': {
-    title: 'Inscriptions Concours France',
+    title: 'Inscriptions Concours des Grands Vins de France',
     subtitle: 'Gestion centralisée des dossiers producteurs',
     icon: 'FileText',
     what: 'Liste exhaustive des dossiers d\'inscription. Chaque ligne représente un producteur avec ses échantillons soumis. Permet de filtrer par statut, rechercher un producteur, et accéder au détail d\'un dossier.',
@@ -109,7 +109,7 @@ const PAGE_GUIDES = {
     title: 'Contrôle optimisé — Monde',
     subtitle: 'Vérification automatique des dossiers',
     icon: 'ShieldCheck',
-    what: 'Interface centrale du contrôle qualité pour le Concours Monde. Le système croise les données déclarées avec les documents officiels via OCR et parsing automatique. L\'admin valide, corrige ou rejette les résultats.',
+    what: 'Interface centrale du contrôle qualité pour le Concours des Grands Vins du Monde. Le système croise les données déclarées avec les documents officiels via OCR et parsing automatique. L\'admin valide, corrige ou rejette les résultats.',
     elements: [
       { label: 'Score de fiabilité', desc: 'Note 0-100 % indiquant la cohérence entre données déclarées et données extraites.' },
       { label: 'Statuts d\'échantillon', desc: 'Validé automatiquement, À vérifier manuellement, Rejeté (incohérence majeure).' },

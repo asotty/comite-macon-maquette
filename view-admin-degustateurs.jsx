@@ -511,13 +511,13 @@ const PlanSessionModal = ({ onCancel, onConfirm }) => {
             </span>
             <select className="input" defaultValue="france-2026">
               <option value="tous">Tous concours (formation générale)</option>
-              <optgroup label="Concours France">
-                <option value="france-2026">Concours France 2026</option>
-                <option value="france-2025">Concours France 2025</option>
+              <optgroup label="Concours des Grands Vins de France">
+                <option value="france-2026">Concours des Grands Vins de France 2026</option>
+                <option value="france-2025">Concours des Grands Vins de France 2025</option>
               </optgroup>
-              <optgroup label="Concours Monde">
-                <option value="monde-2026">Concours Monde 2026</option>
-                <option value="monde-2025">Concours Monde 2025</option>
+              <optgroup label="Concours des Grands Vins du Monde">
+                <option value="monde-2026">Concours des Grands Vins du Monde 2026</option>
+                <option value="monde-2025">Concours des Grands Vins du Monde 2025</option>
               </optgroup>
             </select>
             <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -1060,7 +1060,7 @@ const AdminRepas = () => {
             />
           </div>
         }
-        subtitle={`${totalDeg} dégustateurs · ${jurys.length} ${jurys.length > 1 ? 'jurys' : 'jury'} · Concours France 2026 · Traiteur ${date.traiteur}`}
+        subtitle={`${totalDeg} dégustateurs · ${jurys.length} ${jurys.length > 1 ? 'jurys' : 'jury'} · Concours des Grands Vins de France 2026 · Traiteur ${date.traiteur}`}
         actions={<>
           <button className="btn btn-outline btn-sm" onClick={() => setParamModal(true)}><Icon.Settings size={13}/> Paramètres du repas</button>
           <button className="btn btn-outline btn-sm"><Icon.Printer size={14}/> Imprimer</button>
@@ -1349,9 +1349,9 @@ const AdminJurys = () => {
   const [concoursId,  setConcoursId]  = React.useState('france-2026');
 
   const CONCOURS_OPTS = [
-    { id: 'france-2026', label: 'Concours France 2026' },
-    { id: 'monde-2026',  label: 'Concours Monde 2026' },
-    { id: 'france-2025', label: 'Concours France 2025' },
+    { id: 'france-2026', label: 'Concours des Grands Vins de France 2026' },
+    { id: 'monde-2026',  label: 'Concours des Grands Vins du Monde 2026' },
+    { id: 'france-2025', label: 'Concours des Grands Vins de France 2025' },
   ];
 
   const JURYS = [
@@ -1449,12 +1449,12 @@ const AdminJurys = () => {
                   Concours lié <span style={{ color: '#dc2626' }}>*</span>
                 </span>
                 <select className="input" defaultValue={concoursId}>
-                  <optgroup label="Concours France">
-                    <option value="france-2026">Concours France 2026</option>
-                    <option value="france-2025">Concours France 2025</option>
+                  <optgroup label="Concours des Grands Vins de France">
+                    <option value="france-2026">Concours des Grands Vins de France 2026</option>
+                    <option value="france-2025">Concours des Grands Vins de France 2025</option>
                   </optgroup>
-                  <optgroup label="Concours Monde">
-                    <option value="monde-2026">Concours Monde 2026</option>
+                  <optgroup label="Concours des Grands Vins du Monde">
+                    <option value="monde-2026">Concours des Grands Vins du Monde 2026</option>
                   </optgroup>
                 </select>
               </label>

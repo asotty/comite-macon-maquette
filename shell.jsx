@@ -2,13 +2,13 @@
 // Driven by a "route" prop that the parent App owns.
 
 const navAdmin = [
-  { id: 'inscriptions-fr', label: 'Concours France', icon: <Icon.Trophy size={16}/>, group: 'Concours', badge: 47, children: [
+  { id: 'inscriptions-fr', label: 'Concours des Grands Vins de France', icon: <Icon.Trophy size={16}/>, group: 'Concours', badge: 47, children: [
     { id: 'fr-dashboard', label: 'Tableau de bord' },
     { id: 'fr-inscriptions', label: 'Inscriptions' },
     { id: 'fr-controle', label: 'Contrôle optimisé', badge: 47 },
     { id: 'fr-palmares', label: 'Résultats / Palmarès' },
   ]},
-  { id: 'inscriptions-monde', label: 'Concours Monde', icon: <Icon.Globe size={16}/>, group: 'Concours', badge: 12, children: [
+  { id: 'inscriptions-monde', label: 'Concours des Grands Vins du Monde', icon: <Icon.Globe size={16}/>, group: 'Concours', badge: 12, children: [
     { id: 'monde-dashboard', label: 'Tableau de bord' },
     { id: 'monde-inscriptions', label: 'Inscriptions' },
     { id: 'monde-controle', label: 'Contrôle optimisé' },
@@ -484,7 +484,7 @@ const NOTIFS = [
   { id: 3, type: 'success', icon: <Icon.Check size={14}/>,       title: 'Paiement reçu',                      sub: 'Domaine des 3 Pierres · 540 €',          time: 'Il y a 1h',  unread: true },
   { id: 4, type: 'warning', icon: <Icon.AlertCircle size={14}/>, title: 'Dérogation en attente de traitement', sub: 'Domaine de la Chevalière · DER-2026-0032', time: 'Il y a 2h', unread: false },
   { id: 5, type: 'info',    icon: <Icon.Users size={14}/>,       title: 'Nouveau dégustateur inscrit',         sub: 'Pierre Moreau · Bordeaux',               time: 'Il y a 3h',  unread: false },
-  { id: 6, type: 'success', icon: <Icon.Check size={14}/>,       title: 'Palmarès Concours France publié',     sub: 'Édition 2025 · 847 médailles attribuées', time: 'Il y a 2 j', unread: false },
+  { id: 6, type: 'success', icon: <Icon.Check size={14}/>,       title: 'Palmarès Concours des Grands Vins de France publié',     sub: 'Édition 2025 · 847 médailles attribuées', time: 'Il y a 2 j', unread: false },
 ];
 
 const notifColors = {

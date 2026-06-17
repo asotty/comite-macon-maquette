@@ -618,8 +618,8 @@ const ProdTabInscriptions = ({ list, onOpen }) => (
             <td style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)', fontSize: 12.5, fontWeight: 500 }}>{i.ref}</td>
             <td>
               {i.concours === 'Monde'
-                ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon.Globe size={12} style={{ color: 'var(--burgundy-700)' }}/> Concours Monde</span>
-                : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon.Trophy size={12} style={{ color: 'var(--burgundy-800)' }}/> Concours France</span>}
+                ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon.Globe size={12} style={{ color: 'var(--burgundy-700)' }}/> Concours des Grands Vins du Monde</span>
+                : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Icon.Trophy size={12} style={{ color: 'var(--burgundy-800)' }}/> Concours des Grands Vins de France</span>}
             </td>
             <td className="num tnum">{i.edition}</td>
             <td className="num tnum">{i.ech}</td>
