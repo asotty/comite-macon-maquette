@@ -777,7 +777,7 @@ const EchantillonCorrectionCard = ({ ech, defaultOpen, saved, onSave, onReset, o
         <div>
           <table className="table" style={{ margin: 0 }}>
             <thead>
-              <tr><th>Champ</th><th>Déclaré</th><th>Extrait du PDF</th><th>Écart</th><th style={{ width: '40%' }}>Valeur retenue</th></tr>
+              <tr><th>Champ</th><th>Déclaré</th><th>DREV / analyse</th><th>Écart</th><th style={{ width: '40%' }}>Valeur retenue</th></tr>
             </thead>
             <tbody>
               {ech.fields.map(f => (
