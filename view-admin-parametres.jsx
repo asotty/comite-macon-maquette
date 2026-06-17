@@ -38,11 +38,11 @@ const AdminParamConcours = () => {
   const markDirty = () => setDirty(true);
 
   const [formats, setFormats] = React.useState([
-    { id: 'autocollants',      label: 'Autocollants ronds',          sub: 'Macaron Ø 35 mm · bouteilles',                   active: true,  units: 1,   color: '#f59e0b', builtin: true  },
-    { id: 'autocollants_rect', label: 'Autocollants rectangulaires', sub: 'Format col 80 × 30 mm',                          active: true,  units: 1,   color: '#8b5cf6', builtin: true  },
-    { id: 'plaques',           label: 'Plaques métal',               sub: 'Aluminium brossé · vitrines et présentoirs',     active: true,  units: 10,  color: '#0ea5e9', builtin: true  },
-    { id: 'diplomes',          label: 'Certificats / Diplômes',      sub: 'Format A4 encadrable · attestation officielle',  active: false, units: 5,   color: '#16a34a', builtin: true  },
-    { id: 'boites',            label: 'Boîtes vrac',                 sub: 'Conditionnement cave · grands volumes',          active: false, units: 100, color: '#64748b', builtin: true  },
+    { id: 'autocollants',      label: 'Autocollants ronds',          sub: 'Macaron Ø 35 mm · bouteilles',                   active: true,  units: 1,   prix: 0.15,  color: '#f59e0b', builtin: true  },
+    { id: 'autocollants_rect', label: 'Autocollants rectangulaires', sub: 'Format col 80 × 30 mm',                          active: true,  units: 1,   prix: 0.20,  color: '#8b5cf6', builtin: true  },
+    { id: 'plaques',           label: 'Plaques métal',               sub: 'Aluminium brossé · vitrines et présentoirs',     active: true,  units: 10,  prix: 25.00, color: '#0ea5e9', builtin: true  },
+    { id: 'diplomes',          label: 'Certificats / Diplômes',      sub: 'Format A4 encadrable · attestation officielle',  active: false, units: 5,   prix: 8.00,  color: '#16a34a', builtin: true  },
+    { id: 'boites',            label: 'Boîtes vrac',                 sub: 'Conditionnement cave · grands volumes',          active: false, units: 100, prix: 45.00, color: '#64748b', builtin: true  },
   ]);
 
   // Formulaire d'ajout
@@ -208,6 +208,22 @@ const AdminParamConcours = () => {
                       style={{ width: 72, textAlign: 'center', fontSize: 13 }}
                     />
                     <span style={{ fontSize: 12, color: 'var(--fg-muted)', minWidth: 34 }}>unité{f.units !== 1 ? 's' : ''}</span>
+                  </div>
+                  {/* Prix unitaire */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                    <span style={{ fontSize: 12, color: 'var(--fg-muted)', whiteSpace: 'nowrap' }}>Prix</span>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type="number"
+                        className="input tnum"
+                        value={f.prix}
+                        min={0}
+                        step={0.01}
+                        onChange={e => { updateFormat(f.id, { prix: parseFloat(e.target.value) || 0 }); }}
+                        style={{ width: 84, textAlign: 'right', fontSize: 13, paddingRight: 24 }}
+                      />
+                      <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 12, pointerEvents: 'none' }}>€</span>
+                    </div>
                   </div>
                   {/* Supprimer (formats personnalisés seulement) */}
                   {!f.builtin ? (
