@@ -1823,9 +1823,8 @@ const ProducteurCommandeDetail = ({ commande, onBack }) => {
 
   const livraison = {
     adresse: 'Domaine de la Chevalière · Lieu-dit Les Crays, 71960 Vergisson',
-    transporteur: 'DPD France',
     suivi: c.status !== 'preparation' ? '8X12340987654FR' : null,
-    eta: c.status === 'preparation' ? '8 juin 2026' : c.status === 'expediee' ? '5 juin 2026' : null,
+    dateSouhaitee: c.status === 'preparation' ? '8 juin 2026' : c.status === 'expediee' ? '5 juin 2026' : null,
     livreLe: c.status === 'livree' ? '06 avril 2025' : null,
   };
 
@@ -1950,10 +1949,6 @@ const ProducteurCommandeDetail = ({ commande, onBack }) => {
               <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Adresse</div>
               <div style={{ fontSize: 13, marginTop: 4 }}>{livraison.adresse}</div>
             </div>
-            <div>
-              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>Transporteur</div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>{livraison.transporteur}</div>
-            </div>
             {livraison.suivi && (
               <div>
                 <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 500 }}>N° de suivi</div>
@@ -1963,10 +1958,10 @@ const ProducteurCommandeDetail = ({ commande, onBack }) => {
                 </div>
               </div>
             )}
-            {livraison.eta && (
+            {livraison.dateSouhaitee && (
               <div style={{ padding: '10px 12px', background: 'var(--burgundy-50)', borderRadius: 8 }}>
-                <div style={{ fontSize: 11.5, color: 'var(--burgundy-800)', fontWeight: 500 }}>Livraison estimée</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--burgundy-900)', marginTop: 2 }}>{livraison.eta}</div>
+                <div style={{ fontSize: 11.5, color: 'var(--burgundy-800)', fontWeight: 500 }}>Date de livraison souhaitée</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--burgundy-900)', marginTop: 2 }}>{livraison.dateSouhaitee}</div>
               </div>
             )}
             {livraison.livreLe && (
