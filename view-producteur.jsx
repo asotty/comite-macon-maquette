@@ -1812,13 +1812,13 @@ const ProducteurCommandeDetail = ({ commande, onBack }) => {
 
   // Articles fictifs basés sur le détail (parsing rapide ou exemple)
   const articles = c.status === 'livree' ? [
-    { wine: 'Tradition 2022', appell: 'Mâcon-Villages', medal: 'bronze', items: [{ k: 'autocollants', n: 200 }], units: 200 },
+    { wine: 'Tradition 2022', appell: 'Mâcon-Villages', medal: 'bronze', concours: 'france', items: [{ k: 'autocollants', n: 200 }], units: 200 },
   ] : c.units >= 800 ? [
-    { wine: 'Cuvée Prestige 2023', appell: 'Pouilly-Fuissé', medal: 'or', items: [{ k: 'autocollants', n: 350 }, { k: 'plaques', n: 30 }], units: 650 },
-    { wine: 'Les Hauts 2023',      appell: 'Saint-Véran',    medal: 'or', items: [{ k: 'autocollants', n: 200 }], units: 200 },
+    { wine: 'Cuvée Prestige 2023', appell: 'Pouilly-Fuissé', medal: 'or', concours: 'france', items: [{ k: 'autocollants', n: 350 }, { k: 'plaques', n: 30 }], units: 650 },
+    { wine: 'Les Hauts 2023',      appell: 'Saint-Véran',    medal: 'or', concours: 'france', items: [{ k: 'autocollants', n: 200 }], units: 200 },
   ] : [
-    { wine: 'Vieilles Vignes 2024', appell: 'Mâcon-Villages', medal: 'or', items: [{ k: 'autocollants', n: 120 }, { k: 'plaques', n: 10 }], units: 220 },
-    { wine: 'Cuvée Prestige 2023',  appell: 'Pouilly-Fuissé', medal: 'or', items: [{ k: 'autocollants', n: 100 }], units: 100 },
+    { wine: 'Vieilles Vignes 2024', appell: 'Mâcon-Villages', medal: 'or', concours: 'france', items: [{ k: 'autocollants', n: 120 }, { k: 'plaques', n: 10 }], units: 220 },
+    { wine: 'Cuvée Prestige 2023',  appell: 'Pouilly-Fuissé', medal: 'or', concours: 'france', items: [{ k: 'autocollants', n: 100 }], units: 100 },
   ];
 
   const livraison = {
@@ -1915,15 +1915,11 @@ const ProducteurCommandeDetail = ({ commande, onBack }) => {
               return (
                 <div key={i} className="card" style={{ padding: '14px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                    <div style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      padding: '4px 10px', borderRadius: 999,
-                      background: medalColors.bg, color: medalColors.fg,
-                      fontSize: 12, fontWeight: 600,
-                    }}>
-                      <span className="badge-dot" style={{ background: 'currentColor' }}/>
-                      {medalColors.label}
-                    </div>
+                    <img
+                      src={medalImg(a.medal, a.concours)}
+                      alt={medalColors.label}
+                      style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 }}
+                    />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 500 }}>{a.wine}</div>
                       <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{a.appell}</div>
