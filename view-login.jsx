@@ -171,7 +171,7 @@ const Login = ({ onLogin, initialPortal }) => {
               <div style={{ marginTop: 32, padding: '14px 16px', background: 'var(--burgundy-50)', borderRadius: 10, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                 <Icon.Info size={16} style={{ color: 'var(--burgundy-800)', marginTop: 2 }} />
                 <div style={{ fontSize: 12.5, color: 'var(--burgundy-900)' }}>
-                  <strong>Première visite ?</strong> Les producteurs créent leur compte directement depuis leur portail. Les dégustateurs reçoivent un lien d'invitation.
+                  <strong>Première visite ?</strong> Les producteurs créent leur compte directement depuis leur portail. Les dégustateurs font une pré-inscription sur le site.
                 </div>
               </div>
             </div>
