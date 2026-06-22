@@ -23,6 +23,14 @@ const EXPO_DETAIL = {
   acompte: { montant: 240, status: 'paye',    paidAt: '10/05/2026 à 16h08', moyen: 'CB' },
   solde:   { montant: 360, status: 'attente', dueAt:  '30/09/2026' },
   stand:   null, // null = pas encore attribué
+  // R08 : prestations réservées lors de l'inscription exposant
+  prestations: [
+    { id: 1, nom: 'Forfait stand 3×3 m (9 m²)', qte: 1, prixUHT: 840 },
+    { id: 2, nom: 'Angle — 1 côté',             qte: 1, prixUHT: 110 },
+    { id: 3, nom: 'Table supplémentaire',        qte: 1, prixUHT: 14  },
+    { id: 4, nom: 'Chaise',                      qte: 3, prixUHT: 8   },
+    { id: 5, nom: 'Badge parking',               qte: 2, prixUHT: 6   },
+  ],
 };
 
 const AdminInscriptionExposantDetail = ({ onBack }) => {
@@ -127,10 +135,11 @@ const AdminInscriptionExposantDetail = ({ onBack }) => {
           {/* Tabs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 24, borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
             {[
-              { id: 'demande',    label: 'Demande' },
-              { id: 'stand',      label: 'Stand attribué', warn: !stand },
-              { id: 'paiement',   label: 'Paiement' },
-              { id: 'historique', label: 'Historique', count: history.length },
+              { id: 'demande',      label: 'Demande' },
+              { id: 'stand',        label: 'Stand attribué', warn: !stand },
+              { id: 'prestations',  label: 'Prestations', count: EXPO_DETAIL.prestations.length },
+              { id: 'paiement',     label: 'Paiement' },
+              { id: 'historique',   label: 'Historique', count: history.length },
             ].map(t => {
               const active = tab === t.id;
               return (
@@ -157,10 +166,11 @@ const AdminInscriptionExposantDetail = ({ onBack }) => {
             })}
           </div>
 
-          {tab === 'demande'    && <ExpoTabDemande/>}
-          {tab === 'stand'      && <ExpoTabStand stand={stand} onAttribuer={() => setValidateModal(true)} canAttribuer={status === 'attente'}/>}
-          {tab === 'paiement'   && <ExpoTabPaiement/>}
-          {tab === 'historique' && <ExpoTabHistorique items={history}/>}
+          {tab === 'demande'     && <ExpoTabDemande/>}
+          {tab === 'stand'       && <ExpoTabStand stand={stand} onAttribuer={() => setValidateModal(true)} canAttribuer={status === 'attente'}/>}
+          {tab === 'prestations' && <ExpoTabPrestations/>}
+          {tab === 'paiement'    && <ExpoTabPaiement/>}
+          {tab === 'historique'  && <ExpoTabHistorique items={history}/>}
         </div>
 
         {/* Sidebar */}
@@ -647,6 +657,94 @@ const RefuserDemandeModal = ({ onCancel, onConfirm }) => {
           </button>
         </div>
       </div>
+    </div>
+  );
+};
+
+// ─── R08 : onglet "Prestations" de la fiche inscription exposant ──────────────
+/**
+ * Affiche et permet de modifier les prestations réservées par l'exposant.
+ * Source : EXPO_DETAIL.prestations — quantités éditables inline par l'admin.
+ */
+const ExpoTabPrestations = () => {
+  const [lignes, setLignes] = React.useState(EXPO_DETAIL.prestations);
+  const [draft, setDraft]   = React.useState(null);
+  const [saved, setSaved]   = React.useState(false);
+  const editing = draft !== null;
+  const rows    = editing ? draft : lignes;
+  const totalHT = rows.reduce((s, l) => s + l.qte * l.prixUHT, 0);
+  const fmtEur  = n => n.toFixed(2).replace('.', ',') + ' €';
+
+  const startEdit  = () => setDraft(rows.map(l => ({ ...l })));
+  const cancelEdit = () => setDraft(null);
+  const saveEdit   = () => { setLignes(draft); setDraft(null); setSaved(true); setTimeout(() => setSaved(false), 2500); };
+
+  return (
+    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      {/* ── Header ── */}
+      <div style={{ padding: '16px 20px', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg)' }}>Prestations réservées</div>
+          <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 3 }}>{EXPO_DETAIL.salon}</div>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {editing ? (
+            <>
+              <button className="btn btn-outline btn-sm" onClick={cancelEdit}>Annuler</button>
+              <button className="btn btn-primary btn-sm" onClick={saveEdit} style={{ background: 'var(--burgundy-800)' }}>
+                <Icon.Check size={13}/> Enregistrer
+              </button>
+            </>
+          ) : (
+            <button className="btn btn-outline btn-sm" onClick={startEdit} style={saved ? { color: '#166534' } : {}}>
+              {saved ? <><Icon.Check size={13}/> Enregistré</> : <><Icon.Edit size={13}/> Modifier les prestations</>}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Tableau ── */}
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ background: 'var(--slate-50)' }}>
+            {[['Prestation', 'left'], ['Qté', 'right'], ['Prix unitaire HT', 'right'], ['Total HT', 'right']].map(([h, align]) => (
+              <th key={h} style={{ padding: '9px 16px', textAlign: align, fontSize: 10.5, fontWeight: 600, color: 'var(--fg-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)' }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((l, i) => (
+            <tr key={l.id} style={{ borderTop: '1px solid var(--border)' }}>
+              <td style={{ padding: '11px 16px', fontSize: 13.5, color: 'var(--fg)' }}>{l.nom}</td>
+              <td style={{ padding: '11px 16px', textAlign: 'right' }}>
+                {editing ? (
+                  <input type="number" min={0} className="input" value={l.qte}
+                    onChange={e => setDraft(d => d.map((r, j) => j === i ? { ...r, qte: parseInt(e.target.value) || 0 } : r))}
+                    style={{ width: 64, textAlign: 'right', padding: '4px 8px', height: 32, fontFamily: 'inherit' }}
+                  />
+                ) : (
+                  <span className="tnum" style={{ fontSize: 13.5, fontWeight: 500 }}>{l.qte}</span>
+                )}
+              </td>
+              <td className="tnum" style={{ padding: '11px 16px', fontSize: 13, color: 'var(--fg-muted)', textAlign: 'right' }}>{fmtEur(l.prixUHT)}</td>
+              <td className="tnum" style={{ padding: '11px 16px', fontSize: 13.5, fontWeight: 500, textAlign: 'right', color: 'var(--fg)' }}>{fmtEur(l.qte * l.prixUHT)}</td>
+            </tr>
+          ))}
+          {/* ── Totaux ── */}
+          <tr style={{ borderTop: '2px solid var(--border)', background: 'var(--slate-50)' }}>
+            <td colSpan={3} style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600, color: 'var(--fg-muted)' }}>Total HT</td>
+            <td className="tnum display" style={{ padding: '11px 16px', fontSize: 18, fontWeight: 500, color: 'var(--burgundy-800)', textAlign: 'right' }}>{fmtEur(totalHT)}</td>
+          </tr>
+          <tr style={{ borderTop: '1px dashed var(--border)', background: 'var(--slate-50)' }}>
+            <td colSpan={3} style={{ padding: '8px 16px', fontSize: 12, color: 'var(--fg-muted)' }}>TVA 20 %</td>
+            <td className="tnum" style={{ padding: '8px 16px', fontSize: 13, color: 'var(--fg-muted)', textAlign: 'right' }}>{fmtEur(totalHT * 0.20)}</td>
+          </tr>
+          <tr style={{ borderTop: '1px dashed var(--border)', background: 'var(--slate-50)' }}>
+            <td colSpan={3} style={{ padding: '8px 16px 14px', fontSize: 12.5, fontWeight: 600, color: 'var(--fg)' }}>Total TTC</td>
+            <td className="tnum" style={{ padding: '8px 16px 14px', fontSize: 15, fontWeight: 600, color: 'var(--fg)', textAlign: 'right' }}>{fmtEur(totalHT * 1.20)}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 };

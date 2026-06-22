@@ -67,6 +67,26 @@ const KV = ({ label, children, mono }) => (
   </div>
 );
 
+// ─── R02 : prestations salons liées au dossier ────────────────────────────────
+const SALON_PRESTATIONS = {
+  sdv: {
+    nom: 'Salon des Vins de Mâcon 2026',
+    ref: 'INS-SDV-2026-0189',
+    lignes: [
+      { id: 1, nom: 'Forfait stand 3×3 m (9 m²)', qte: 1, prixUHT: 840 },
+      { id: 2, nom: 'Angle — 1 côté',             qte: 1, prixUHT: 110 },
+      { id: 3, nom: 'Table supplémentaire',        qte: 1, prixUHT: 14  },
+      { id: 4, nom: 'Chaise',                      qte: 4, prixUHT: 8   },
+      { id: 5, nom: 'Badge parking',               qte: 2, prixUHT: 6   },
+    ],
+  },
+  mpg: {
+    nom: 'Marché des Plaisirs Gourmands 2026',
+    ref: null, // pas d'inscription MPG pour ce producteur
+    lignes: [],
+  },
+};
+
 // ─── Page principale ───────────────────────────────────────────────
 
 const AdminDossierDetail = ({ onBack, onNavigate }) => {
@@ -113,6 +133,7 @@ const AdminDossierDetail = ({ onBack, onNavigate }) => {
     { id: 'controle',     label: 'Contr\u00f4le',     warn: true },
     { id: 'derogations',  label: 'Commentaires', count: DEROGATIONS.length, warn: pendingDerog > 0 },
     { id: 'paiement',     label: 'Paiement' },
+    { id: 'prestations',  label: 'Prestations salons', count: SALON_PRESTATIONS.sdv.lignes.length },
     { id: 'historique',   label: 'Historique' },
   ];
 
@@ -204,6 +225,7 @@ const AdminDossierDetail = ({ onBack, onNavigate }) => {
                                           onPreviewAttachment={(d) => setDocViewer({ name: d.attachment.name, size: d.attachment.size, kind: 'attestation', ech: d.ech, status: 'ok' })}
                                        />}
             {tab === 'paiement'     && <TabPaiement paid={paid} onMarkPaid={() => setPaid(true)}/>}
+            {tab === 'prestations'  && <TabPrestations/>}
             {tab === 'historique'   && <TabHistorique paid={paid}/>}
           </div>
         </div>
@@ -1890,6 +1912,138 @@ const DerogStatusBadge = ({ status }) => {
     }}>
       {s.icon} {s.label}
     </span>
+  );
+};
+
+// ─── R02 : composants "Prestations salons" ────────────────────────────────────
+
+/**
+ * Section réutilisable : une carte par salon (SDV ou MPG).
+ * Props : salon (meta), lignes (données sauvegardées), draft (édition en cours | null),
+ *         saved (flash feedback), callbacks onStartEdit / onCancelEdit / onSaveEdit / onDraftChange.
+ */
+const PrestationsSalonSection = ({ salon, lignes, draft, saved, onStartEdit, onCancelEdit, onSaveEdit, onDraftChange }) => {
+  const editing = draft !== null;
+  const rows    = editing ? draft : lignes;
+  const totalHT = rows.reduce((s, l) => s + l.qte * l.prixUHT, 0);
+  const fmtEur  = n => n.toFixed(2).replace('.', ',') + ' €'; // espace insécable
+
+  return (
+    <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 18 }}>
+      {/* ── Header ── */}
+      <div style={{ padding: '16px 20px', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg)' }}>{salon.nom}</div>
+          {salon.ref
+            ? <code style={{ fontSize: 11.5, color: 'var(--burgundy-800)', fontFamily: 'Menlo, monospace' }}>{salon.ref}</code>
+            : <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>Aucune inscription pour ce salon</span>
+          }
+        </div>
+        {salon.ref && (
+          <div style={{ display: 'flex', gap: 6 }}>
+            {editing ? (
+              <>
+                <button className="btn btn-outline btn-sm" onClick={onCancelEdit}>Annuler</button>
+                <button className="btn btn-primary btn-sm" onClick={onSaveEdit} style={{ background: 'var(--burgundy-800)' }}>
+                  <Icon.Check size={13}/> Enregistrer
+                </button>
+              </>
+            ) : (
+              <button className="btn btn-outline btn-sm" onClick={onStartEdit} style={saved ? { color: '#166534' } : {}}>
+                {saved ? <><Icon.Check size={13}/> Enregistré</> : <><Icon.Edit size={13}/> Modifier</>}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Tableau prestations ── */}
+      {salon.ref ? (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: 'var(--slate-50)' }}>
+              {[['Prestation', 'left'], ['Qté', 'right'], ['Prix unitaire HT', 'right'], ['Total HT', 'right']].map(([h, align]) => (
+                <th key={h} style={{ padding: '9px 16px', textAlign: align, fontSize: 10.5, fontWeight: 600, color: 'var(--fg-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((l, i) => (
+              <tr key={l.id} style={{ borderTop: '1px solid var(--border)' }}>
+                <td style={{ padding: '11px 16px', fontSize: 13.5, color: 'var(--fg)' }}>{l.nom}</td>
+                <td style={{ padding: '11px 16px', textAlign: 'right' }}>
+                  {editing ? (
+                    <input type="number" min={0} className="input" value={l.qte}
+                      onChange={e => onDraftChange(i, parseInt(e.target.value) || 0)}
+                      style={{ width: 64, textAlign: 'right', padding: '4px 8px', height: 32, fontFamily: 'inherit' }}
+                    />
+                  ) : (
+                    <span className="tnum" style={{ fontSize: 13.5, fontWeight: 500 }}>{l.qte}</span>
+                  )}
+                </td>
+                <td className="tnum" style={{ padding: '11px 16px', fontSize: 13, color: 'var(--fg-muted)', textAlign: 'right' }}>{fmtEur(l.prixUHT)}</td>
+                <td className="tnum" style={{ padding: '11px 16px', fontSize: 13.5, fontWeight: 500, textAlign: 'right', color: 'var(--fg)' }}>{fmtEur(l.qte * l.prixUHT)}</td>
+              </tr>
+            ))}
+            {/* ── Totaux ── */}
+            <tr style={{ borderTop: '2px solid var(--border)', background: 'var(--slate-50)' }}>
+              <td colSpan={3} style={{ padding: '11px 16px', fontSize: 12, fontWeight: 600, color: 'var(--fg-muted)' }}>Total HT</td>
+              <td className="tnum display" style={{ padding: '11px 16px', fontSize: 18, fontWeight: 500, color: 'var(--burgundy-800)', textAlign: 'right' }}>{fmtEur(totalHT)}</td>
+            </tr>
+            <tr style={{ borderTop: '1px dashed var(--border)', background: 'var(--slate-50)' }}>
+              <td colSpan={3} style={{ padding: '8px 16px', fontSize: 12, color: 'var(--fg-muted)' }}>TVA 20 %</td>
+              <td className="tnum" style={{ padding: '8px 16px', fontSize: 13, color: 'var(--fg-muted)', textAlign: 'right' }}>{fmtEur(totalHT * 0.20)}</td>
+            </tr>
+            <tr style={{ borderTop: '1px dashed var(--border)', background: 'var(--slate-50)' }}>
+              <td colSpan={3} style={{ padding: '8px 16px 14px', fontSize: 12.5, fontWeight: 600, color: 'var(--fg)' }}>Total TTC</td>
+              <td className="tnum" style={{ padding: '8px 16px 14px', fontSize: 15, fontWeight: 600, color: 'var(--fg)', textAlign: 'right' }}>{fmtEur(totalHT * 1.20)}</td>
+            </tr>
+          </tbody>
+        </table>
+      ) : (
+        <div style={{ padding: '32px 20px', textAlign: 'center', color: 'var(--fg-muted)', fontSize: 13.5 }}>
+          <Icon.Info size={22} style={{ color: 'var(--fg-subtle)', display: 'block', margin: '0 auto 10px' }}/>
+          <div>Ce producteur n'a pas d'inscription au <strong>{salon.nom}</strong>.</div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const TabPrestations = () => {
+  const [lignes, setLignes] = React.useState(SALON_PRESTATIONS.sdv.lignes);
+  const [draft, setDraft]   = React.useState(null);
+  const [saved, setSaved]   = React.useState(false);
+
+  const startEdit  = () => setDraft(lignes.map(l => ({ ...l })));
+  const cancelEdit = () => setDraft(null);
+  const saveEdit   = () => { setLignes(draft); setDraft(null); setSaved(true); setTimeout(() => setSaved(false), 2500); };
+  const changeDraft = (i, val) => setDraft(d => d.map((r, j) => j === i ? { ...r, qte: val } : r));
+
+  return (
+    <div className="fade-in">
+      <PrestationsSalonSection
+        salon={SALON_PRESTATIONS.sdv}
+        lignes={lignes}
+        draft={draft}
+        saved={saved}
+        onStartEdit={startEdit}
+        onCancelEdit={cancelEdit}
+        onSaveEdit={saveEdit}
+        onDraftChange={changeDraft}
+      />
+      {/* MPG : ce producteur n'a pas d'inscription salon MPG */}
+      <PrestationsSalonSection
+        salon={SALON_PRESTATIONS.mpg}
+        lignes={[]}
+        draft={null}
+        saved={false}
+        onStartEdit={() => {}}
+        onCancelEdit={() => {}}
+        onSaveEdit={() => {}}
+        onDraftChange={() => {}}
+      />
+    </div>
   );
 };
 
