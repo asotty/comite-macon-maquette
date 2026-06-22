@@ -2882,14 +2882,14 @@ const CompteInfos = () => {
     siret:   '487 219 035 00018',
     tva:     'FR42487219035',
     inscNom: 'Lambert', inscPrenom: 'Sophie', inscFonction: 'Gérante', inscEmail: 'contact@domaine-chevaliere.fr', inscTel: '03 85 35 70 12',
-    commNom: 'Renard',  commPrenom: 'Thomas', commFonction: 'Marketing', commEmail: 't.renard@domaine-chevaliere.fr',
+    commNom: 'Renard',  commPrenom: 'Thomas', commFonction: 'Marketing', commEmail: 't.renard@domaine-chevaliere.fr', commTel: '06 14 22 89 03',
   };
   const [form, setForm] = React.useState(initial);
   const dirty = Object.keys(initial).some(k => form[k] !== initial[k]);
   const setField = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
   const [synced, setSynced] = React.useState(false);
   const syncContacts = () => {
-    setForm(f => ({ ...f, commNom: f.inscNom, commPrenom: f.inscPrenom, commFonction: f.inscFonction, commEmail: f.inscEmail }));
+    setForm(f => ({ ...f, commNom: f.inscNom, commPrenom: f.inscPrenom, commFonction: f.inscFonction, commEmail: f.inscEmail, commTel: f.inscTel }));
     setSynced(true);
     setTimeout(() => setSynced(false), 2500);
   };
@@ -3008,7 +3008,8 @@ const CompteInfos = () => {
           <div className="field"><label className="field-label">Nom</label><input className="input" value={form.commNom} onChange={setField('commNom')}/></div>
           <div className="field"><label className="field-label">Prénom</label><input className="input" value={form.commPrenom} onChange={setField('commPrenom')}/></div>
           <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Fonction</label><input className="input" value={form.commFonction} onChange={setField('commFonction')}/></div>
-          <div className="field" style={{ gridColumn: 'span 2' }}><label className="field-label">Email</label><input className="input" value={form.commEmail} onChange={setField('commEmail')}/></div>
+          <div className="field"><label className="field-label">Email</label><input className="input" value={form.commEmail} onChange={setField('commEmail')}/></div>
+          <div className="field"><label className="field-label">Téléphone</label><input className="input tnum" value={form.commTel} onChange={setField('commTel')}/></div>
         </div>
       </div>
 
