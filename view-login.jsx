@@ -123,8 +123,15 @@ const Login = ({ onLogin, initialPortal }) => {
             <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.2)' }} />
             {/* CGVM */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <img src="logo-comite-vin-monde.png" alt="CGVM"
-                style={{ width: 44, height: 44, objectFit: 'contain', filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))' }} />
+              <div style={{
+                width: 44, height: 44, borderRadius: '50%',
+                background: 'rgba(255,255,255,0.92)',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <img src="logo-comite-vin-monde.png" alt="CGVM"
+                  style={{ width: 34, height: 34, objectFit: 'contain' }} />
+              </div>
               <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.82)', fontWeight: 500, lineHeight: 1.3 }}>
                 Concours des<br />Grands Vins du Monde
               </div>
