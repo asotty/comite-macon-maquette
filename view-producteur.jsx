@@ -1207,9 +1207,8 @@ const SuggestionHistorique = ({ step, year, setYear, currentVins, onImportVins, 
     <div style={{
       marginBottom: 28,
       border: '1px solid var(--burgundy-200)',
-      borderLeft: '4px solid var(--burgundy-700)',
       borderRadius: 10,
-      background: 'linear-gradient(to right, var(--burgundy-50) 0%, var(--surface) 100%)',
+      background: 'var(--burgundy-50)',
       overflow: 'hidden',
     }}>
       {/* Barre titre */}
