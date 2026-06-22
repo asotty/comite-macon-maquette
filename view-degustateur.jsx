@@ -35,8 +35,8 @@ const INSCRIPTION_STATUT = 'a_valider';
 
 // Disponibilité dégustateur par concours : 'disponible' | 'indisponible' | null (non renseigné)
 const CONCOURS_DISPO_INIT = [
-  { id: 'france', nom: 'Comité des Grands Vins de France', logo: null, dispo: 'disponible'   },
-  { id: 'monde',  nom: 'Comité des Grands Vins du Monde',  logo: null, dispo: 'indisponible' },
+  { id: 'france', nom: 'Concours des Grands Vins de France', logo: null, dispo: 'disponible'   },
+  { id: 'monde',  nom: 'Concours des Grands Vins du Monde',  logo: null, dispo: 'indisponible' },
 ];
 
 const DegustateurDashboard = ({ onNavigate }) => {
@@ -77,15 +77,24 @@ const DegustateurDashboard = ({ onNavigate }) => {
             <div key={c.id} className="card" style={{ padding: 22 }}>
               {/* En-tête : logo + nom */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-                {/* Logo placeholder — remplacer par <img src={c.logo}> quand logos reçus */}
-                <div style={{
-                  width: 44, height: 44, borderRadius: 8, flexShrink: 0,
-                  background: 'var(--burgundy-50)', border: '1px solid var(--burgundy-200)',
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--burgundy-800)', fontSize: 10, fontWeight: 700,
-                }}>
-                  {c.id === 'france' ? 'FR' : 'MO'}
-                </div>
+                {/* Logo concours — CGVF ou CGVM */}
+                {c.id === 'monde' ? (
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 8, flexShrink: 0,
+                    background: '#e6eff0', border: '1px solid rgba(0,77,87,0.15)',
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 30, height: 30, objectFit: 'contain' }}/>
+                  </div>
+                ) : (
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 8, flexShrink: 0,
+                    background: 'var(--burgundy-50)', border: '1px solid var(--burgundy-200)',
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Icon.Trophy size={20} style={{ color: 'var(--burgundy-800)' }}/>
+                  </div>
+                )}
                 <div style={{ fontSize: 13.5, fontWeight: 600, lineHeight: 1.3 }}>{c.nom}</div>
               </div>
 
@@ -902,11 +911,13 @@ const DegustateurConcours = () => {
             }}>
               <div style={{
                 width: 44, height: 44, borderRadius: 10,
-                background: c.nom.includes('Monde') ? '#eef4ff' : 'var(--burgundy-50)',
-                color: c.nom.includes('Monde') ? '#1e40af' : 'var(--burgundy-800)',
+                background: c.nom.includes('Monde') ? '#e6eff0' : 'var(--burgundy-50)',
+                color: c.nom.includes('Monde') ? '#004D57' : 'var(--burgundy-800)',
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                {c.nom.includes('Monde') ? <Icon.Globe size={20}/> : <Icon.Trophy size={20}/>}
+                {c.nom.includes('Monde')
+                  ? <img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 26, height: 26, objectFit: 'contain' }}/>
+                  : <Icon.Trophy size={20}/>}
               </div>
               <div style={{ flex: 1 }}>
                 <div className="display" style={{ fontSize: 18, fontWeight: 500 }}>{c.nom} {c.edition}</div>
@@ -1054,11 +1065,13 @@ const DegustateurHistorique = () => {
           <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
               width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-              background: p.type === 'monde' ? '#eef4ff' : 'var(--burgundy-50)',
-              color:      p.type === 'monde' ? '#1e40af' : 'var(--burgundy-800)',
+              background: p.type === 'monde' ? '#e6eff0' : 'var(--burgundy-50)',
+              color:      p.type === 'monde' ? '#004D57' : 'var(--burgundy-800)',
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              {p.type === 'monde' ? <Icon.Globe size={15}/> : <Icon.Trophy size={15}/>}
+              {p.type === 'monde'
+                ? <img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 20, height: 20, objectFit: 'contain' }}/>
+                : <Icon.Trophy size={15}/>}
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14.5, fontWeight: 600 }}>{p.concours}</div>

@@ -88,35 +88,52 @@ const Login = ({ onLogin, initialPortal }) => {
           <circle cx="250" cy="250" r="120" fill="none" stroke="#fff" strokeWidth="0.5" />
         </svg>
 
+        {/* Logo + nom Comité — haut gauche */}
         <div style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: 14 }}>
-          <img src="assets/medaille-or.webp" alt="Médaille d'Or" style={{
-            width: 56, height: 56,
+          <img src="assets/logo-medaille.webp" alt="Logo Comité" style={{
+            width: 48, height: 48,
             objectFit: 'contain',
             filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))'
           }} />
-          <div style={{ lineHeight: 1.1 }}>
-            <div className="display" style={{ fontSize: 18, fontWeight: 600, color: '#fff', letterSpacing: '-0.015em' }}>Comités des grands vins de france
-
+          <div style={{ lineHeight: 1.2 }}>
+            <div className="display" style={{ fontSize: 14, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em', maxWidth: 200 }}>
+              Comité des Salons et Concours de Mâcon
             </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500 }}>EXTRANET
-
-            </div>
+            <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 500 }}>EXTRANET</div>
           </div>
         </div>
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 480 }}>
-          <h1 className="display" style={{ fontSize: 52, fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.03em', margin: 0, color: "rgb(255, 255, 255)" }}>
+          <h1 className="display" style={{ fontSize: 52, fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.03em', margin: 0, color: 'rgb(255, 255, 255)' }}>
             Concours des Grands Vins de France & du Monde<br />
             <span style={{ fontStyle: 'italic', color: 'var(--gold-300)' }}>à Mâcon</span>
           </h1>
-          <p style={{ fontSize: 16, lineHeight: 1.6, color: 'rgba(255,255,255,0.78)', marginTop: 28, maxWidth: 420 }}>Extranet métier du Comité des grands vins de France. Centralisez inscriptions, palmarès, commandes de médailles et dégustateurs.
 
-
-          </p>
+          {/* Logos CGVF et CGVM côte à côte */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 32 }}>
+            {/* CGVF */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <img src="assets/logo-medaille.webp" alt="CGVF"
+                style={{ width: 44, height: 44, objectFit: 'contain', filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))' }} />
+              <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.82)', fontWeight: 500, lineHeight: 1.3 }}>
+                Concours des<br />Grands Vins de France
+              </div>
+            </div>
+            {/* séparateur */}
+            <div style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.2)' }} />
+            {/* CGVM */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <img src="logo-comite-vin-monde.png" alt="CGVM"
+                style={{ width: 44, height: 44, objectFit: 'contain', filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))' }} />
+              <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.82)', fontWeight: 500, lineHeight: 1.3 }}>
+                Concours des<br />Grands Vins du Monde
+              </div>
+            </div>
+          </div>
         </div>
 
         <div style={{ position: 'relative', zIndex: 1, fontSize: 12, color: 'rgba(255,255,255,0.45)', display: 'flex', justifyContent: 'space-between' }}>
-          <span>© Comité des grands vins de France</span>
+          <span>© Comité des Salons et Concours de Mâcon</span>
           <span>V0.1 • Last realease 05/05/2026</span>
         </div>
       </aside>

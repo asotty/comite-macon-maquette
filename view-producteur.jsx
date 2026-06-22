@@ -106,8 +106,8 @@ const ProducteurInscriptionsList = ({ onOpenWizard }) => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{
                       width: 28, height: 28, borderRadius: 7,
-                      background: r.concours.includes('Monde') ? '#eef4ff' : 'var(--burgundy-50)',
-                      color: r.concours.includes('Monde') ? '#1e40af' : 'var(--burgundy-800)',
+                      background: r.concours.includes('Monde') ? '#e6eff0' : 'var(--burgundy-50)',
+                      color: r.concours.includes('Monde') ? '#004D57' : 'var(--burgundy-800)',
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                     }}>
                       {r.concours.includes('Monde') ? <Icon.Globe size={14}/> : <Icon.Trophy size={14}/>}
@@ -382,8 +382,8 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div style={{
                         width: 28, height: 28, borderRadius: 7,
-                        background: r.concours.includes('Monde') ? '#eef4ff' : 'var(--burgundy-50)',
-                        color: r.concours.includes('Monde') ? '#1e40af' : 'var(--burgundy-800)',
+                        background: r.concours.includes('Monde') ? '#e6eff0' : 'var(--burgundy-50)',
+                        color: r.concours.includes('Monde') ? '#004D57' : 'var(--burgundy-800)',
                         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         {r.concours.includes('Monde') ? <Icon.Globe size={14}/> : <Icon.Trophy size={14}/>}
@@ -435,7 +435,7 @@ const DuplicateInscriptionModal = ({ source, onClose, onConfirm }) => {
   const [target, setTarget] = React.useState('france-2027');
   const targets = [
     { id: 'france-2027', label: 'Concours des Grands Vins de France 2027', sub: "Inscriptions ouvertes jusqu'au 15 mai 2027", icon: <Icon.Trophy size={14}/>, color: 'var(--burgundy-800)', bg: 'var(--burgundy-50)' },
-    { id: 'monde-2026',  label: 'Concours des Grands Vins du Monde 2026',  sub: "Inscriptions ouvertes jusqu'au 30 juin 2026", icon: <Icon.Globe size={14}/>,  color: '#1e40af',           bg: '#eef4ff' },
+    { id: 'monde-2026',  label: 'Concours des Grands Vins du Monde 2026',  sub: "Inscriptions ouvertes jusqu'au 30 juin 2026", icon: <Icon.Globe size={14}/>,  color: '#004D57',           bg: '#e6eff0' },
   ];
 
   return (
@@ -1650,7 +1650,7 @@ const ProducteurMedailles = ({ onNavigate }) => {
         title="Concours des Grands Vins du Monde"
         icon={<Icon.Globe size={16}/>}
         items={monde}
-        accent="#1e40af"
+        accent="#BC9F54"
       />
     </div>
   );

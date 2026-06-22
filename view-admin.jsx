@@ -281,7 +281,7 @@ const ConcoursStatsCard = ({ label, delta, stats }) => (
 const ConcoursPill = ({ kind }) => {
   const m = kind === 'France'
     ? { bg: 'var(--burgundy-50)', fg: 'var(--burgundy-800)' }
-    : { bg: '#eef4ff', fg: '#1e40af' };
+    : { bg: '#e6eff0', fg: '#004D57' };
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
