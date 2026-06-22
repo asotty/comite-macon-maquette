@@ -113,7 +113,7 @@ const Login = ({ onLogin, initialPortal }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 32 }}>
             {/* CGVF */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <img src="assets/logo-medaille.webp" alt="CGVF"
+              <img src="assets/medaille-or.webp" alt="CGVF"
                 style={{ width: 44, height: 44, objectFit: 'contain', filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))' }} />
               <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.82)', fontWeight: 500, lineHeight: 1.3 }}>
                 Concours des<br />Grands Vins de France
