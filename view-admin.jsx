@@ -791,24 +791,26 @@ const AdminPalmares = ({ concours = 'france' }) => {
           <thead>
             <tr>
               <th>Producteur</th>
-              <PalmaresSortableTh label="Appellation"             k="appellation" sortKey={sortKey} sortDir={sortDir} onSort={handleSort}/>
-              <PalmaresSortableTh label="Millésime"               k="mill"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
+              <th>Région</th>
+              <PalmaresSortableTh label="Appellation" k="appellation" sortKey={sortKey} sortDir={sortDir} onSort={handleSort}/>
               <th>Couleur</th>
-              <th>Complément d'appellation</th>
-              <th>Cuvée</th>
+              <PalmaresSortableTh label="Millésime"   k="mill"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
               <th>Médaille</th>
+              <PalmaresSortableTh label="Note"        k="note"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} align="right"/>
+              <th>N° éch.</th>
             </tr>
           </thead>
           <tbody>
             {sorted.slice(0, pageSize).map((r, i) => (
               <tr key={i}>
                 <td style={{ fontWeight: 500 }}>{r[0]}</td>
+                <td className="muted">{r[1]}</td>
                 <td>{r[2]}</td>
-                <td className="num tnum">{r[4]}</td>
                 <td className="muted">{r[3]}</td>
-                <td className="muted">{r[8]}</td>
-                <td>{r[9]}</td>
+                <td className="num tnum">{r[4]}</td>
                 <td><MedailleBadge kind={r[5]} concours={concours}/></td>
+                <td className="num tnum" style={{ fontWeight: 500 }}>{r[6]}</td>
+                <td className="muted tnum" style={{ fontSize: 11.5, fontFamily: 'Menlo, monospace' }}>{r[7]}</td>
               </tr>
             ))}
           </tbody>
