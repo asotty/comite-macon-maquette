@@ -38,20 +38,20 @@ const AdminInscriptionExposantDetail = ({ onBack }) => {
   const [validateModal, setValidateModal] = React.useState(false);
   const [refuseModal, setRefuseModal]     = React.useState(false);
   const [contactMenu, setContactMenu]     = React.useState(false);
-  const [stand, setStand]   = React.useState(EXPO_DETAIL.stand); // {id, sqm, tarif, zone}
+  // R10 : plus de stand physique — juste la surface m² confirmée à la validation
+  const [surfaceM2, setSurfaceM2] = React.useState(null);
   const [history, setHistory] = React.useState([
-    { date: '08/05/2026 à 11h24', icon: <Icon.Plus size={12}/>, label: 'Demande reçue',         sub: `${EXPO_DETAIL.responsable} · via le formulaire en ligne`,           kind: 'info' },
-    { date: '10/05/2026 à 16h08', icon: <Icon.CreditCard size={12}/>, label: 'Acompte payé',    sub: `240 € par CB · transaction #PAYBOX-22841`,                          kind: 'success' },
+    { date: '08/05/2026 à 11h24', icon: <Icon.Plus size={12}/>, label: 'Demande reçue',      sub: `${EXPO_DETAIL.responsable} · via le formulaire en ligne`, kind: 'info' },
+    { date: '10/05/2026 à 16h08', icon: <Icon.CreditCard size={12}/>, label: 'Acompte payé', sub: `240 € par CB · transaction #PAYBOX-22841`,               kind: 'success' },
   ]);
 
-  const status = stand ? 'validee' : 'attente';
+  const status = surfaceM2 ? 'validee' : 'attente';
 
-  const onValidate = (chosenStand) => {
-    setStand(chosenStand);
+  const onValidate = (sqm) => {
+    setSurfaceM2(sqm);
     setHistory(h => [
       ...h,
-      { date: '15/05/2026 à 14h22', icon: <Icon.Check size={12}/>,        label: 'Demande validée',     sub: 'Sophie L.',                                                   kind: 'success' },
-      { date: '15/05/2026 à 14h22', icon: <Icon.Map size={12}/>,          label: 'Stand attribué',      sub: `Stand ${chosenStand.id} · ${chosenStand.sqm} m² · zone ${chosenStand.zone}`, kind: 'success' },
+      { date: '15/05/2026 à 14h22', icon: <Icon.Check size={12}/>, label: 'Inscription validée', sub: `Sophie L. · ${sqm} m² confirmés`, kind: 'success' },
     ]);
     setValidateModal(false);
     setTab('stand');
@@ -122,7 +122,7 @@ const AdminInscriptionExposantDetail = ({ onBack }) => {
                 cursor: status !== 'attente' ? 'not-allowed' : 'pointer',
               }}
             >
-              <Icon.Check size={13}/> Valider + attribuer un stand
+              <Icon.Check size={13}/> Valider l'inscription
             </button>
           </div>
         </div>
@@ -136,7 +136,7 @@ const AdminInscriptionExposantDetail = ({ onBack }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 24, borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
             {[
               { id: 'demande',      label: 'Demande' },
-              { id: 'stand',        label: 'Stand attribué', warn: !stand },
+              { id: 'stand',        label: 'Surface', warn: !surfaceM2 },
               { id: 'prestations',  label: 'Prestations', count: EXPO_DETAIL.prestations.length },
               { id: 'paiement',     label: 'Paiement' },
               { id: 'historique',   label: 'Historique', count: history.length },
@@ -167,7 +167,7 @@ const AdminInscriptionExposantDetail = ({ onBack }) => {
           </div>
 
           {tab === 'demande'     && <ExpoTabDemande/>}
-          {tab === 'stand'       && <ExpoTabStand stand={stand} onAttribuer={() => setValidateModal(true)} canAttribuer={status === 'attente'}/>}
+          {tab === 'stand'       && <ExpoTabSurface surfaceM2={surfaceM2} onValider={() => setValidateModal(true)} canValider={status === 'attente'}/>}
           {tab === 'prestations' && <ExpoTabPrestations/>}
           {tab === 'paiement'    && <ExpoTabPaiement/>}
           {tab === 'historique'  && <ExpoTabHistorique items={history}/>}
@@ -224,7 +224,7 @@ const AdminInscriptionExposantDetail = ({ onBack }) => {
         </aside>
       </div>
 
-      {validateModal && <AttribuerStandModal onCancel={() => setValidateModal(false)} onConfirm={onValidate}/>}
+      {validateModal && <ValiderInscriptionModal onCancel={() => setValidateModal(false)} onConfirm={onValidate}/>}
       {refuseModal   && <RefuserDemandeModal onCancel={() => setRefuseModal(false)} onConfirm={() => setRefuseModal(false)}/>}
     </div>
   );
@@ -330,22 +330,22 @@ const ExpoTabDemande = () => (
   </div>
 );
 
-// ─── Tab : Stand attribué ─────────────────────────────────────────
-
-const ExpoTabStand = ({ stand, onAttribuer, canAttribuer }) => {
-  if (!stand) {
+// ─── R10 : Tab "Surface" (ex-Stand attribué) ─────────────────────────────────
+// Suppression de toute gestion de stand physique — surface m² uniquement.
+const ExpoTabSurface = ({ surfaceM2, onValider, canValider }) => {
+  if (!surfaceM2) {
     return (
       <div className="card" style={{ padding: '48px 32px', textAlign: 'center' }}>
         <div style={{ width: 56, height: 56, borderRadius: 14, background: 'var(--slate-100)', color: 'var(--fg-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
-          <Icon.Map size={26}/>
+          <Icon.Check size={26}/>
         </div>
-        <div className="display" style={{ fontSize: 20, fontWeight: 500, marginBottom: 6, letterSpacing: '-0.01em' }}>Aucun stand attribué</div>
+        <div className="display" style={{ fontSize: 20, fontWeight: 500, marginBottom: 6, letterSpacing: '-0.01em' }}>Surface non encore confirmée</div>
         <div style={{ fontSize: 13.5, color: 'var(--fg-muted)', maxWidth: 380, margin: '0 auto 18px' }}>
-          Valider la demande pour attribuer un stand parmi ceux disponibles dans le hall.
+          Surface souhaitée : <strong className="tnum" style={{ color: 'var(--fg)', fontWeight: 500 }}>{EXPO_DETAIL.superficie} m²</strong>. Valider l'inscription pour confirmer la surface allouée.
         </div>
-        {canAttribuer && (
-          <button className="btn btn-primary btn-sm" onClick={onAttribuer} style={{ background: 'var(--burgundy-800)' }}>
-            <Icon.Check size={14}/> Valider + attribuer un stand
+        {canValider && (
+          <button className="btn btn-primary btn-sm" onClick={onValider} style={{ background: 'var(--burgundy-800)' }}>
+            <Icon.Check size={14}/> Valider l'inscription
           </button>
         )}
       </div>
@@ -356,34 +356,15 @@ const ExpoTabStand = ({ stand, onAttribuer, canAttribuer }) => {
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       <div style={{ padding: '22px 24px', background: 'var(--burgundy-50)', borderBottom: '1px solid var(--burgundy-200)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
         <div>
-          <div style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--burgundy-800)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Stand attribué</div>
-          <div className="display" style={{ fontSize: 32, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--burgundy-800)' }}>{stand.id}</div>
+          <div style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--burgundy-800)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Surface confirmée</div>
+          <div className="display tnum" style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--burgundy-800)', lineHeight: 1 }}>{surfaceM2} m²</div>
         </div>
-        <StandStatusBadge kind="reserve"/>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0 }}>
-        {[
-          { label: 'Superficie', value: `${stand.sqm} m²` },
-          { label: 'Zone',       value: `Rangée ${stand.zone}` },
-          { label: 'Tarif',      value: `${stand.tarif} €` },
-        ].map((s, i, arr) => (
-          <div key={s.label} style={{
-            padding: '18px 22px',
-            borderRight: i < arr.length - 1 ? '1px solid var(--border)' : 'none',
-          }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--fg-subtle)', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 4 }}>{s.label}</div>
-            <div className="tnum display" style={{ fontSize: 18, fontWeight: 500, letterSpacing: '-0.01em' }}>{s.value}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{ padding: '14px 22px', background: 'var(--slate-50)', borderTop: '1px solid var(--border)', display: 'flex', gap: 8, justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>
-          Stand <strong className="tnum" style={{ color: 'var(--fg)', fontWeight: 500 }}>{stand.id}</strong> réservé pour cet exposant — confirmation au paiement du solde
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, background: '#dcfce7', color: '#166534', fontSize: 12.5, fontWeight: 600 }}>
+          <Icon.Check size={12}/> Inscription validée
         </span>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <button className="btn btn-outline btn-sm"><Icon.Map size={13}/> Voir sur le plan</button>
-          <button className="btn btn-outline btn-sm"><Icon.Edit size={13}/> Réattribuer</button>
-        </div>
+      </div>
+      <div style={{ padding: '16px 22px', background: 'var(--slate-50)', fontSize: 13, color: 'var(--fg-muted)' }}>
+        Surface de <strong className="tnum" style={{ color: 'var(--fg)', fontWeight: 500 }}>{surfaceM2} m²</strong> confirmée pour {EXPO_DETAIL.entreprise} — confirmation au paiement du solde.
       </div>
     </div>
   );
@@ -494,102 +475,62 @@ const ExpoTabHistorique = ({ items }) => (
   </div>
 );
 
-// ─── Modale : Valider + attribuer un stand ────────────────────────
-
-const AttribuerStandModal = ({ onCancel, onConfirm }) => {
+// ─── R10 : Modale "Valider l'inscription" (ex-AttribuerStandModal) ────────────
+// Suppression du choix de stand physique — confirmation de la surface m² uniquement.
+const ValiderInscriptionModal = ({ onCancel, onConfirm }) => {
   React.useEffect(() => {
     const k = (e) => e.key === 'Escape' && onCancel();
     window.addEventListener('keydown', k);
     return () => window.removeEventListener('keydown', k);
   }, [onCancel]);
 
-  const STANDS_DISPO = [
-    { id: 'B03', sqm: 12, tarif: 600, zone: 'B',          recommended: true,  emplacement: 'Rangée B · angle' },
-    { id: 'B06', sqm: 12, tarif: 600, zone: 'B',          recommended: false, emplacement: 'Rangée B · centre' },
-    { id: 'C02', sqm: 18, tarif: 900, zone: 'C',          recommended: false, emplacement: 'Rangée C · double' },
-    { id: 'A04', sqm: 9,  tarif: 450, zone: 'A',          recommended: false, emplacement: 'Rangée A · entrée' },
-    { id: 'D02', sqm: 6,  tarif: 300, zone: 'D',          recommended: false, emplacement: 'Rangée D · compact' },
-  ];
-
-  const [picked, setPicked] = React.useState('B03');
-  const chosen = STANDS_DISPO.find(s => s.id === picked);
+  const [sqm, setSqm] = React.useState(EXPO_DETAIL.superficie);
 
   return (
     <div onClick={onCancel} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div onClick={e => e.stopPropagation()} className="card" style={{ width: 600, padding: 0, overflow: 'hidden', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+      <div onClick={e => e.stopPropagation()} className="card" style={{ width: 480, padding: 0, overflow: 'hidden' }}>
+        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '22px 26px 14px', borderBottom: '1px solid var(--border)' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
               <span style={{ width: 26, height: 26, borderRadius: 7, background: 'var(--burgundy-50)', color: 'var(--burgundy-800)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon.Check size={13}/>
               </span>
-              <span style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)' }}>Valider + attribuer</span>
+              <span style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)' }}>Validation inscription</span>
             </div>
-            <h2 className="display" style={{ fontSize: 20, fontWeight: 500, margin: 0, letterSpacing: '-0.02em' }}>Attribuer un stand à {EXPO_DETAIL.entreprise}</h2>
-            <p style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 4, marginBottom: 0 }}>
-              Superficie souhaitée <strong style={{ color: 'var(--fg)', fontWeight: 500 }}>{EXPO_DETAIL.superficie} m²</strong> · {EXPO_DETAIL.docs.length} documents fournis
-            </p>
+            <h2 className="display" style={{ fontSize: 20, fontWeight: 500, margin: 0, letterSpacing: '-0.02em' }}>Valider l'inscription de {EXPO_DETAIL.entreprise}</h2>
           </div>
           <button onClick={onCancel} className="btn btn-icon btn-sm btn-ghost" aria-label="Fermer">
             <Icon.X size={14}/>
           </button>
         </div>
 
-        <div style={{ padding: '18px 26px', overflowY: 'auto' }}>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--fg-muted)', marginBottom: 10 }}>
-            Stands disponibles
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {STANDS_DISPO.map(s => {
-              const active = picked === s.id;
-              return (
-                <label key={s.id} style={{
-                  display: 'grid', gridTemplateColumns: 'auto 60px 1fr auto auto', gap: 14, alignItems: 'center',
-                  padding: '12px 14px',
-                  border: `1px solid ${active ? 'var(--burgundy-800)' : 'var(--border)'}`,
-                  background: active ? 'var(--burgundy-50)' : 'var(--surface)',
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                }}>
-                  <input type="radio" name="stand" checked={active} onChange={() => setPicked(s.id)} style={{ accentColor: 'var(--burgundy-800)' }}/>
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    minWidth: 60, padding: '4px 8px', borderRadius: 6,
-                    background: active ? 'var(--burgundy-800)' : 'var(--slate-100)',
-                    color: active ? '#fff' : 'var(--fg)',
-                    fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)',
-                    fontSize: 13, fontWeight: 600,
-                  }}>{s.id}</span>
-                  <div>
-                    <div style={{ fontSize: 13, color: 'var(--fg)', fontWeight: 500 }}>{s.emplacement}</div>
-                    <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 1 }} className="tnum">{s.sqm} m² · {s.tarif} €</div>
-                  </div>
-                  {s.recommended && (
-                    <span style={{
-                      fontSize: 10, padding: '2px 6px', borderRadius: 4,
-                      background: 'var(--burgundy-800)', color: '#fff',
-                      fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase',
-                    }}>Recommandé</span>
-                  )}
-                  {!s.recommended && <span/>}
-                  <Icon.ChevronRight size={13} style={{ color: 'var(--fg-subtle)' }}/>
-                </label>
-              );
-            })}
+        {/* Body */}
+        <div style={{ padding: '20px 26px 24px' }}>
+          <div style={{ marginBottom: 18, padding: '14px 16px', background: 'var(--slate-50)', border: '1px solid var(--border)', borderRadius: 8 }}>
+            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginBottom: 2 }}>Surface souhaitée par l'exposant</div>
+            <div className="tnum display" style={{ fontSize: 24, fontWeight: 500, color: 'var(--fg)', letterSpacing: '-0.01em' }}>{EXPO_DETAIL.superficie} m²</div>
           </div>
 
-          <div style={{ marginTop: 16, padding: '12px 14px', background: 'var(--slate-50)', border: '1px solid var(--border)', borderRadius: 8, display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 12.5, color: 'var(--fg-muted)' }}>
-            <Icon.Info size={14} style={{ color: 'var(--fg-muted)', marginTop: 2, flexShrink: 0 }}/>
-            <span>
-              À la validation : l'inscription passe en <strong style={{ color: 'var(--fg)', fontWeight: 500 }}>Validée</strong>, le stand <strong className="tnum" style={{ color: 'var(--fg)', fontWeight: 500 }}>{chosen.id}</strong> passe en <strong style={{ color: 'var(--fg)', fontWeight: 500 }}>Réservé</strong>, et un email de confirmation est envoyé à {EXPO_DETAIL.email}.
-            </span>
+          <label style={{ display: 'block', marginBottom: 16 }}>
+            <span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Surface confirmée (m²)</span>
+            <input type="number" min={1} className="input" value={sqm}
+              onChange={e => setSqm(parseInt(e.target.value) || 0)}
+              style={{ width: '100%', fontFamily: 'inherit' }}
+            />
+          </label>
+
+          <div style={{ padding: '10px 13px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 12.5, color: '#166534' }}>
+            <Icon.Info size={14} style={{ marginTop: 2, flexShrink: 0 }}/>
+            <span>À la validation : l'inscription passe en <strong>Validée</strong> et un email de confirmation est envoyé à {EXPO_DETAIL.email}.</span>
           </div>
         </div>
 
+        {/* Footer */}
         <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 8, borderTop: '1px solid var(--border)', background: 'var(--slate-50)' }}>
           <button className="btn btn-outline" onClick={onCancel}>Annuler</button>
-          <button className="btn btn-primary" onClick={() => onConfirm(chosen)} style={{ background: 'var(--burgundy-800)' }}>
-            <Icon.Check size={13}/> Valider + attribuer le stand {chosen.id}
+          <button className="btn btn-primary" onClick={() => onConfirm(sqm)} style={{ background: 'var(--burgundy-800)' }}>
+            <Icon.Check size={13}/> Valider l'inscription
           </button>
         </div>
       </div>
