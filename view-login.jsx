@@ -25,6 +25,14 @@ const portals = [
   desc: 'Formations, repas, disponibilités et préférences de dégustation.',
   icon: <Icon.Award size={20} />,
   color: 'var(--burgundy-600)'
+},
+{
+  id: 'exposant',
+  name: 'Exposant',
+  sub: 'Salons & marchés',
+  desc: 'Inscription aux salons (SDV, MPG), suivi de votre stand et règlement.',
+  icon: <Icon.Building size={20} />,
+  color: '#166534'
 }];
 
 
@@ -41,9 +49,10 @@ const Login = ({ onLogin, initialPortal }) => {
   React.useEffect(() => {
     if (portal) {
       const map = {
-        admin: { email: 'sophie.lambert@comite-macon.fr', pwd: '••••••••••' },
-        producteur: { email: 'contact@domaine-des-3-pierres.fr', pwd: '••••••••••' },
-        degustateur: { email: 'p.bouvier@oenologie.fr', pwd: '••••••••••' }
+        admin:       { email: 'sophie.lambert@comite-macon.fr',        pwd: '••••••••••' },
+        producteur:  { email: 'contact@domaine-des-3-pierres.fr',      pwd: '••••••••••' },
+        degustateur: { email: 'p.bouvier@oenologie.fr',                pwd: '••••••••••' },
+        exposant:    { email: 'marie.dupont@domaine-3-pierres.fr',     pwd: '••••••••••' },
       };
       setEmail(map[portal].email);
       setPwd(map[portal].pwd);
@@ -157,7 +166,7 @@ const Login = ({ onLogin, initialPortal }) => {
                 Choisissez votre espace
               </h2>
               <p style={{ fontSize: 14, color: 'var(--fg-muted)', marginTop: 8, marginBottom: 28 }}>
-                Trois portails, trois usages métier distincts.
+                Quatre portails, quatre usages métier distincts.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -271,6 +280,11 @@ const Login = ({ onLogin, initialPortal }) => {
                 {portal === 'producteur' &&
               <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--fg-muted)', marginTop: 8 }}>
                     Pas encore de compte ? <a href="#" onClick={(e) => e.preventDefault()} style={{ color: 'var(--burgundy-800)', fontWeight: 500 }}>Créer mon espace producteur</a>
+                  </div>
+              }
+                {portal === 'exposant' &&
+              <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--fg-muted)', marginTop: 8 }}>
+                    Pas encore de compte ? <a href="#" onClick={(e) => e.preventDefault()} style={{ color: '#166534', fontWeight: 500 }}>Créer mon espace exposant</a>
                   </div>
               }
               </div>

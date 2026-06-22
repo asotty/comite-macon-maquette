@@ -66,12 +66,14 @@ const navProducteur = [
 const navByPortal = {
   admin: navAdmin,
   producteur: navProducteur,
+  exposant: navExposant,
 };
 
 const userByPortal = {
-  admin: { name: 'Sophie Lambert', role: 'Administratrice', avatar: 'SL' },
-  producteur: { name: 'Sophie Lambert', role: 'Domaine de la Chevalière', avatar: 'SL', domain: 'Domaine de la Chevalière' },
-  degustateur: { name: 'Pierre Bouvier', role: 'Œnologue · Jury senior', avatar: 'PB' },
+  admin:       { name: 'Sophie Lambert',  role: 'Administratrice',            avatar: 'SL' },
+  producteur:  { name: 'Sophie Lambert',  role: 'Domaine de la Chevalière',   avatar: 'SL', domain: 'Domaine de la Chevalière' },
+  degustateur: { name: 'Pierre Bouvier',  role: 'Œnologue · Jury senior',     avatar: 'PB' },
+  exposant:    { name: 'Marie Dupont',    role: 'Domaine des Trois Pierres',   avatar: 'MD' },
 };
 
 const NavItem = ({ item, route, onNavigate }) => {
@@ -184,6 +186,14 @@ const NavItem = ({ item, route, onNavigate }) => {
     </div>
   );
 };
+
+// Exposant — navbar horizontale (4e portail : salons SDV + MPG)
+const navExposant = [
+  { id: 'dashboard',   label: 'Tableau de bord',   route: 'e-dashboard',   match: ['e-dashboard'] },
+  { id: 'inscription', label: 'Mon inscription',    route: 'e-inscription', match: ['e-inscription'] },
+  { id: 'surface',     label: 'Ma surface',         route: 'e-surface',     match: ['e-surface'] },
+  { id: 'compte',      label: 'Mon compte',         route: 'e-compte',      match: ['e-compte'], hidden: true },
+];
 
 // Dégustateur — navbar horizontale (mêmes patterns que producteur)
 const navDegustateur = [
@@ -374,6 +384,18 @@ const DegustateurShell = ({ route, onNavigate, onLogout, children }) => (
   >{children}</TopNavShell>
 );
 
+// Exposant top-navbar shell (4e portail)
+const ExposantShell = ({ route, onNavigate, onLogout, children }) => (
+  <TopNavShell
+    nav={navExposant}
+    user={userByPortal.exposant}
+    route={route}
+    onNavigate={onNavigate}
+    onLogout={onLogout}
+    homeRoute="e-dashboard"
+  >{children}</TopNavShell>
+);
+
 const Shell = ({ portal, route, onNavigate, onLogout, children }) => {
   // Producteur — navbar horizontale dédiée
   if (portal === 'producteur') {
@@ -382,6 +404,10 @@ const Shell = ({ portal, route, onNavigate, onLogout, children }) => {
   // Dégustateur — même pattern horizontal
   if (portal === 'degustateur') {
     return <DegustateurShell route={route} onNavigate={onNavigate} onLogout={onLogout}>{children}</DegustateurShell>;
+  }
+  // Exposant — même pattern horizontal
+  if (portal === 'exposant') {
+    return <ExposantShell route={route} onNavigate={onNavigate} onLogout={onLogout}>{children}</ExposantShell>;
   }
 
   const nav = navByPortal[portal];

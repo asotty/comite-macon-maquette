@@ -47,6 +47,7 @@
 <script type="text/babel" src="view-admin-parametres.jsx?v=5"></script>
 <script type="text/babel" src="view-producteur.jsx?v=20"></script>
 <script type="text/babel" src="view-degustateur.jsx?v=16"></script>
+<script type="text/babel" src="view-exposant.jsx?v=3"></script>
 <script type="text/babel" src="page-guide.jsx?v=4"></script>
 
 <script type="text/babel" data-presets="react">
@@ -56,7 +57,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "showKpiIcons": false
 }/*EDITMODE-END*/;
 
-const initialRoute = { admin: 'fr-dashboard', producteur: 'p-dashboard', degustateur: 'd-dashboard' };
+const initialRoute = { admin: 'fr-dashboard', producteur: 'p-dashboard', degustateur: 'd-dashboard', exposant: 'e-dashboard' };
 
 function App() {
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
@@ -71,7 +72,7 @@ function App() {
   // Userback — mise à jour des metadata à chaque navigation
   React.useEffect(() => {
     if (window.Userback) {
-      const portalLabels = { admin: 'Administration', producteur: 'Producteur', degustateur: 'Dégustateur' };
+      const portalLabels = { admin: 'Administration', producteur: 'Producteur', degustateur: 'Dégustateur', exposant: 'Exposant' };
       window.Userback.custom_data = {
         app: 'Extranet Comité Mâcon — Maquette',
         portal: portal ? portalLabels[portal] : 'Connexion',
@@ -172,6 +173,11 @@ function App() {
     else if (route === 'd-compte' || route === 'd-compte-infos') view = <DegustateurCompte initial="infos"/>;
     else if (route === 'd-compte-prefs') view = <DegustateurCompte initial="prefs"/>;
     else if (route === 'd-compte-mdp') view = <DegustateurCompte initial="mdp"/>;
+  } else if (portal === 'exposant') {
+    if (route === 'e-dashboard') view = <ExposantDashboard onNavigate={setRoute}/>;
+    else if (route === 'e-inscription') view = <ExposantInscription onNavigate={setRoute}/>;
+    else if (route === 'e-surface') view = <ExposantMaSurface/>;
+    else if (route === 'e-compte') view = <ExposantMonCompte/>;
   }
   // Fallback for any unmapped route
   if (!view) view = <AdminGeneric title="Module" sub={`Route : ${route}`} icon={<Icon.Settings size={26}/>} breadcrumb={[route]}/>;
@@ -217,6 +223,8 @@ function App() {
             <button className="tweak-btn" onClick={() => { setPortal('admin'); setRoute('fr-dashboard'); }}>→ Dashboard Admin</button>
             <button className="tweak-btn" onClick={() => { setPortal('producteur'); setRoute('p-inscription'); }}>→ Wizard inscription</button>
             <button className="tweak-btn" onClick={() => { setPortal('degustateur'); setRoute('d-dashboard'); }}>→ Dashboard Dégustateur</button>
+            <button className="tweak-btn" onClick={() => { setPortal('exposant'); setRoute('e-dashboard'); }}>→ Dashboard Exposant</button>
+            <button className="tweak-btn" onClick={() => { setPortal('exposant'); setRoute('e-inscription'); }}>→ Wizard inscription exposant</button>
             <button className="tweak-btn" onClick={() => setPortal(null)}>→ Écran de connexion</button>
           </div>
           <style>{`.tweak-btn { padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-size: 12.5px; text-align: left; cursor: pointer; color: var(--fg); font-family: inherit; }
