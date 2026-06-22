@@ -1149,6 +1149,197 @@ const InscriptionConfirmation = ({ nbVins, payMethod = 'carte', onExit, onViewDo
   );
 };
 
+// ─── R73 : données d'inscriptions des années précédentes ────────────────────
+// Utilisées par SuggestionHistorique pour pré-remplir / importer dans le wizard
+const PREV_INS = {
+  '2025': {
+    concours: 'France 2025',
+    vins: [
+      { name: 'Les Crays Vieilles Vignes', appell: 'Pouilly-Fuissé',  mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Cuvée Tradition',            appell: 'Mâcon-Villages', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Saint-Véran Le Haut',        appell: 'Saint-Véran',    mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Clos des Trois Pierres',     appell: 'Mâcon-Villages', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Réserve du Domaine',         appell: 'Pouilly-Fuissé', mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Cuvée Marie-Anne',           appell: 'Mâcon-Villages', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: "L'Authentique Rouge",        appell: 'Mâcon-Rouge',    mil: 2022, vol: '750 ml', cep: 'Gamay 100%' },
+      { name: 'Monopole Les Rochettes',     appell: 'Pouilly-Fuissé', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
+    ],
+    docs: [
+      { name: "Rapports d'analyses œnologiques", soumis: 8, reutilisable: false, note: 'Nouveaux rapports requis chaque année' },
+      { name: 'Revendications AOC/IGP (DREV)',    soumis: 6, reutilisable: true,  note: 'Réutilisables si mêmes cuvées / même millésime' },
+      { name: "Bulletin d'inscription signé",     soumis: 1, reutilisable: false, note: 'Nouveau bulletin requis pour chaque édition' },
+    ],
+  },
+  '2024': {
+    concours: 'France 2024',
+    vins: [
+      { name: 'Les Crays Vieilles Vignes', appell: 'Pouilly-Fuissé',  mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Cuvée Tradition',            appell: 'Mâcon-Villages', mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Saint-Véran Le Haut',        appell: 'Saint-Véran',    mil: 2021, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Réserve du Domaine',         appell: 'Pouilly-Fuissé', mil: 2021, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Cuvée Marie-Anne',           appell: 'Mâcon-Villages', mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: "L'Authentique Rouge",        appell: 'Mâcon-Rouge',    mil: 2021, vol: '750 ml', cep: 'Gamay 100%' },
+    ],
+    docs: [
+      { name: "Rapports d'analyses œnologiques", soumis: 6, reutilisable: false, note: 'Nouveaux rapports requis chaque année' },
+      { name: 'Revendications AOC/IGP (DREV)',    soumis: 5, reutilisable: false, note: 'Trop anciens pour être réutilisés en 2026' },
+      { name: "Bulletin d'inscription signé",     soumis: 1, reutilisable: false, note: 'Nouveau bulletin requis pour chaque édition' },
+    ],
+  },
+};
+
+// Bandeau de suggestion depuis une inscription précédente — s'affiche en haut de chaque étape du wizard
+// Props : step (1-4), year/setYear (sélecteur), currentVins (liste actuelle), onImportVins, onDismiss
+const SuggestionHistorique = ({ step, year, setYear, currentVins, onImportVins, onDismiss }) => {
+  const [expanded, setExpanded] = React.useState(step === 2);
+  const data = PREV_INS[year] || PREV_INS['2025'];
+
+  // Étape 4 (récapitulatif) : aucune suggestion pertinente
+  if (step === 4) return null;
+
+  const labels = {
+    1: 'Vos infos ont été pré-remplies depuis votre profil — vérifiez et mettez à jour si besoin',
+    2: `${data.vins.length} cuvées soumises — voulez-vous reprendre cette liste ?`,
+    3: "Vérifiez quels documents de l'an dernier peuvent être réutilisés",
+  };
+
+  return (
+    <div style={{
+      marginBottom: 28,
+      border: '1px solid var(--burgundy-200)',
+      borderLeft: '4px solid var(--burgundy-700)',
+      borderRadius: 10,
+      background: 'linear-gradient(to right, var(--burgundy-50) 0%, var(--surface) 100%)',
+      overflow: 'hidden',
+    }}>
+      {/* Barre titre */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', flexWrap: 'wrap' }}>
+        <Icon.History size={15} style={{ color: 'var(--burgundy-700)', flexShrink: 0 }}/>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--burgundy-900)' }}>Suggestion — {data.concours}</span>
+          <span style={{ fontSize: 12, color: 'var(--burgundy-700)', marginLeft: 8 }}>{labels[step]}</span>
+        </div>
+        {/* Sélecteur d'année */}
+        <select
+          value={year}
+          onChange={e => setYear(e.target.value)}
+          style={{ fontSize: 12, padding: '2px 8px', height: 28, borderRadius: 6, border: '1px solid var(--burgundy-200)', background: 'var(--surface)', color: 'var(--fg)', cursor: 'pointer' }}
+        >
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+        </select>
+        {/* Import rapide sur l'étape 2 */}
+        {step === 2 && (
+          <button
+            className="btn btn-sm"
+            style={{ background: 'var(--burgundy-800)', color: '#fff', gap: 6, fontSize: 12, flexShrink: 0 }}
+            onClick={() => onImportVins(data.vins)}
+          >
+            <Icon.Copy size={12}/> Reprendre les {data.vins.length} cuvées
+          </button>
+        )}
+        <button onClick={() => setExpanded(!expanded)} className="btn btn-ghost btn-sm btn-icon">
+          {expanded ? <Icon.ChevronUp size={14}/> : <Icon.ChevronDown size={14}/>}
+        </button>
+        <button onClick={onDismiss} className="btn btn-ghost btn-sm btn-icon" title="Masquer la suggestion">
+          <Icon.X size={14}/>
+        </button>
+      </div>
+
+      {/* Contenu développé — différent selon l'étape */}
+      {expanded && (
+        <div style={{ borderTop: '1px solid var(--burgundy-100)', padding: '14px 16px' }}>
+
+          {/* Étape 1 — info domaine pré-rempli */}
+          {step === 1 && (
+            <div style={{ fontSize: 13, color: 'var(--burgundy-800)', lineHeight: 1.7 }}>
+              Les <strong>coordonnées du domaine</strong> et vos <strong>contacts</strong> ont été pré-remplis depuis votre profil (identiques à l'inscription {data.concours}).
+              Si vous avez mis à jour votre adresse, changé de responsable ou modifié votre CVI, corrigez les champs directement ci-dessous — les modifications s'appliqueront aussi à votre profil.
+            </div>
+          )}
+
+          {/* Étape 2 — liste des cuvées de l'année précédente */}
+          {step === 2 && (
+            <div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
+                {data.vins.map((v, i) => (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '7px 10px',
+                    background: 'var(--surface)', borderRadius: 7,
+                    border: '1px solid var(--border)',
+                  }}>
+                    <div style={{
+                      width: 22, height: 22, borderRadius: 5,
+                      background: 'var(--burgundy-100)', color: 'var(--burgundy-800)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 10.5, fontWeight: 600,
+                    }}>#{i + 1}</div>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: 13, fontWeight: 500 }}>{v.name}</span>
+                      <span style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginLeft: 8 }}>{v.appell} · {v.mil}</span>
+                    </div>
+                    <span style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>{v.cep}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button className="btn btn-outline btn-sm" onClick={() => onImportVins([...currentVins, ...data.vins])}>
+                  <Icon.Plus size={12}/> Ajouter à ma liste actuelle
+                </button>
+                <button
+                  className="btn btn-sm"
+                  style={{ background: 'var(--burgundy-800)', color: '#fff' }}
+                  onClick={() => onImportVins(data.vins)}
+                >
+                  <Icon.Copy size={12}/> Remplacer par les {data.vins.length} cuvées {year}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Étape 3 — statut des documents de l'année précédente */}
+          {step === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {data.docs.map((d, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '10px 12px',
+                  background: 'var(--surface)', borderRadius: 8,
+                  border: '1px solid var(--border)',
+                }}>
+                  <div style={{
+                    width: 30, height: 30, borderRadius: 7, flexShrink: 0,
+                    background: d.reutilisable ? 'var(--success-bg)' : 'var(--warning-bg)',
+                    color: d.reutilisable ? '#166834' : '#92400e',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {d.reutilisable ? <Icon.Check size={15}/> : <Icon.AlertTriangle size={14}/>}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 500 }}>{d.name}</div>
+                    <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 2 }}>{d.note}</div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div className="tnum" style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>{d.soumis} soumis en {year}</div>
+                    <div style={{
+                      fontSize: 11, marginTop: 2, fontWeight: 600,
+                      color: d.reutilisable ? '#166834' : '#92400e',
+                    }}>
+                      {d.reutilisable ? 'Potentiellement réutilisable' : 'Nouveau document requis'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+        </div>
+      )}
+    </div>
+  );
+};
+
 // 4-step immersive wizard
 const wizardSteps = [
   { id: 1, label: 'Mes infos', sub: 'Coordonnées & contacts' },
@@ -1162,6 +1353,9 @@ const ProducteurInscription = ({ onExit }) => {
   const [showVinForm, setShowVinForm] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
   const [payMethod, setPayMethod] = React.useState('carte');
+  // R73 : état du bandeau suggestion inscription années précédentes
+  const [suggYear, setSuggYear] = React.useState('2025');
+  const [suggDismissed, setSuggDismissed] = React.useState({ 1: false, 2: false, 3: false, 4: true });
   const [vins, setVins] = React.useState([
     { name: 'Les Crays Vieilles Vignes', appell: 'Pouilly-Fuissé', mil: 2024, vol: '750 ml', cep: 'Chardonnay 100%' },
     { name: 'Cuvée Tradition', appell: 'Mâcon-Villages', mil: 2024, vol: '750 ml', cep: 'Chardonnay 100%' },
@@ -1234,6 +1428,17 @@ const ProducteurInscription = ({ onExit }) => {
 
       {/* Wizard content */}
       <div style={{ padding: '40px 56px 80px', maxWidth: 920, width: '100%' }}>
+        {/* R73 : suggestion depuis une inscription précédente — masquée si dismissée ou étape 4 */}
+        {!suggDismissed[step] && (
+          <SuggestionHistorique
+            step={step}
+            year={suggYear}
+            setYear={setSuggYear}
+            currentVins={vins}
+            onImportVins={setVins}
+            onDismiss={() => setSuggDismissed(d => ({ ...d, [step]: true }))}
+          />
+        )}
         {step === 1 && <WizardStep1/>}
         {step === 2 && <WizardStep2 vins={vins} setVins={setVins} showForm={showVinForm} setShowForm={setShowVinForm}/>}
         {step === 3 && <WizardStep3/>}
