@@ -2887,6 +2887,12 @@ const CompteInfos = () => {
   const [form, setForm] = React.useState(initial);
   const dirty = Object.keys(initial).some(k => form[k] !== initial[k]);
   const setField = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+  const [synced, setSynced] = React.useState(false);
+  const syncContacts = () => {
+    setForm(f => ({ ...f, commNom: f.inscNom, commPrenom: f.inscPrenom, commFonction: f.inscFonction, commEmail: f.inscEmail }));
+    setSynced(true);
+    setTimeout(() => setSynced(false), 2500);
+  };
 
   return (
     <div style={{ maxWidth: 880 }}>
@@ -2976,6 +2982,22 @@ const CompteInfos = () => {
           <div className="field"><label className="field-label">Email</label><input className="input" value={form.inscEmail} onChange={setField('inscEmail')}/></div>
           <div className="field"><label className="field-label">Téléphone</label><input className="input tnum" value={form.inscTel} onChange={setField('inscTel')}/></div>
         </div>
+      </div>
+
+      {/* Bouton sync inscription → communication */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '0 2px' }}>
+        <div style={{ flex: 1, height: 1, background: 'var(--border)' }}/>
+        <button
+          onClick={syncContacts}
+          className="btn btn-outline btn-sm"
+          style={{ gap: 7, fontSize: 12.5, borderStyle: 'dashed', flexShrink: 0 }}
+        >
+          {synced
+            ? <><Icon.Check size={13} style={{ color: 'var(--burgundy-800)' }}/> Contact synchronisé</>
+            : <><Icon.Copy size={13}/> Même contact pour la communication</>
+          }
+        </button>
+        <div style={{ flex: 1, height: 1, background: 'var(--border)' }}/>
       </div>
 
       {/* Contact communication */}
