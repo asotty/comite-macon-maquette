@@ -1802,186 +1802,11 @@ const DerogStatutBadge = ({ statut }) => {
   );
 };
 
-// Modal : formulaire de demande de dérogation impression sur étiquette
-const DerogationImpressionModal = ({ medal, onClose, onSubmit, quotaRestant }) => {
-  const [format, setFormat]     = React.useState(FORMATS_SUPPORT[0].id);
-  const [quantite, setQuantite] = React.useState('');
-  const [batName, setBatName]   = React.useState(null);
-  const [submitted, setSubmitted] = React.useState(false);
-
-  const fmt    = FORMATS_SUPPORT.find(f => f.id === format) || FORMATS_SUPPORT[0];
-  const qty    = parseInt(quantite) || 0;
-  const unites = qty * fmt.equiv;
-  const quotaOk = unites > 0 && unites <= quotaRestant;
-
-  const handleBat = (e) => { if (e.target.files[0]) setBatName(e.target.files[0].name); };
-
-  const handleSubmit = () => {
-    if (!qty || !batName || submitted) return;
-    setSubmitted(true);
-    setTimeout(() => {
-      onSubmit({ medalId: medal.id, medalName: medal.name, appell: medal.appell, medal: medal.medal,
-        concours: medal.concours, format: fmt.label, quantite: qty, unites, batFile: batName });
-      onClose();
-    }, 800);
-  };
-
-  return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 200,
-      background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{
-        background: 'var(--surface)', borderRadius: 16, padding: 28, width: 500, maxWidth: '95vw',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
-      }}>
-        {/* En-tête */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Icon.Printer size={18} style={{ color: 'var(--primary)' }}/> Imprimer sur mes étiquettes
-            </div>
-            <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 3 }}>
-              Demande de dérogation impression — comité
-            </div>
-          </div>
-          <button onClick={onClose} className="btn btn-ghost btn-sm"
-            style={{ padding: '4px 10px', fontSize: 18, lineHeight: 1 }}>×</button>
-        </div>
-
-        {/* Médaille concernée */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
-          background: 'var(--bg)', borderRadius: 10, marginBottom: 20, border: '1px solid var(--border)',
-        }}>
-          <img src={medalImg(medal.medal, medal.concours)} alt={medal.medal}
-            style={{ width: 36, height: 36, objectFit: 'contain' }}/>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>{medal.name}</div>
-            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>
-              {medalLabel[medal.medal]} · {medal.appell} · Édition {medal.edition}
-            </div>
-          </div>
-        </div>
-
-        {/* Formulaire */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-
-          {/* Format de support */}
-          <div>
-            <label style={{ fontSize: 12.5, fontWeight: 600, display: 'block', marginBottom: 5 }}>
-              Format de support
-            </label>
-            <select
-              value={format} onChange={e => setFormat(e.target.value)}
-              style={{
-                width: '100%', padding: '8px 12px', borderRadius: 8,
-                border: '1.5px solid var(--border)', background: 'var(--surface)',
-                color: 'var(--fg)', fontSize: 13,
-              }}
-            >
-              {FORMATS_SUPPORT.map(f => (
-                <option key={f.id} value={f.id}>
-                  {f.label} — équivalence : {f.equiv} unité{f.equiv > 1 ? 's' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Quantité */}
-          <div>
-            <label style={{ fontSize: 12.5, fontWeight: 600, display: 'block', marginBottom: 5 }}>
-              Quantité
-            </label>
-            <input
-              type="number" min="1" value={quantite}
-              onChange={e => setQuantite(e.target.value)}
-              placeholder="Ex : 500"
-              style={{
-                width: '100%', padding: '8px 12px', borderRadius: 8, boxSizing: 'border-box',
-                border: '1.5px solid var(--border)', background: 'var(--surface)',
-                color: 'var(--fg)', fontSize: 13,
-              }}
-            />
-          </div>
-
-          {/* Calcul unités */}
-          {qty > 0 && (
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '10px 14px', borderRadius: 8,
-              background: quotaOk ? '#f0fdf4' : '#fff5f5',
-              border: `1px solid ${quotaOk ? '#86efac' : '#fca5a5'}`,
-            }}>
-              <span style={{ fontSize: 12.5 }}>
-                {qty} × {fmt.equiv} = <strong>{unites} unité{unites > 1 ? 's' : ''}</strong> déduites
-              </span>
-              <span style={{ fontSize: 11.5, fontWeight: 600, color: quotaOk ? '#15803d' : '#dc2626' }}>
-                {quotaOk ? `Quota OK (${quotaRestant} dispo)` : `Quota insuffisant (${quotaRestant} dispo)`}
-              </span>
-            </div>
-          )}
-
-          {/* Zone dépôt BAT */}
-          <div>
-            <label style={{ fontSize: 12.5, fontWeight: 600, display: 'block', marginBottom: 5 }}>
-              Fichier BAT{' '}
-              <span style={{ fontWeight: 400, color: 'var(--fg-muted)' }}>(PDF, AI ou EPS — fourni par le producteur)</span>
-            </label>
-            <label style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              gap: 6, padding: '18px 12px', borderRadius: 10, cursor: 'pointer',
-              border: `2px dashed ${batName ? 'var(--primary)' : 'var(--border)'}`,
-              background: batName ? '#f5f0fa' : 'var(--bg)', transition: 'all 0.15s',
-            }}>
-              <input type="file" accept=".pdf,.ai,.eps" style={{ display: 'none' }} onChange={handleBat}/>
-              {batName ? (
-                <>
-                  <Icon.FileText size={20} style={{ color: 'var(--primary)' }}/>
-                  <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--primary)' }}>{batName}</span>
-                  <span style={{ fontSize: 11, color: 'var(--fg-muted)' }}>Cliquer pour remplacer</span>
-                </>
-              ) : (
-                <>
-                  <Icon.Upload size={20} style={{ color: 'var(--fg-muted)' }}/>
-                  <span style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>Déposer votre fichier BAT ici</span>
-                  <span style={{ fontSize: 11, color: 'var(--fg-muted)' }}>ou cliquer pour parcourir</span>
-                </>
-              )}
-            </label>
-          </div>
-
-          {/* Info box */}
-          <div style={{
-            padding: '10px 14px', borderRadius: 8,
-            background: '#fffbeb', border: '1px solid #fcd34d',
-            fontSize: 12, color: '#92400e', lineHeight: 1.6,
-          }}>
-            <strong>Important :</strong> Votre demande sera examinée par le comité. Après validation, les unités
-            correspondantes seront déduites de votre quota de macaron partagé. L'impression est à votre charge.
-          </div>
-        </div>
-
-        {/* Boutons */}
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 22 }}>
-          <button onClick={onClose} className="btn btn-ghost">Annuler</button>
-          <button
-            className="btn btn-primary"
-            onClick={handleSubmit}
-            disabled={!qty || !batName || submitted}
-          >
-            {submitted ? 'Envoi en cours...' : 'Soumettre ma demande'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+// (Modal dérogation impression supprimé — remplacé par la page ProducteurDerogationsImpression)
 const ProducteurMedailles = ({ onNavigate }) => {
   const medals = [
     { id: 'vv24',  name: 'Vieilles Vignes 2024',   appell: 'Macon-Villages', medal: 'argent', pts: 88.2, edition: '2026', concours: 'france' },
-    { id: 'cp23',  name: 'Cuvée Prestige 2023',    appell: 'Pouilly-Fuisse', medal: 'or',     pts: 91.5, edition: '2025', concours: 'france' },
+    { id: 'cp23',  name: 'Cuvee Prestige 2023',    appell: 'Pouilly-Fuisse', medal: 'or',     pts: 91.5, edition: '2025', concours: 'france' },
     { id: 't22',   name: 'Tradition 2022',         appell: 'Macon-Villages', medal: 'bronze', pts: 84.0, edition: '2024', concours: 'france' },
     { id: 'csp22', name: 'Clos Saint-Pierre 2022', appell: 'Pouilly-Fuisse', medal: 'or',     pts: 92.1, edition: '2024', concours: 'france' },
     { id: 'lh23',  name: 'Les Hauts 2023',         appell: 'Saint-Veran',    medal: 'or',     pts: 90.8, edition: '2025', concours: 'monde'  },
@@ -1991,43 +1816,25 @@ const ProducteurMedailles = ({ onNavigate }) => {
   const france = medals.filter(m => m.concours === 'france');
   const monde  = medals.filter(m => m.concours === 'monde');
 
-  // État modal dérogation impression (null = fermé, sinon objet médaille)
-  const [derogModal, setDerogModal] = React.useState(null);
-  // Liste des demandes de dérogation impression (démo + nouvelles soumises)
-  const [derogList, setDerogList]   = React.useState(DEROG_IMPRESSION_DEMO);
-
-  // Quota partagé (même pool que commandes macaron) — démo
-  const quotaRestant = 1200;
-
   const goCommander = (wineId) => {
     window.__commandeFocusWine = wineId || null;
     onNavigate('p-commandes');
   };
 
-  // Soumission d'une nouvelle demande de dérogation impression
-  const handleDerogSubmit = (data) => {
-    const newDerog = {
-      id: 'di-' + Date.now(),
-      ...data,
-      statut: 'en_attente',
-      dateDemande: new Date().toISOString().slice(0, 10),
-      dateDecision: null,
-    };
-    setDerogList(prev => [newDerog, ...prev]);
+  const goImprimer = (wineId) => {
+    window.__derogFocusWine = wineId || null;
+    onNavigate('p-derogations-imp');
   };
 
   // Carte médaille — 3 actions : diplôme, commander macaron, imprimer sur étiquette
   const MedalCard = ({ m }) => (
     <div className="card" style={{ display: 'flex', gap: 16, padding: 20 }}>
-      <img
-        src={medalImg(m.medal, m.concours)}
-        alt={m.medal}
-        style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 }}
-      />
+      <img src={medalImg(m.medal, m.concours)} alt={m.medal}
+        style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 }}/>
       <div style={{ flex: 1 }}>
         <div className="display" style={{ fontSize: 16, fontWeight: 500 }}>{m.name}</div>
         <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>
-          {m.appell} · Édition {m.edition}
+          {m.appell} · Edition {m.edition}
         </div>
         <div style={{ display: 'flex', gap: 6, marginTop: 10, alignItems: 'center' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
@@ -2040,14 +1847,14 @@ const ProducteurMedailles = ({ onNavigate }) => {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <button className="btn btn-outline btn-sm">
-          <Icon.Download size={12}/> Diplôme
+          <Icon.Download size={12}/> Diplome
         </button>
         <button className="btn btn-ghost btn-sm" onClick={() => goCommander(m.id)}>
           <Icon.Package size={12}/> Commander
         </button>
-        <button className="btn btn-ghost btn-sm" onClick={() => setDerogModal(m)}
+        <button className="btn btn-ghost btn-sm" onClick={() => goImprimer(m.id)}
           style={{ fontSize: 11.5, whiteSpace: 'nowrap' }}>
-          <Icon.Printer size={12}/> Imprimer étiquette
+          <Icon.Printer size={12}/> Imprimer etiquette
         </button>
       </div>
     </div>
@@ -2068,38 +1875,10 @@ const ProducteurMedailles = ({ onNavigate }) => {
         <span style={{
           fontSize: 11.5, fontWeight: 600, padding: '2px 8px', borderRadius: 999,
           background: accent + '18', color: accent,
-        }}>{items.length} médaille{items.length > 1 ? 's' : ''}</span>
+        }}>{items.length} medaille{items.length > 1 ? 's' : ''}</span>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
         {items.map(m => <MedalCard key={m.id} m={m}/>)}
-      </div>
-    </div>
-  );
-
-  // Ligne d'une demande de dérogation impression
-  const DerogRow = ({ d }) => (
-    <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px' }}>
-      <img src={medalImg(d.medal, d.concours)} alt={d.medal}
-        style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}/>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {d.medalName}
-        </div>
-        <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 2 }}>
-          {d.format} · {d.quantite} ex. · {d.unites} unités déduites
-        </div>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-        <DerogStatutBadge statut={d.statut}/>
-        <span style={{ fontSize: 11, color: 'var(--fg-muted)' }}>
-          Demandé le {d.dateDemande}
-          {d.dateDecision && ` · Décision le ${d.dateDecision}`}
-        </span>
-      </div>
-      <div>
-        <button className="btn btn-ghost btn-sm" style={{ fontSize: 11.5 }}>
-          <Icon.FileText size={12}/> BAT
-        </button>
       </div>
     </div>
   );
@@ -2110,10 +1889,13 @@ const ProducteurMedailles = ({ onNavigate }) => {
         title="Mon palmares"
         actions={
           <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => onNavigate('p-derogations-imp')} className="btn btn-ghost btn-sm">
+              <Icon.Printer size={14}/> Imprimer sur etiquette
+            </button>
             <button onClick={() => onNavigate('p-cmd-historique')} className="btn btn-ghost btn-sm">
               <Icon.Package size={14}/> Mes commandes
             </button>
-            <button className="btn btn-outline btn-sm"><Icon.Download size={14}/> Tous les diplômes</button>
+            <button className="btn btn-outline btn-sm"><Icon.Download size={14}/> Tous les diplomes</button>
             <button className="btn btn-primary btn-sm" onClick={() => goCommander(null)}>
               <Icon.Plus size={14}/> Passer une commande
             </button>
@@ -2132,50 +1914,467 @@ const ProducteurMedailles = ({ onNavigate }) => {
         items={monde}
         accent="#BC9F54"
       />
+    </div>
+  );
+};
 
-      {/* Section dérogations impression sur étiquette */}
-      <div style={{ marginTop: 8 }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
-          paddingBottom: 10, borderBottom: '2px solid var(--border)',
-        }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: '#f5f0fa', color: 'var(--primary)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}><Icon.Printer size={16}/></div>
-          <span style={{ fontSize: 15, fontWeight: 600 }}>Dérogations impression étiquette</span>
-          {derogList.length > 0 && (
-            <span style={{
-              fontSize: 11.5, fontWeight: 600, padding: '2px 8px', borderRadius: 999,
-              background: '#f5f0fa', color: 'var(--primary)',
-            }}>{derogList.length} demande{derogList.length > 1 ? 's' : ''}</span>
-          )}
+// ============================================================
+// PAGE PRODUCTEUR — DÉROGATIONS IMPRESSION SUR ETIQUETTE
+// Même pattern que ProducteurCommandes : bloc par vin, panier sticky, confirmation
+// ============================================================
+
+// Bloc dépliable pour une médaille — format support + quantité + BAT
+const DerogWineBlock = ({ m, entry, onChange, initialOpen }) => {
+  const [open, setOpen] = React.useState(initialOpen || false);
+
+  const fmt = entry.format
+    ? FORMATS_SUPPORT.find(f => f.id === entry.format)
+    : null;
+  const unites = fmt ? (entry.quantite || 0) * fmt.equiv : 0;
+
+  return (
+    <div className="card" style={{ overflow: 'hidden', marginBottom: 12 }}>
+      <div
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px',
+          cursor: 'pointer', background: open ? 'var(--bg)' : 'transparent',
+        }}
+      >
+        <img src={medalImg(m.medal, m.concours)} alt={m.medal}
+          style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 }}/>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>{m.name}</div>
+          <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2 }}>
+            {m.appell} · {medalLabel[m.medal]} · {m.edition}
+          </div>
         </div>
-        {derogList.length === 0 ? (
-          <div style={{
-            textAlign: 'center', padding: '28px 20px', color: 'var(--fg-muted)',
-            fontSize: 13.5, background: 'var(--bg)', borderRadius: 10,
+        {unites > 0 && (
+          <span style={{
+            fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 999,
+            background: 'var(--primary-light)', color: 'var(--primary)',
           }}>
-            Aucune demande de dérogation impression. Utilisez le bouton "Imprimer étiquette"
-            sur une de vos médailles pour en créer une.
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {derogList.map(d => <DerogRow key={d.id} d={d}/>)}
-          </div>
+            {unites} unite{unites > 1 ? 's' : ''}
+          </span>
         )}
+        <Icon.ChevronDown size={16} style={{
+          transform: open ? 'rotate(180deg)' : 'rotate(0)',
+          transition: 'transform .2s', color: 'var(--fg-muted)', flexShrink: 0,
+        }}/>
       </div>
 
-      {/* Modal dérogation impression */}
-      {derogModal && (
-        <DerogationImpressionModal
-          medal={derogModal}
-          quotaRestant={quotaRestant}
-          onClose={() => setDerogModal(null)}
-          onSubmit={(data) => { handleDerogSubmit(data); setDerogModal(null); }}
-        />
+      {open && (
+        <div style={{ padding: '0 20px 20px', borderTop: '1px solid var(--border)' }}>
+          <div style={{
+            margin: '16px 0 18px', padding: '12px 14px', borderRadius: 8,
+            background: '#f0f5ff', fontSize: 12.5, color: '#3b4fc8', lineHeight: 1.55,
+          }}>
+            <strong>Impression sur etiquette :</strong> Vous imprimez vous-meme le visuel de
+            la medaille directement sur vos etiquettes de bouteilles. Le nombre d'unites
+            sera deduit de votre quota de macarons. Fournissez votre BAT (Bon A Tirer)
+            pour validation par le comite avant impression.
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--fg-muted)', display: 'block', marginBottom: 8 }}>
+              Format du support d'impression
+            </label>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {FORMATS_SUPPORT.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => onChange(m.id, 'format', f.id)}
+                  className={entry.format === f.id ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}
+                >
+                  {f.label}
+                  <span style={{ fontSize: 10.5, opacity: 0.75, marginLeft: 4 }}>
+                    ({f.equiv} unite{f.equiv > 1 ? 's' : ''})
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {entry.format && (
+            <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--fg-muted)', display: 'block', marginBottom: 6 }}>
+                  Quantite de supports
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <button className="btn btn-outline btn-sm"
+                    onClick={() => onChange(m.id, 'quantite', Math.max(0, (entry.quantite || 0) - 1))}>
+                    <Icon.Minus size={12}/>
+                  </button>
+                  <input
+                    type="number" min="0"
+                    value={entry.quantite || 0}
+                    onChange={e => onChange(m.id, 'quantite', Math.max(0, parseInt(e.target.value) || 0))}
+                    style={{ width: 80, textAlign: 'center', padding: '6px 8px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 14 }}
+                  />
+                  <button className="btn btn-outline btn-sm"
+                    onClick={() => onChange(m.id, 'quantite', (entry.quantite || 0) + 1)}>
+                    <Icon.Plus size={12}/>
+                  </button>
+                  <span style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>
+                    = {unites} unite{unites !== 1 ? 's' : ''} deduites
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {entry.quantite > 0 && (
+            <div>
+              <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--fg-muted)', display: 'block', marginBottom: 6 }}>
+                Fichier BAT <span style={{ color: 'var(--danger)', marginLeft: 2 }}>*</span>
+              </label>
+              <div style={{
+                border: `2px dashed ${entry.bat ? 'var(--success)' : 'var(--border)'}`,
+                borderRadius: 8, padding: '14px 18px', cursor: 'pointer',
+                background: entry.bat ? '#f0fdf4' : 'var(--bg)',
+                display: 'flex', alignItems: 'center', gap: 10,
+              }} onClick={() => onChange(m.id, 'bat', entry.bat ? null : 'bat-demo-' + m.id + '.pdf')}>
+                {entry.bat ? (
+                  <>
+                    <Icon.CheckCircle size={18} style={{ color: 'var(--success)', flexShrink: 0 }}/>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--success)' }}>{entry.bat}</div>
+                      <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>Cliquer pour retirer</div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Icon.Upload size={18} style={{ color: 'var(--fg-muted)', flexShrink: 0 }}/>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 500 }}>Deposer votre BAT ici</div>
+                      <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>PDF, JPG, PNG — max 20 Mo (cliquer pour simuler)</div>
+                    </div>
+                  </>
+                )}
+              </div>
+              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 6 }}>
+                Le BAT sera examine par le comite avant validation. Vous serez notifie par email.
+              </div>
+            </div>
+          )}
+        </div>
       )}
+    </div>
+  );
+};
+
+// Panier récapitulatif sticky droite
+const DerogCart = ({ medals, cart, quotaRestant, onSubmit }) => {
+  const lines = medals
+    .map(m => {
+      const e = cart[m.id] || {};
+      if (!e.format || !e.quantite || e.quantite === 0 || !e.bat) return null;
+      const fmt = FORMATS_SUPPORT.find(f => f.id === e.format);
+      const unites = fmt ? e.quantite * fmt.equiv : 0;
+      return { m, format: fmt.label, quantite: e.quantite, unites, bat: e.bat };
+    })
+    .filter(Boolean);
+
+  const totalUnites = lines.reduce((s, l) => s + l.unites, 0);
+  const canSubmit = lines.length > 0 && totalUnites <= quotaRestant;
+
+  return (
+    <div style={{
+      position: 'sticky', top: 80, background: 'var(--surface)', border: '1px solid var(--border)',
+      borderRadius: 12, padding: 20, minWidth: 260,
+    }}>
+      <div style={{ fontSize: 13.5, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Icon.ShoppingCart size={15}/> Recapitulatif
+      </div>
+
+      <div style={{
+        padding: '10px 12px', borderRadius: 8,
+        background: totalUnites > quotaRestant ? '#fef2f2' : '#f0fdf4',
+        marginBottom: 16,
+      }}>
+        <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginBottom: 4 }}>Quota disponible</div>
+        <div style={{
+          fontSize: 20, fontWeight: 700,
+          color: totalUnites > quotaRestant ? 'var(--danger)' : 'var(--success)',
+        }}>
+          {quotaRestant - totalUnites} <span style={{ fontSize: 13, fontWeight: 400 }}>unites restantes</span>
+        </div>
+        <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 2 }}>
+          {totalUnites} deduite{totalUnites !== 1 ? 's' : ''} / {quotaRestant} disponibles
+        </div>
+      </div>
+
+      {lines.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--fg-muted)', fontSize: 12.5 }}>
+          Selectionnez un format, une quantite et deposez votre BAT pour chaque medaille
+        </div>
+      ) : (
+        <div style={{ marginBottom: 16 }}>
+          {lines.map(l => (
+            <div key={l.m.id} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+              padding: '8px 0', borderBottom: '1px solid var(--border)', fontSize: 12.5,
+            }}>
+              <div style={{ flex: 1, paddingRight: 8 }}>
+                <div style={{ fontWeight: 600 }}>{l.m.name}</div>
+                <div style={{ color: 'var(--fg-muted)', fontSize: 11.5 }}>{l.format} x {l.quantite}</div>
+              </div>
+              <div style={{ fontWeight: 700, color: 'var(--primary)', whiteSpace: 'nowrap' }}>
+                {l.unites} u.
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {totalUnites > quotaRestant && (
+        <div style={{
+          padding: '8px 12px', borderRadius: 6, background: '#fef2f2',
+          color: 'var(--danger)', fontSize: 12, marginBottom: 12,
+        }}>
+          Quota insuffisant. Reduisez vos quantites.
+        </div>
+      )}
+
+      <button
+        className="btn btn-primary"
+        style={{ width: '100%', opacity: canSubmit ? 1 : 0.45 }}
+        disabled={!canSubmit}
+        onClick={onSubmit}
+      >
+        <Icon.Send size={14}/> Envoyer les demandes
+      </button>
+      <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 8, textAlign: 'center', lineHeight: 1.4 }}>
+        Chaque demande sera examinee individuellement. Vous recevrez une reponse par email.
+      </div>
+    </div>
+  );
+};
+
+// Ecran de confirmation après soumission
+const DerogConfirmation = ({ result, onNavigate }) => (
+  <div style={{ minHeight: 'calc(100vh - 64px)', padding: '64px 24px 80px' }}>
+    <div className="fade-in" style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
+      <div style={{
+        width: 72, height: 72, borderRadius: '50%', background: '#f0fdf4',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px',
+      }}>
+        <Icon.CheckCircle size={36} style={{ color: 'var(--success)' }}/>
+      </div>
+      <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
+        Demandes envoyees !
+      </h2>
+      <p style={{ color: 'var(--fg-muted)', marginBottom: 28, lineHeight: 1.6 }}>
+        Vos {result.count} demande{result.count > 1 ? 's' : ''} de derogation impression
+        ont bien ete transmises. Le comite les examinera et vous notifiera par email dans les 2 a 5 jours ouvres.
+      </p>
+      <div className="card" style={{ padding: 20, textAlign: 'left', marginBottom: 28 }}>
+        <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 10 }}>Recapitulatif de la soumission</div>
+        {result.lines.map((l, i) => (
+          <div key={i} style={{
+            display: 'flex', justifyContent: 'space-between',
+            padding: '6px 0', borderBottom: i < result.lines.length - 1 ? '1px solid var(--border)' : 'none',
+            fontSize: 13,
+          }}>
+            <span>{l.name}</span>
+            <span style={{ color: 'var(--fg-muted)' }}>{l.format} · {l.unites} u.</span>
+          </div>
+        ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontWeight: 700, fontSize: 13.5 }}>
+          <span>Total deduit</span>
+          <span style={{ color: 'var(--primary)' }}>{result.totalUnites} unites</span>
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+        <button className="btn btn-outline" onClick={() => onNavigate('p-derogations-imp')}>
+          <Icon.Printer size={14}/> Nouvelle demande
+        </button>
+        <button className="btn btn-primary" onClick={() => onNavigate('p-medailles')}>
+          <Icon.Trophy size={14}/> Retour au palmares
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// Section liste des demandes existantes
+const MesDemandesDerogSection = ({ demandes }) => {
+  if (demandes.length === 0) return null;
+  return (
+    <div style={{ marginTop: 32 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
+        paddingBottom: 10, borderBottom: '2px solid var(--border)',
+      }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f5f0fa', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon.List size={16}/>
+        </div>
+        <span style={{ fontSize: 15, fontWeight: 600 }}>Mes demandes en cours</span>
+        <span style={{ fontSize: 11.5, fontWeight: 600, padding: '2px 8px', borderRadius: 999, background: '#f5f0fa', color: 'var(--primary)' }}>
+          {demandes.length}
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {demandes.map(d => (
+          <div key={d.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px' }}>
+            <img src={medalImg(d.medal, d.concours)} alt={d.medal}
+              style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }}/>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {d.medalName}
+              </div>
+              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 2 }}>
+                {d.format} · {d.quantite} ex. · {d.unites} unites
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+              <DerogStatutBadge statut={d.statut}/>
+              <span style={{ fontSize: 11, color: 'var(--fg-muted)' }}>
+                {d.dateDemande}{d.dateDecision ? ' · ' + d.dateDecision : ''}
+              </span>
+            </div>
+            <button className="btn btn-ghost btn-sm" style={{ fontSize: 11.5 }}>
+              <Icon.FileText size={12}/> BAT
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Page principale dérogations impression
+const ProducteurDerogationsImpression = ({ onNavigate }) => {
+  const medals = [
+    { id: 'vv24',  name: 'Vieilles Vignes 2024',   appell: 'Macon-Villages', medal: 'argent', pts: 88.2, edition: '2026', concours: 'france' },
+    { id: 'cp23',  name: 'Cuvee Prestige 2023',    appell: 'Pouilly-Fuisse', medal: 'or',     pts: 91.5, edition: '2025', concours: 'france' },
+    { id: 't22',   name: 'Tradition 2022',         appell: 'Macon-Villages', medal: 'bronze', pts: 84.0, edition: '2024', concours: 'france' },
+    { id: 'csp22', name: 'Clos Saint-Pierre 2022', appell: 'Pouilly-Fuisse', medal: 'or',     pts: 92.1, edition: '2024', concours: 'france' },
+    { id: 'lh23',  name: 'Les Hauts 2023',         appell: 'Saint-Veran',    medal: 'or',     pts: 90.8, edition: '2025', concours: 'monde'  },
+    { id: 'aut21', name: "L'Authentique 2021",     appell: 'Macon-Villages', medal: 'argent', pts: 87.4, edition: '2023', concours: 'monde'  },
+  ];
+
+  const focusWine = React.useMemo(() => {
+    const v = window.__derogFocusWine || null;
+    window.__derogFocusWine = null;
+    return v;
+  }, []);
+
+  const [cart, setCart] = React.useState(() =>
+    Object.fromEntries(medals.map(m => [m.id, { format: null, quantite: 0, bat: null }]))
+  );
+
+  const [demandes, setDemandes] = React.useState(DEROG_IMPRESSION_DEMO);
+  const [submitted, setSubmitted] = React.useState(null);
+
+  const quotaRestant = 1200;
+
+  const handleChange = (wineId, field, value) => {
+    setCart(prev => ({ ...prev, [wineId]: { ...prev[wineId], [field]: value } }));
+  };
+
+  const handleSubmit = () => {
+    const lines = medals
+      .map(m => {
+        const e = cart[m.id] || {};
+        if (!e.format || !e.quantite || !e.bat) return null;
+        const fmt = FORMATS_SUPPORT.find(f => f.id === e.format);
+        const unites = fmt ? e.quantite * fmt.equiv : 0;
+        return { id: m.id, name: m.name, format: fmt.label, quantite: e.quantite, unites, bat: e.bat };
+      })
+      .filter(Boolean);
+
+    const totalUnites = lines.reduce((s, l) => s + l.unites, 0);
+
+    const nouvelles = lines.map(l => {
+      const m = medals.find(x => x.id === l.id);
+      return {
+        id: 'di-' + l.id,
+        medalId: l.id, medalName: l.name,
+        appell: m.appell, medal: m.medal, concours: m.concours,
+        format: l.format, quantite: l.quantite, unites: l.unites,
+        statut: 'en_attente',
+        dateDemande: '2026-06-23', dateDecision: null,
+        batFile: l.bat,
+      };
+    });
+    setDemandes(prev => [...nouvelles, ...prev]);
+    setSubmitted({ count: lines.length, lines, totalUnites });
+  };
+
+  if (submitted) return <DerogConfirmation result={submitted} onNavigate={onNavigate}/>;
+
+  const france = medals.filter(m => m.concours === 'france');
+  const monde  = medals.filter(m => m.concours === 'monde');
+
+  return (
+    <div>
+      <PageHeader
+        title="Imprimer sur etiquette"
+        subtitle="Demandez une derogation pour imprimer les visuels medaille directement sur vos etiquettes. Chaque demande est examinee par le comite."
+        actions={
+          <button onClick={() => onNavigate('p-medailles')} className="btn btn-ghost btn-sm">
+            <Icon.ArrowLeft size={14}/> Retour au palmares
+          </button>
+        }
+      />
+
+      <div className="card" style={{
+        padding: '16px 20px', marginBottom: 24,
+        background: 'linear-gradient(135deg, #f0f5ff 0%, #faf5ff 100%)',
+        border: '1px solid #c7d2fe',
+      }}>
+        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Icon.Info size={18}/>
+          </div>
+          <div style={{ fontSize: 13, lineHeight: 1.6 }}>
+            <strong>Comment fonctionne la derogation impression ?</strong><br/>
+            1. Selectionnez les medailles concernees et le format de votre support (bouteille, carton 6 ou 12).<br/>
+            2. Indiquez la quantite de supports et deposez votre <strong>BAT</strong> (Bon A Tirer).<br/>
+            3. Le comite valide votre BAT sous 2 a 5 jours. Une fois valide, les unites sont <strong>deduites de votre quota de macarons</strong>.<br/>
+            4. Vous pouvez alors proceder a l'impression chez votre propre imprimeur.
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, alignItems: 'start' }}>
+        <div>
+          <div style={{ marginBottom: 28 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
+              paddingBottom: 10, borderBottom: '2px solid var(--burgundy-800)',
+            }}>
+              <div style={{ width: 28, height: 28, borderRadius: 6, background: 'var(--burgundy-800)22', color: 'var(--burgundy-800)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon.Trophy size={14}/>
+              </div>
+              <span style={{ fontSize: 14.5, fontWeight: 600 }}>Concours des Grands Vins de France</span>
+            </div>
+            {france.map(m => (
+              <DerogWineBlock key={m.id} m={m} entry={cart[m.id] || {}} onChange={handleChange} initialOpen={focusWine === m.id}/>
+            ))}
+          </div>
+          <div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
+              paddingBottom: 10, borderBottom: '2px solid #BC9F54',
+            }}>
+              <div style={{ width: 28, height: 28, borderRadius: 6, background: '#BC9F5422', color: '#BC9F54', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon.Globe size={14}/>
+              </div>
+              <span style={{ fontSize: 14.5, fontWeight: 600 }}>Concours des Grands Vins du Monde</span>
+            </div>
+            {monde.map(m => (
+              <DerogWineBlock key={m.id} m={m} entry={cart[m.id] || {}} onChange={handleChange} initialOpen={focusWine === m.id}/>
+            ))}
+          </div>
+
+          <MesDemandesDerogSection demandes={demandes}/>
+        </div>
+
+        <DerogCart medals={medals} cart={cart} quotaRestant={quotaRestant} onSubmit={handleSubmit}/>
+      </div>
     </div>
   );
 };
@@ -3447,5 +3646,5 @@ const ProducteurGeneric = ({ title, sub, icon }) => (
   </div>
 );
 
-Object.assign(window, { ProducteurDashboard, ProducteurInscription, ProducteurInscriptionsList, ProducteurInscriptionDetail, ProducteurMedailles, ProducteurCommandes, ProducteurCommandesHistorique, ProducteurCompte, CompteMotDePasse, ProducteurGeneric });
+Object.assign(window, { ProducteurDashboard, ProducteurInscription, ProducteurInscriptionsList, ProducteurInscriptionDetail, ProducteurMedailles, ProducteurCommandes, ProducteurCommandesHistorique, ProducteurDerogationsImpression, ProducteurCompte, CompteMotDePasse, ProducteurGeneric });
 
