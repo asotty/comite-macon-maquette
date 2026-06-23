@@ -71,6 +71,8 @@ const Icon = {
   Database:    (p) => <I {...p} d={<><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></>}/>,
   Menu:        (p) => <I {...p} d={<><path d="M3 6h18M3 12h18M3 18h18"/></>}/>,
   History:     (p) => <I {...p} d={<><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></>}/>,
+  CheckCircle: (p) => <I {...p} d={<><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></>}/>,
+  XCircle:     (p) => <I {...p} d={<><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></>}/>,
 };
 
 window.Icon = Icon;

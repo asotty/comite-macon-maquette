@@ -57,8 +57,6 @@ const navProducteur = [
     match: ['p-inscriptions', 'p-ins-cours', 'p-ins-historique', 'p-inscription'] },
   { id: 'medailles',     label: 'Commander mes médailles',   route: 'p-commandes', badge: 1,
     match: ['p-commandes', 'p-cmd-nouvelle', 'p-cmd-historique'] },
-  { id: 'derogations',   label: 'Commander mes dérogations', route: 'p-derogations',
-    match: ['p-derogations', 'p-der-nouvelle', 'p-der-mes'] },
   { id: 'compte',        label: 'Mon compte',                route: 'p-compte',
     match: ['p-compte', 'p-compte-infos', 'p-compte-facturation', 'p-compte-mdp'], hidden: true },
 ];

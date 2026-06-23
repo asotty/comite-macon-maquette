@@ -1,4 +1,4 @@
-// Fiche détaillée d'un dossier d'inscription (admin)
+﻿// Fiche détaillée d'un dossier d'inscription (admin)
 // Header + 5 onglets (Échantillons, Documents, Contrôle, Paiement, Historique) + panneau latéral fixe.
 
 const DOSSIER = {
@@ -95,43 +95,14 @@ const AdminDossierDetail = ({ onBack, onNavigate }) => {
   const [paid, setPaid] = React.useState(false);
   const [docViewer, setDocViewer] = React.useState(null);
   const [docDecisions, setDocDecisions] = React.useState({}); // { [name]: { status, motif } }
-  const [derogDecisions, setDerogDecisions] = React.useState({
-    // DER-0028 already resolved as seed example
-    'DER-2026-0028': { status: 'granted', comment: 'Attestation valide, délai accordé jusqu’au 16/04/2026.', resolvedAt: '11/04/2026', resolvedBy: 'Sophie L.' },
-  });
-
   const setDocDecision = (name, decision) => {
     setDocDecisions(prev => ({ ...prev, [name]: decision }));
   };
-
-  const DEROGATIONS = [
-    {
-      ref: 'DER-2026-0032',
-      requestedAt: '10/04/2026 à 09h15',
-      requestedBy: 'Marie Dupont',
-      type: 'Document manquant',
-      motif: "Le bulletin d'analyses physicochimiques de l'\u00e9chantillon 3 (Pouilly-Fuiss\u00e9 2023) ne peut pas \u00eatre fourni avant le 15/04 \u2014 le laboratoire INRAE est en maintenance. Je joins l'attestation du laboratoire confirmant la date de rendu.",
-      attachment: { name: 'attestation_laboratoire_inrae.pdf', size: '420 Ko' },
-      ech: { n: 3, nom: 'Pouilly-Fuiss\u00e9', mill: '2023' },
-    },
-    {
-      ref: 'DER-2026-0028',
-      requestedAt: '08/04/2026 à 14h22',
-      requestedBy: 'Marie Dupont',
-      type: 'D\u00e9passement de volume',
-      motif: 'Volume revendiqu\u00e9 sup\u00e9rieur \u00e0 la DREV de 70 hl suite \u00e0 une r\u00e9\u00e9valuation des stocks (cf. document joint).',
-      attachment: { name: 'reevaluation_stock_drev.pdf', size: '180 Ko' },
-      ech: { n: 2, nom: 'Pouilly-Fuiss\u00e9 Vieilles Vignes', mill: '2022' },
-    },
-  ];
-
-  const pendingDerog = DEROGATIONS.filter(d => !derogDecisions[d.ref]).length;
 
   const tabs = [
     { id: 'echantillons', label: '\u00c9chantillons', count: 8 },
     { id: 'documents',    label: 'Documents',    count: 16 },
     { id: 'controle',     label: 'Contr\u00f4le',     warn: true },
-    { id: 'derogations',  label: 'Commentaires', count: DEROGATIONS.length, warn: pendingDerog > 0 },
     { id: 'paiement',     label: 'Paiement' },
     { id: 'prestations',  label: 'Prestations salons', count: SALON_PRESTATIONS.sdv.lignes.length },
     { id: 'historique',   label: 'Historique' },
@@ -218,12 +189,6 @@ const AdminDossierDetail = ({ onBack, onNavigate }) => {
             {tab === 'echantillons' && <TabEchantillons onOpen={setDrawerEch}/>}
             {tab === 'documents'    && <TabDocuments onPreview={setDocViewer} decisions={docDecisions}/>}
             {tab === 'controle'     && <TabControle onPreview={setDocViewer}/>}
-            {tab === 'derogations'  && <TabDerogations
-                                          list={DEROGATIONS}
-                                          decisions={derogDecisions}
-                                          onDecide={(ref, dec) => setDerogDecisions(prev => ({ ...prev, [ref]: dec }))}
-                                          onPreviewAttachment={(d) => setDocViewer({ name: d.attachment.name, size: d.attachment.size, kind: 'attestation', ech: d.ech, status: 'ok' })}
-                                       />}
             {tab === 'paiement'     && <TabPaiement paid={paid} onMarkPaid={() => setPaid(true)}/>}
             {tab === 'prestations'  && <TabPrestations/>}
             {tab === 'historique'   && <TabHistorique paid={paid}/>}
@@ -1687,234 +1652,6 @@ const td  = { padding: '5px 8px', borderBottom: '1px dotted #ccc', color: '#1a1a
 const tdN = { ...td, textAlign: 'right', fontFamily: 'Menlo, Consolas, monospace', fontSize: 9 };
 
 
-// ─── Onglet 4bis — Dérogations ────────────────────────────────────
-
-const TabDerogations = ({ list, decisions, onDecide, onPreviewAttachment }) => {
-  const pending = list.filter(d => !decisions[d.ref]);
-  const resolved = list.filter(d => decisions[d.ref]);
-
-  return (
-    <div>
-      {pending.length > 0 && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          padding: '12px 14px',
-          background: '#fffbeb',
-          border: '1px solid #fde68a',
-          borderRadius: 8,
-          marginBottom: 18,
-        }}>
-          <Icon.AlertTriangle size={16} style={{ color: '#d97706', flexShrink: 0 }}/>
-          <div style={{ flex: 1, fontSize: 12.5, color: '#78350f' }}>
-            <strong>{pending.length} dérogation{pending.length > 1 ? 's' : ''} en attente</strong> de votre validation.
-            Le dossier ne pourra être validé tant qu'elles n'auront pas été traitées.
-          </div>
-        </div>
-      )}
-
-      {pending.map(d => (
-        <DerogationCard
-          key={d.ref}
-          d={d}
-          onDecide={(dec) => onDecide(d.ref, dec)}
-          onPreviewAttachment={() => onPreviewAttachment(d)}
-        />
-      ))}
-
-      {resolved.length > 0 && (
-        <React.Fragment>
-          {pending.length > 0 && (
-            <div style={{ fontSize: 11, color: 'var(--fg-subtle)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', margin: '24px 0 12px' }}>
-              Dérogations déjà traitées
-            </div>
-          )}
-          {resolved.map(d => (
-            <DerogationCardResolved
-              key={d.ref}
-              d={d}
-              decision={decisions[d.ref]}
-              onPreviewAttachment={() => onPreviewAttachment(d)}
-            />
-          ))}
-        </React.Fragment>
-      )}
-
-      {list.length === 0 && (
-        <div className="card" style={{ padding: 32, textAlign: 'center', color: 'var(--fg-muted)' }}>
-          Aucune dérogation demandée pour ce dossier.
-        </div>
-      )}
-    </div>
-  );
-};
-
-const DerogationCard = ({ d, onDecide, onPreviewAttachment }) => {
-  const [comment, setComment] = React.useState('');
-
-  return (
-    <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 14, border: '1px solid var(--border)' }}>
-      <div style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderBottom: '1px solid var(--border)', background: 'var(--slate-50)' }}>
-        <div style={{ minWidth: 0 }}>
-          <code style={{ fontFamily: 'Menlo, Consolas, monospace', fontSize: 13, fontWeight: 600, color: 'var(--burgundy-800)' }}>{d.ref}</code>
-          <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 3 }}>
-            Demandée le {d.requestedAt} par <strong style={{ color: 'var(--fg)', fontWeight: 500 }}>{d.requestedBy}</strong>
-          </div>
-        </div>
-        <DerogStatusBadge status="pending"/>
-      </div>
-
-      <div style={{ padding: '16px 18px' }}>
-        <SectionLabel>Motif de la demande</SectionLabel>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, marginBottom: 8 }}>
-          <span style={{ color: 'var(--fg-muted)' }}>Type :</span>
-          <span style={{ fontWeight: 500, color: 'var(--fg)' }}>{d.type}</span>
-        </div>
-        <blockquote style={{
-          margin: 0,
-          padding: '10px 14px',
-          borderLeft: '3px solid var(--burgundy-300)',
-          background: 'var(--burgundy-50)',
-          fontSize: 13,
-          color: 'var(--fg)',
-          fontStyle: 'italic',
-          lineHeight: 1.55,
-          borderRadius: '0 6px 6px 0',
-        }}>{d.motif}</blockquote>
-
-        {d.attachment && (
-          <React.Fragment>
-            <SectionLabel style={{ marginTop: 18 }}>Pièce jointe</SectionLabel>
-            <div onClick={onPreviewAttachment} style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '8px 10px',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-              background: 'var(--surface)',
-              cursor: 'pointer',
-              transition: 'border-color .12s, background .12s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--burgundy-300)'; e.currentTarget.style.background = 'var(--burgundy-50)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface)'; }}
-            >
-              <span style={{ width: 28, height: 28, borderRadius: 6, background: 'var(--burgundy-50)', color: 'var(--burgundy-800)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Icon.FileText size={14}/>
-              </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.attachment.name}</div>
-                <div style={{ fontSize: 11, color: 'var(--fg-muted)' }}>{d.attachment.size}</div>
-              </div>
-              <button className="btn btn-icon btn-sm btn-ghost" title="Aperçu" onClick={e => { e.stopPropagation(); onPreviewAttachment(); }}><Icon.Eye size={13}/></button>
-              <button className="btn btn-icon btn-sm btn-ghost" title="Télécharger" onClick={e => e.stopPropagation()}><Icon.Download size={13}/></button>
-            </div>
-          </React.Fragment>
-        )}
-
-        <SectionLabel style={{ marginTop: 18 }}>Échantillon concerné</SectionLabel>
-        <div style={{ fontSize: 13, color: 'var(--fg)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 11, color: 'var(--fg-subtle)', fontWeight: 600, letterSpacing: '0.06em', padding: '2px 6px', background: 'var(--slate-100)', borderRadius: 4 }}>ÉCH. {d.ech.n}</span>
-          <span style={{ fontWeight: 500 }}>{d.ech.nom}</span>
-          <span style={{ color: 'var(--fg-muted)' }}>· {d.ech.mill}</span>
-        </div>
-      </div>
-
-      <div style={{ padding: '16px 18px', borderTop: '1px solid var(--border)', background: '#fafaf9' }}>
-        <SectionLabel>Réponse de l'administration</SectionLabel>
-        <textarea
-          value={comment}
-          onChange={e => setComment(e.target.value)}
-          placeholder="Commentaire (optionnel) — visible par le producteur"
-          rows={2}
-          style={{
-            width: '100%',
-            padding: '8px 10px',
-            border: '1px solid var(--border)',
-            borderRadius: 6,
-            fontSize: 12.5,
-            fontFamily: 'inherit',
-            color: 'var(--fg)',
-            background: 'var(--surface)',
-            outline: 'none',
-            resize: 'vertical',
-            marginBottom: 12,
-          }}
-        />
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button
-            className="btn btn-outline btn-sm"
-            style={{ color: '#991b1b', borderColor: '#fecaca' }}
-            onClick={() => onDecide({ status: 'refused', comment: comment.trim(), resolvedAt: '12/05/2026', resolvedBy: 'Sophie L.' })}
-          >
-            <Icon.X size={13}/> Refuser la dérogation
-          </button>
-          <button
-            className="btn btn-primary btn-sm"
-            style={{ background: '#16a34a', borderColor: '#16a34a' }}
-            onClick={() => onDecide({ status: 'granted', comment: comment.trim(), resolvedAt: '12/05/2026', resolvedBy: 'Sophie L.' })}
-          >
-            <Icon.Check size={14}/> Accorder la dérogation
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const DerogationCardResolved = ({ d, decision, onPreviewAttachment }) => (
-  <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 12, border: '1px solid var(--border)' }}>
-    <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderBottom: '1px solid var(--border)', background: 'var(--slate-50)' }}>
-      <div style={{ minWidth: 0 }}>
-        <code style={{ fontFamily: 'Menlo, Consolas, monospace', fontSize: 13, fontWeight: 600, color: 'var(--burgundy-800)' }}>{d.ref}</code>
-        <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 3 }}>
-          Demandée le {d.requestedAt.split(' à ')[0]} · Traitée le {decision.resolvedAt} par <strong style={{ color: 'var(--fg)', fontWeight: 500 }}>{decision.resolvedBy}</strong>
-        </div>
-      </div>
-      <DerogStatusBadge status={decision.status}/>
-    </div>
-
-    <div style={{ padding: '12px 18px', fontSize: 13 }}>
-      <div style={{ color: 'var(--fg)', marginBottom: 8 }}>
-        <span style={{ color: 'var(--fg-muted)' }}>Type :</span> {d.type} —
-        <span style={{ marginLeft: 4 }}>Échantillon {d.ech.n} ({d.ech.nom} {d.ech.mill})</span>
-      </div>
-
-      {decision.comment && (
-        <div style={{ fontSize: 12.5, color: 'var(--fg)' }}>
-          <span style={{ color: 'var(--fg-muted)' }}>Commentaire admin :</span>{' '}
-          <span style={{ fontStyle: 'italic' }}>« {decision.comment} »</span>
-        </div>
-      )}
-
-      {d.attachment && (
-        <div style={{ marginTop: 10 }}>
-          <a href="#" onClick={e => { e.preventDefault(); onPreviewAttachment(); }} style={{ fontSize: 12, color: 'var(--burgundy-800)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            <Icon.FileText size={11}/> {d.attachment.name} <Icon.ArrowRight size={11}/>
-          </a>
-        </div>
-      )}
-    </div>
-  </div>
-);
-
-const DerogStatusBadge = ({ status }) => {
-  const map = {
-    pending:  { bg: '#fef3c7', fg: '#78350f', label: 'En attente',  icon: <Icon.Clock size={11}/> },
-    granted:  { bg: '#dcfce7', fg: '#166534', label: 'Accordée',   icon: <Icon.Check size={11}/> },
-    refused:  { bg: '#fee2e2', fg: '#991b1b', label: 'Refusée',    icon: <Icon.X     size={11}/> },
-  };
-  const s = map[status] || map.pending;
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 5,
-      padding: '4px 9px', borderRadius: 999,
-      background: s.bg, color: s.fg,
-      fontSize: 11.5, fontWeight: 600,
-      flexShrink: 0,
-    }}>
-      {s.icon} {s.label}
-    </span>
-  );
-};
-
 // ─── R02 : composants "Prestations salons" ────────────────────────────────────
 
 /**
@@ -2048,3 +1785,6 @@ const TabPrestations = () => {
 };
 
 Object.assign(window, { AdminDossierDetail });
+
+
+

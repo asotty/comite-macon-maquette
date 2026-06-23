@@ -28,6 +28,125 @@ const ParamRow = ({ label, hint, children }) => (
   </div>
 );
 
+// ─── Formats de support — dérogation impression étiquette ─────────
+// Composant réutilisé dans AdminParamConcours (section dédiée)
+
+const AdminParamFormatsSupport = ({ markDirty }) => {
+  const [formats, setFormats] = React.useState([
+    { id: 'bouteille',  label: 'Bouteille',           equiv: 1,  actif: true  },
+    { id: 'carton6',   label: 'Carton 6 bouteilles',  equiv: 6,  actif: true  },
+    { id: 'carton12',  label: 'Carton 12 bouteilles', equiv: 12, actif: true  },
+    { id: 'carton24',  label: 'Carton 24 bouteilles', equiv: 24, actif: false },
+  ]);
+  const [showAdd, setShowAdd]     = React.useState(false);
+  const [newLabel, setNewLabel]   = React.useState('');
+  const [newEquiv, setNewEquiv]   = React.useState(1);
+
+  const updateFmt = (id, patch) => { setFormats(f => f.map(x => x.id === id ? { ...x, ...patch } : x)); markDirty && markDirty(); };
+  const deleteFmt = (id)         => { setFormats(f => f.filter(x => x.id !== id)); markDirty && markDirty(); };
+
+  const handleAdd = () => {
+    if (!newLabel.trim()) return;
+    setFormats(f => [...f, { id: 'fs_' + Date.now(), label: newLabel.trim(), equiv: parseInt(newEquiv) || 1, actif: true, custom: true }]);
+    setNewLabel(''); setNewEquiv(1); setShowAdd(false);
+    markDirty && markDirty();
+  };
+
+  return (
+    <ParamCard
+      title="Formats de support (dérogation impression)"
+      icon={<Icon.Printer size={14}/>}
+      sub="Supports sur lesquels les producteurs peuvent demander d'imprimer leur médaille"
+    >
+      <ParamRow
+        label="Formats disponibles"
+        hint="L'équivalence détermine combien d'unités quota sont déduites par article (ex : carton 6 = 6 unités)."
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {/* Liste des formats */}
+          {formats.map(f => (
+            <div key={f.id} style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: '10px 14px', borderRadius: 8,
+              background: f.actif ? 'var(--surface)' : 'var(--surface-2)',
+              border: '1px solid var(--border)', opacity: f.actif ? 1 : 0.6, transition: 'opacity .15s',
+            }}>
+              {/* Toggle actif */}
+              <input
+                type="checkbox" checked={f.actif}
+                onChange={e => updateFmt(f.id, { actif: e.target.checked })}
+                style={{ width: 16, height: 16, accentColor: 'var(--burgundy-800)', flexShrink: 0, cursor: 'pointer' }}
+              />
+              {/* Nom */}
+              <div style={{ flex: 1, fontSize: 13.5, fontWeight: 500 }}>
+                {f.label}
+                {f.custom && <span style={{ fontSize: 11, color: 'var(--burgundy-600)', marginLeft: 8 }}>Personnalisé</span>}
+              </div>
+              {/* Équivalence */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>Équivalence</span>
+                <input
+                  type="number" min={1} className="input tnum" value={f.equiv}
+                  onChange={e => updateFmt(f.id, { equiv: parseInt(e.target.value) || 1 })}
+                  style={{ width: 72, textAlign: 'center', fontSize: 13 }}
+                />
+                <span style={{ fontSize: 12, color: 'var(--fg-muted)', minWidth: 40 }}>unité{f.equiv !== 1 ? 's' : ''}</span>
+              </div>
+              {/* Supprimer (formats personnalisés) */}
+              {f.custom ? (
+                <button className="btn btn-icon btn-ghost btn-sm" onClick={() => deleteFmt(f.id)}
+                  style={{ color: 'var(--danger)', flexShrink: 0 }}>
+                  <Icon.Trash size={13}/>
+                </button>
+              ) : (
+                <div style={{ width: 28, flexShrink: 0 }}/>
+              )}
+            </div>
+          ))}
+
+          {/* Formulaire d'ajout inline */}
+          {showAdd ? (
+            <div style={{
+              padding: '14px 16px', borderRadius: 8,
+              background: 'var(--burgundy-50)', border: '1px solid var(--burgundy-200)',
+              display: 'flex', gap: 12, alignItems: 'flex-end',
+            }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--fg-muted)', marginBottom: 4 }}>Nom du format *</div>
+                <input className="input" placeholder="ex : Carton 48 bouteilles" value={newLabel}
+                  onChange={e => setNewLabel(e.target.value)} style={{ fontSize: 13 }} autoFocus/>
+              </div>
+              <div>
+                <div style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--fg-muted)', marginBottom: 4 }}>Équivalence (unités)</div>
+                <input type="number" min={1} className="input tnum" value={newEquiv}
+                  onChange={e => setNewEquiv(e.target.value)} style={{ width: 80, textAlign: 'center' }}/>
+              </div>
+              <button className="btn btn-outline btn-sm"
+                onClick={() => { setShowAdd(false); setNewLabel(''); setNewEquiv(1); }}>
+                Annuler
+              </button>
+              <button className="btn btn-primary btn-sm" disabled={!newLabel.trim()} onClick={handleAdd}
+                style={{ opacity: newLabel.trim() ? 1 : 0.45 }}>
+                <Icon.Plus size={13}/> Ajouter
+              </button>
+            </div>
+          ) : (
+            <button className="btn btn-outline btn-sm" onClick={() => setShowAdd(true)}
+              style={{ alignSelf: 'flex-start', marginTop: 2 }}>
+              <Icon.Plus size={13}/> Ajouter un format
+            </button>
+          )}
+
+          <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2, paddingLeft: 2 }}>
+            <Icon.Info size={12} style={{ verticalAlign: 'middle', marginRight: 5 }}/>
+            Ces formats sont affichés aux producteurs lorsqu'ils soumettent une demande de dérogation impression.
+          </div>
+        </div>
+      </ParamRow>
+    </ParamCard>
+  );
+};
+
 // ─── Page 1 — Configuration concours ──────────────────────────────
 
 const FORMAT_COLORS = ['#f59e0b','#8b5cf6','#0ea5e9','#16a34a','#ef4444','#f97316','#ec4899','#64748b'];
@@ -385,6 +504,10 @@ const AdminParamConcours = () => {
             </div>
           </ParamRow>
         </ParamCard>
+
+        {/* Formats de support — dérogation impression étiquette */}
+        <AdminParamFormatsSupport markDirty={markDirty}/>
+
       </div>
 
       {/* Sticky save bar */}
