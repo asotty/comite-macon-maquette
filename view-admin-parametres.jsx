@@ -198,34 +198,15 @@ const AdminParamConcours = () => {
   const [dirty, setDirty]       = React.useState(false);
   const markDirty = () => setDirty(true);
 
+  // R84 — 3 produits fixes (pas d'équivalence, pas d'ajout/suppression)
+  // médailles       : lot de 1 000, déduit du quota déclaré du vin
+  // plaques_metal   : à l'unité, hors quota
+  // chevalets_plexi : à l'unité, hors quota
   const [formats, setFormats] = React.useState([
-    { id: 'autocollants',      label: 'Autocollants ronds',          sub: 'Macaron Ø 35 mm · bouteilles',                   active: true,  units: 1,   prix: 0.15,  color: '#f59e0b', builtin: true  },
-    { id: 'autocollants_rect', label: 'Autocollants rectangulaires', sub: 'Format col 80 × 30 mm',                          active: true,  units: 1,   prix: 0.20,  color: '#8b5cf6', builtin: true  },
-    { id: 'plaques',           label: 'Plaques métal',               sub: 'Aluminium brossé · vitrines et présentoirs',     active: true,  units: 10,  prix: 25.00, color: '#0ea5e9', builtin: true  },
-    { id: 'diplomes',          label: 'Certificats / Diplômes',      sub: 'Format A4 encadrable · attestation officielle',  active: false, units: 5,   prix: 8.00,  color: '#16a34a', builtin: true  },
-    { id: 'boites',            label: 'Boîtes vrac',                 sub: 'Conditionnement cave · grands volumes',          active: false, units: 100, prix: 45.00, color: '#64748b', builtin: true  },
+    { id: 'medailles',       label: 'Médailles',        sub: 'Lot de 1 000 médailles physiques · livré par le fournisseur', active: true, prix: 45.00, deductsStock: true,  lotLabel: '/ lot de 1 000', color: '#d97706' },
+    { id: 'plaques_metal',   label: 'Plaques métal',    sub: 'Aluminium brossé gravé · vitrines, présentoirs, caves',       active: true, prix: 8.50,  deductsStock: false, lotLabel: '/ unité',        color: '#64748b' },
+    { id: 'chevalets_plexi', label: 'Chevalets plexi',  sub: 'Présentoir plexiglas transparent · table et comptoir',        active: true, prix: 6.00,  deductsStock: false, lotLabel: '/ unité',        color: '#3b82f6' },
   ]);
-
-  // Formulaire d'ajout
-  const [showAddForm, setShowAddForm] = React.useState(false);
-  const [newLabel,    setNewLabel]    = React.useState('');
-  const [newSub,      setNewSub]      = React.useState('');
-  const [newUnits,    setNewUnits]    = React.useState(1);
-  const [newColor,    setNewColor]    = React.useState(FORMAT_COLORS[4]);
-
-  const handleAddFormat = () => {
-    if (!newLabel.trim()) return;
-    const id = 'custom_' + Date.now();
-    setFormats(f => [...f, { id, label: newLabel.trim(), sub: newSub.trim(), active: true, units: parseInt(newUnits, 10) || 1, color: newColor, builtin: false }]);
-    setNewLabel(''); setNewSub(''); setNewUnits(1); setNewColor(FORMAT_COLORS[4]);
-    setShowAddForm(false);
-    markDirty();
-  };
-
-  const handleDeleteFormat = (id) => {
-    setFormats(f => f.filter(x => x.id !== id));
-    markDirty();
-  };
 
   const updateFormat = (id, patch) => {
     setFormats(f => f.map(x => x.id === id ? { ...x, ...patch } : x));
@@ -324,20 +305,18 @@ const AdminParamConcours = () => {
           </ParamRow>
         </ParamCard>
 
-        {/* Formats de médailles */}
-        <ParamCard title="Formats de médailles" icon={<Icon.Medal size={14}/>} sub="Types d'articles disponibles à la commande par les producteurs">
-          <ParamRow label="Formats commandables" hint="Cochez les formats proposés aux producteurs pour cette édition. L'équivalence détermine combien d'unités quota consomme chaque article.">
+        {/* Produits commandables — R84 */}
+        <ParamCard title="Produits commandables" icon={<Icon.Medal size={14}/>} sub="Articles proposés aux producteurs après publication du palmarès">
+          <ParamRow label="Articles actifs" hint="Activez ou désactivez chaque produit pour cette édition. Le prix est configurable par édition.">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-
-              {/* Liste des formats existants */}
               {formats.map((f) => (
                 <div key={f.id} style={{
                   display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '10px 14px',
+                  padding: '12px 14px',
                   background: f.active ? 'var(--surface)' : 'var(--surface-2)',
                   border: '1px solid ' + (f.active ? 'var(--border)' : 'var(--border)'),
                   borderRadius: 8,
-                  opacity: f.active ? 1 : 0.65,
+                  opacity: f.active ? 1 : 0.6,
                   transition: 'opacity .15s',
                 }}>
                   {/* Checkbox activer/désactiver */}
@@ -353,24 +332,16 @@ const AdminParamConcours = () => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13.5, fontWeight: 500 }}>{f.label}</div>
                     {f.sub && <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 1 }}>{f.sub}</div>}
-                    {!f.builtin && (
-                      <span style={{ fontSize: 11, color: 'var(--burgundy-600)', marginTop: 2, display: 'inline-block' }}>Format personnalisé</span>
-                    )}
                   </div>
-                  {/* Équivalence modifiable */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                    <span style={{ fontSize: 12, color: 'var(--fg-muted)', whiteSpace: 'nowrap' }}>Équivalent</span>
-                    <input
-                      type="number"
-                      className="input tnum"
-                      value={f.units}
-                      min={1}
-                      onChange={e => updateFormat(f.id, { units: parseInt(e.target.value, 10) || 1 })}
-                      style={{ width: 72, textAlign: 'center', fontSize: 13 }}
-                    />
-                    <span style={{ fontSize: 12, color: 'var(--fg-muted)', minWidth: 34 }}>unité{f.units !== 1 ? 's' : ''}</span>
-                  </div>
-                  {/* Prix unitaire */}
+                  {/* Badge impact stock */}
+                  <span style={{
+                    padding: '3px 9px', borderRadius: 6, fontSize: 11.5, fontWeight: 600, flexShrink: 0,
+                    background: f.deductsStock ? 'var(--burgundy-50)' : 'var(--slate-100)',
+                    color:      f.deductsStock ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+                  }}>
+                    {f.deductsStock ? 'déduit du quota' : 'hors quota'}
+                  </span>
+                  {/* Prix configurable */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                     <span style={{ fontSize: 12, color: 'var(--fg-muted)', whiteSpace: 'nowrap' }}>Prix</span>
                     <div style={{ position: 'relative' }}>
@@ -380,131 +351,35 @@ const AdminParamConcours = () => {
                         value={f.prix}
                         min={0}
                         step={0.01}
-                        onChange={e => { updateFormat(f.id, { prix: parseFloat(e.target.value) || 0 }); }}
-                        style={{ width: 84, textAlign: 'right', fontSize: 13, paddingRight: 24 }}
+                        onChange={e => updateFormat(f.id, { prix: parseFloat(e.target.value) || 0 })}
+                        style={{ width: 90, textAlign: 'right', fontSize: 13, paddingRight: 28 }}
                       />
                       <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 12, pointerEvents: 'none' }}>€</span>
                     </div>
+                    <span style={{ fontSize: 11.5, color: 'var(--fg-muted)', minWidth: 90 }}>{f.lotLabel}</span>
                   </div>
-                  {/* Supprimer (formats personnalisés seulement) */}
-                  {!f.builtin ? (
-                    <button
-                      className="btn btn-icon btn-ghost btn-sm"
-                      onClick={() => handleDeleteFormat(f.id)}
-                      title="Supprimer ce format"
-                      style={{ color: 'var(--danger)', flexShrink: 0 }}
-                    >
-                      <Icon.Trash size={13}/>
-                    </button>
-                  ) : (
-                    <div style={{ width: 28, flexShrink: 0 }}/>
-                  )}
                 </div>
               ))}
-
-              {/* Formulaire d'ajout inline */}
-              {showAddForm ? (
-                <div style={{
-                  padding: '14px 16px',
-                  background: 'var(--burgundy-50)',
-                  border: '1px solid var(--burgundy-200)',
-                  borderRadius: 8,
-                  display: 'flex', flexDirection: 'column', gap: 10,
-                }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--burgundy-900)', marginBottom: 2 }}>
-                    Nouveau format
-                  </div>
-                  {/* Nom + description */}
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <div style={{ flex: '0 0 220px' }}>
-                      <div style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--fg-muted)', marginBottom: 4 }}>Nom du format *</div>
-                      <input
-                        className="input"
-                        placeholder="ex : Étiquette adhésive"
-                        value={newLabel}
-                        onChange={e => setNewLabel(e.target.value)}
-                        style={{ fontSize: 13 }}
-                        autoFocus
-                      />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--fg-muted)', marginBottom: 4 }}>Description (optionnel)</div>
-                      <input
-                        className="input"
-                        placeholder="ex : Format 50 × 70 mm · usage salon"
-                        value={newSub}
-                        onChange={e => setNewSub(e.target.value)}
-                        style={{ fontSize: 13 }}
-                      />
-                    </div>
-                  </div>
-                  {/* Équivalence + couleur */}
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 }}>
-                    <div>
-                      <div style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--fg-muted)', marginBottom: 4 }}>Équivalent unités</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <input
-                          type="number"
-                          className="input tnum"
-                          value={newUnits}
-                          min={1}
-                          onChange={e => setNewUnits(e.target.value)}
-                          style={{ width: 80, textAlign: 'center' }}
-                        />
-                        <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>unité{newUnits > 1 ? 's' : ''} / article</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--fg-muted)', marginBottom: 6 }}>Couleur</div>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        {FORMAT_COLORS.map(c => (
-                          <button
-                            key={c}
-                            onClick={() => setNewColor(c)}
-                            style={{
-                              width: 22, height: 22, borderRadius: '50%',
-                              background: c, border: 'none', cursor: 'pointer', padding: 0,
-                              outline: newColor === c ? '2px solid var(--burgundy-800)' : '2px solid transparent',
-                              outlineOffset: 2,
-                              transition: 'outline .1s',
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    {/* Actions */}
-                    <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
-                      <button
-                        className="btn btn-outline btn-sm"
-                        onClick={() => { setShowAddForm(false); setNewLabel(''); setNewSub(''); }}
-                      >
-                        Annuler
-                      </button>
-                      <button
-                        className="btn btn-primary btn-sm"
-                        disabled={!newLabel.trim()}
-                        onClick={handleAddFormat}
-                        style={{ background: 'var(--burgundy-800)', opacity: newLabel.trim() ? 1 : 0.45 }}
-                      >
-                        <Icon.Plus size={13}/> Ajouter
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  className="btn btn-outline btn-sm"
-                  onClick={() => setShowAddForm(true)}
-                  style={{ alignSelf: 'flex-start', marginTop: 2 }}
-                >
-                  <Icon.Plus size={13}/> Ajouter un format
-                </button>
-              )}
-
-              <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2, paddingLeft: 2 }}>
+              <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 4, paddingLeft: 2 }}>
                 <Icon.Info size={12} style={{ verticalAlign: 'middle', marginRight: 5 }}/>
-                L'équivalence détermine combien d'unités du quota médailles consomme chaque article commandé.
+                Seules les médailles (au lot de 1 000) déduisent du quota déclaré. Plaques métal et chevalets plexi sont hors quota.
               </div>
+            </div>
+          </ParamRow>
+          <ParamRow label="Seuil alerte commande" hint="En-dessous de ce nombre de lots commandés par producteur, une alerte est remontée côté admin">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, maxWidth: 320 }}>
+              <input type="number" className="input tnum" defaultValue={1} min={1} onChange={markDirty} style={{ width: 80 }}/>
+              <span style={{ fontSize: 13, color: 'var(--fg-muted)' }}>lot(s) · soit</span>
+              <span className="tnum" style={{ fontSize: 13, fontWeight: 600, color: 'var(--burgundy-800)' }}>1 000 médailles</span>
+            </div>
+          </ParamRow>
+          <ParamRow label="Seuil alerte dépassement stock" hint="Alerte admin si les médailles commandées dépassent ce pourcentage du volume déclaré du producteur">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, maxWidth: 240 }}>
+              <div style={{ position: 'relative', maxWidth: 130 }}>
+                <input type="number" className="input tnum" defaultValue={3} min={0} max={100} step={0.5} onChange={markDirty} style={{ paddingRight: 28 }}/>
+                <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>%</span>
+              </div>
+              <span style={{ fontSize: 13, color: 'var(--fg-muted)' }}>du stock déclaré</span>
             </div>
           </ParamRow>
         </ParamCard>
