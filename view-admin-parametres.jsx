@@ -1126,9 +1126,59 @@ const EMAIL_TEMPLATES = [
   { id: 'jury-invite',        nom: 'Invitation au jury',                   event: 'Affectation jury',     modifie: '20/03/2026', status: 'brouillon', variables: ['{prenom}', '{nom_jury}', '{date}', '{salle}'] },
 ];
 
+// ── Modal ajout/édition expéditeur ──────────────────────────────────
+const ExpEditeurModal = ({ sender, onSave, onClose }) => {
+  const [nom, setNom] = React.useState(sender?.nom || '');
+  const [email, setEmail] = React.useState(sender?.email || '');
+  const [defaut, setDefaut] = React.useState(sender?.defaut || false);
+  const isNew = !sender;
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(15,23,42,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: 'var(--surface)', borderRadius: 14, width: '100%', maxWidth: 460, boxShadow: '0 24px 48px rgba(0,0,0,.18)', overflow: 'hidden' }}>
+        <div style={{ padding: '22px 28px 18px', borderBottom: '1px solid var(--border)' }}>
+          <h3 className="display" style={{ fontSize: 18, fontWeight: 500, margin: 0 }}>
+            {isNew ? 'Nouvel expéditeur' : "Modifier l'expéditeur"}
+          </h3>
+          <p style={{ margin: '4px 0 0', fontSize: 12.5, color: 'var(--fg-muted)' }}>
+            Ce nom et cette adresse apparaîtront dans le champ « De : » des emails envoyés.
+          </p>
+        </div>
+        <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <label className="field">
+            <span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Nom affiché</span>
+            <input className="input" value={nom} onChange={e => setNom(e.target.value)} placeholder="Comité des Salons et Concours de Mâcon"/>
+          </label>
+          <label className="field">
+            <span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Adresse email</span>
+            <input type="email" className="input" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="contact@comite-macon.fr"
+              style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)' }}/>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 13 }}>
+            <input type="checkbox" checked={defaut} onChange={e => setDefaut(e.target.checked)}
+              style={{ accentColor: 'var(--burgundy-800)', width: 15, height: 15, flexShrink: 0 }}/>
+            Définir comme expéditeur par défaut
+          </label>
+        </div>
+        <div style={{ padding: '16px 28px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <button className="btn btn-outline" onClick={onClose}>Annuler</button>
+          <button className="btn btn-primary" style={{ background: 'var(--burgundy-800)' }}
+            onClick={() => { onSave({ nom, email, defaut }); onClose(); }}
+            disabled={!nom.trim() || !email.trim()}>
+            {isNew ? 'Ajouter' : 'Enregistrer'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AdminParamEmails = () => {
   const [openId, setOpenId] = React.useState(null);
   const [createModal, setCreateModal] = React.useState(false);
+  // Expéditeurs — initialisés depuis les données globales partagées
+  const [senders, setSenders] = React.useState([...EXPEDITEURS_EMAIL]);
+  const [senderModal, setSenderModal] = React.useState(null); // null | 'new' | sender object
   const paged = useSortablePaged(EMAIL_TEMPLATES, {
     defaultPageSize: 25,
     accessors: {
@@ -1145,18 +1195,113 @@ const AdminParamEmails = () => {
     return <EmailTemplateEditor template={template} onBack={() => setOpenId(null)}/>;
   }
 
+  const handleSenderSave = (data) => {
+    if (senderModal === 'new') {
+      const newId = 'sender-' + (senders.length + 1);
+      // Si défaut coché, retirer le défaut des autres
+      setSenders(prev => [
+        ...(data.defaut ? prev.map(s => ({ ...s, defaut: false })) : prev),
+        { id: newId, ...data },
+      ]);
+    } else {
+      setSenders(prev => prev.map(s => {
+        if (s.id === senderModal.id) return { ...s, ...data };
+        return data.defaut ? { ...s, defaut: false } : s;
+      }));
+    }
+  };
+
   return (
     <div data-screen-label="admin-param-emails">
       <PageHeader
-        breadcrumb={['Administration', 'Paramètres', 'Templates emails']}
-        title="Templates emails"
-        subtitle="Notifications envoyées aux producteurs et dégustateurs"
+        breadcrumb={['Administration', 'Paramètres', 'Emails']}
+        title="Emails"
+        subtitle="Expéditeurs et templates de notifications"
         actions={<>
           <button className="btn btn-primary btn-sm" onClick={() => setCreateModal(true)} style={{ background: 'var(--burgundy-800)' }}>
             <Icon.Plus size={14}/> Nouveau template
           </button>
         </>}
       />
+
+      {/* Section — Adresses expéditrices */}
+      <div style={{ marginBottom: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14, gap: 16 }}>
+          <div>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0, color: 'var(--fg)' }}>Adresses expéditrices</h3>
+            <p style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 3 }}>
+              Ces adresses apparaissent dans le champ « De : » lors de l'envoi d'emails groupés.
+            </p>
+          </div>
+          <button className="btn btn-sm btn-outline" onClick={() => setSenderModal('new')} style={{ flexShrink: 0, marginTop: 2 }}>
+            <Icon.Plus size={13}/> Ajouter
+          </button>
+        </div>
+
+        <div style={{ border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', background: 'var(--surface)' }}>
+          {senders.map((s, idx) => (
+            <div key={s.id} style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              padding: '13px 18px',
+              borderBottom: idx < senders.length - 1 ? '1px solid var(--border)' : 'none',
+            }}>
+              <div style={{
+                width: 34, height: 34, borderRadius: 8, flexShrink: 0,
+                background: 'var(--burgundy-50)', color: 'var(--burgundy-800)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon.Mail size={15}/>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontWeight: 500, fontSize: 13.5 }}>{s.nom}</span>
+                  {s.defaut && (
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 999,
+                      background: 'var(--burgundy-50)', color: 'var(--burgundy-800)',
+                      border: '1px solid rgba(83,20,66,.18)',
+                    }}>Défaut</span>
+                  )}
+                </div>
+                <div style={{
+                  fontSize: 12, color: 'var(--fg-muted)', marginTop: 2,
+                  fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)',
+                }}>{s.email}</div>
+              </div>
+              <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+                {!s.defaut && (
+                  <button className="btn btn-icon btn-sm btn-ghost" title="Définir par défaut"
+                    onClick={() => setSenders(prev => prev.map(x => ({ ...x, defaut: x.id === s.id })))}>
+                    <Icon.Star size={13}/>
+                  </button>
+                )}
+                <button className="btn btn-icon btn-sm btn-ghost" onClick={() => setSenderModal(s)}>
+                  <Icon.Edit size={13}/>
+                </button>
+                {!s.defaut && (
+                  <button className="btn btn-icon btn-sm btn-ghost" style={{ color: 'var(--error, #dc2626)' }}
+                    onClick={() => setSenders(prev => prev.filter(x => x.id !== s.id))}>
+                    <Icon.Trash size={13}/>
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          {senders.length === 0 && (
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--fg-muted)', fontSize: 13 }}>
+              Aucun expéditeur configuré
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Section — Templates emails */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div>
+          <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0, color: 'var(--fg)' }}>Templates emails</h3>
+          <p style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 3 }}>Notifications automatiques envoyées aux producteurs et dégustateurs.</p>
+        </div>
+      </div>
 
       <div className="table-wrap">
         <table className="table">
@@ -1233,6 +1378,14 @@ const AdminParamEmails = () => {
             setCreateModal(false);
             setOpenId('__draft__');
           }}
+        />
+      )}
+
+      {senderModal !== null && (
+        <ExpEditeurModal
+          sender={senderModal === 'new' ? null : senderModal}
+          onSave={handleSenderSave}
+          onClose={() => setSenderModal(null)}
         />
       )}
     </div>

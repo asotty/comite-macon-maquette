@@ -54,6 +54,9 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
   const [subject, setSubject] = React.useState(tpl.subject);
   const [body, setBody] = React.useState(tpl.body);
   const [attachments, setAttachments] = React.useState([]);
+  const defaultSender = EXPEDITEURS_EMAIL.find(e => e.defaut) || EXPEDITEURS_EMAIL[0];
+  const [senderId, setSenderId] = React.useState(defaultSender?.id || '');
+  const currentSender = EXPEDITEURS_EMAIL.find(e => e.id === senderId) || defaultSender;
   const [previewIdx, setPreviewIdx] = React.useState(0);
 
   const handleFileAdd = (e) => {
@@ -120,6 +123,7 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
             subject={subject} setSubject={setSubject}
             body={body} setBody={setBody}
             attachments={attachments} onAddFiles={handleFileAdd} onRemoveAttachment={removeAttachment}
+            senderId={senderId} onChangeSender={setSenderId}
             onCancel={onClose}
             onPreview={() => setState('preview')}
             onSend={() => setState('confirm')}
@@ -131,6 +135,7 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
             previewRecipients={previewRecipients}
             renderPreview={renderPreview}
             attachments={attachments}
+            sender={currentSender}
             onBack={() => setState('compose')}
             onSend={() => setState('confirm')}
           />
@@ -139,6 +144,8 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
           <ConfirmStep
             count={recipientCount}
             attachmentCount={attachments.length}
+            senderNom={currentSender?.nom}
+            senderEmail={currentSender?.email}
             onCancel={() => setState('compose')}
             onConfirm={onClose}
           />
@@ -149,7 +156,7 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
 };
 
 // R22 — 2 colonnes : options à gauche, corps du mail à droite
-const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey, subject, setSubject, body, setBody, attachments, onAddFiles, onRemoveAttachment, onCancel, onPreview, onSend }) => (
+const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey, subject, setSubject, body, setBody, attachments, onAddFiles, onRemoveAttachment, senderId, onChangeSender, onCancel, onPreview, onSend }) => (
   <>
     {/* Header */}
     <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -165,6 +172,16 @@ const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey
 
       {/* Colonne gauche — options */}
       <div className="scroll-y" style={{ padding: '20px 22px', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 18 }}>
+
+        {/* Expéditeur */}
+        <div>
+          <FieldLabel>De</FieldLabel>
+          <select className="input" value={senderId} onChange={e => onChangeSender(e.target.value)} style={{ width: '100%' }}>
+            {EXPEDITEURS_EMAIL.map(s => (
+              <option key={s.id} value={s.id}>{s.nom} — {s.email}</option>
+            ))}
+          </select>
+        </div>
 
         {/* Destinataires */}
         <div>
@@ -281,7 +298,7 @@ const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey
   </>
 );
 
-const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPreview, attachments, onBack, onSend }) => {
+const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPreview, attachments, sender, onBack, onSend }) => {
   const total = previewRecipients.length;
   const p = renderPreview(previewIdx);
   return (
@@ -299,6 +316,10 @@ const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPrevi
 
       <div className="scroll-y" style={{ flex: 1, padding: '20px 28px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr', gap: '8px 14px', fontSize: 13, marginBottom: 18 }}>
+          {sender && <>
+            <span style={{ color: 'var(--fg-muted)', fontWeight: 500 }}>De</span>
+            <span style={{ color: 'var(--fg)', fontFamily: 'Menlo, monospace', fontSize: 12.5 }}>{sender.nom} &lt;{sender.email}&gt;</span>
+          </>}
           <span style={{ color: 'var(--fg-muted)', fontWeight: 500 }}>À</span>
           <span style={{ color: 'var(--fg)', fontFamily: 'Menlo, monospace', fontSize: 12.5 }}>{p.to}</span>
           <span style={{ color: 'var(--fg-muted)', fontWeight: 500 }}>Objet</span>
@@ -338,7 +359,7 @@ const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPrevi
   );
 };
 
-const ConfirmStep = ({ count, attachmentCount, onCancel, onConfirm }) => {
+const ConfirmStep = ({ count, attachmentCount, senderNom, senderEmail, onCancel, onConfirm }) => {
   const [sent, setSent] = React.useState(false);
   if (sent) {
     return (
@@ -360,6 +381,7 @@ const ConfirmStep = ({ count, attachmentCount, onCancel, onConfirm }) => {
       <h3 className="display" style={{ fontSize: 20, fontWeight: 500, margin: 0, letterSpacing: '-0.01em' }}>Envoyer à {count} producteur{count > 1 ? 's' : ''} ?</h3>
       <p style={{ fontSize: 13.5, color: 'var(--fg-muted)', marginTop: 10, lineHeight: 1.5 }}>
         Cette action est <strong style={{ color: 'var(--fg)' }}>irréversible</strong>. Les emails partiront immédiatement avec les variables remplies pour chaque destinataire.
+        {senderNom && <> Ils seront envoyés depuis <strong style={{ color: 'var(--fg)' }}>{senderNom}</strong>{senderEmail && <span style={{ fontFamily: 'Menlo, monospace', fontSize: 12.5 }}> ({senderEmail})</span>}.</>}
         {attachmentCount > 0 && <> Chaque email inclura <strong style={{ color: 'var(--fg)' }}>{attachmentCount} pièce{attachmentCount > 1 ? 's' : ''} jointe{attachmentCount > 1 ? 's' : ''}</strong>.</>}
       </p>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 24 }}>

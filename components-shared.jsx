@@ -337,4 +337,12 @@ const ConcoursPillBrand = ({ concours }) => {
   );
 };
 
-Object.assign(window, { Logo, StatusBadge, KpiCard, PageHeader, Empty, Toast, CONCOURS_BRAND, getConcoursBrand, ConcoursLogo, ConcoursPillBrand });
+// ── Expéditeurs email — données partagées (parametres + modal email) ─
+const EXPEDITEURS_EMAIL = [
+  { id: 'contact',       nom: 'Comité des Salons et Concours de Mâcon', email: 'contact@comite-macon.fr',       defaut: true  },
+  { id: 'cgvf',          nom: 'Concours des Grands Vins de France',      email: 'cgvf@comite-macon.fr',          defaut: false },
+  { id: 'cgvm',          nom: 'Concours des Grands Vins du Monde',       email: 'cgvm@comite-macon.fr',          defaut: false },
+  { id: 'inscriptions',  nom: 'Service des inscriptions',                email: 'inscriptions@comite-macon.fr',  defaut: false },
+];
+
+Object.assign(window, { Logo, StatusBadge, KpiCard, PageHeader, Empty, Toast, CONCOURS_BRAND, getConcoursBrand, ConcoursLogo, ConcoursPillBrand, EXPEDITEURS_EMAIL });
