@@ -3,9 +3,7 @@
 
 const navAdmin = [
   { id: 'inscriptions-fr', label: 'Concours des Grands Vins de France', brand: 'france',
-    icon: <div style={{ width: 22, height: 22, borderRadius: 5, background: 'var(--burgundy-50)', border: '1px solid rgba(124,16,52,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <img src="logo-medaille.webp" alt="CGVF" style={{ width: 15, height: 15, objectFit: 'contain' }}/>
-          </div>,
+    icon: <Icon.Trophy size={16}/>,
     group: 'Concours', badge: 47, children: [
     { id: 'fr-dashboard', label: 'Tableau de bord' },
     { id: 'fr-inscriptions', label: 'Inscriptions' },
@@ -13,9 +11,7 @@ const navAdmin = [
     { id: 'fr-palmares', label: 'Résultats / Palmarès' },
   ]},
   { id: 'inscriptions-monde', label: 'Concours des Grands Vins du Monde', brand: 'monde',
-    icon: <div style={{ width: 22, height: 22, borderRadius: 5, background: '#e6eff0', border: '1px solid rgba(0,77,87,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 15, height: 15, objectFit: 'contain' }}/>
-          </div>,
+    icon: <Icon.Globe size={16}/>,
     group: 'Concours', badge: 12, children: [
     { id: 'monde-dashboard', label: 'Tableau de bord' },
     { id: 'monde-inscriptions', label: 'Inscriptions' },

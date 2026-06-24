@@ -355,6 +355,7 @@ const ExportCSVMenu = ({ totalCount }) => {
 };
 
 const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
+  const brand = getConcoursBrand(concours);
   const [filter, setFilter] = React.useState('Tous');
   const [ctrlState, setCtrlState] = React.useState('idle'); // idle | confirm | running | done
   const [ctrlProgress, setCtrlProgress] = React.useState(0);
@@ -463,11 +464,11 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
             <button key={t} onClick={() => setFilter(t)} style={{
               padding: '12px 0',
               border: 'none',
-              borderBottom: active ? '2px solid var(--burgundy-800)' : '2px solid transparent',
+              borderBottom: active ? `2px solid ${brand.color}` : '2px solid transparent',
               background: 'transparent',
               fontSize: 13.5,
               fontWeight: active ? 600 : 500,
-              color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+              color: active ? brand.color : 'var(--fg-muted)',
               cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 8,
               marginBottom: -1,
@@ -475,8 +476,8 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
               {t}
               <span style={{
                 fontSize: 11, padding: '0 6px', borderRadius: 999,
-                background: active ? 'var(--burgundy-50)' : 'var(--slate-100)',
-                color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+                background: active ? brand.colorLight : 'var(--slate-100)',
+                color: active ? brand.color : 'var(--fg-muted)',
                 fontWeight: 500,
               }}>{counts[t]}</span>
             </button>
@@ -544,6 +545,7 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
 
 const AdminPalmares = ({ concours = 'france' }) => {
   const isMonde = concours === 'monde';
+  const brand = getConcoursBrand(concours);
 
   // Editions selon le concours
   const EDITIONS = isMonde ? [
@@ -676,9 +678,9 @@ const AdminPalmares = ({ concours = 'france' }) => {
                     {EDITIONS.map(e => (
                       <button key={e.id} onClick={() => { setEditionId(e.id); setEditionPicker(false); }} style={{
                         width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                        padding: '10px 14px', border: 'none', background: e.id === editionId ? 'var(--burgundy-50)' : 'transparent',
+                        padding: '10px 14px', border: 'none', background: e.id === editionId ? brand.colorLight : 'transparent',
                         textAlign: 'left', cursor: 'pointer', fontSize: 13,
-                        color: e.id === editionId ? 'var(--burgundy-800)' : 'var(--fg)',
+                        color: e.id === editionId ? brand.color : 'var(--fg)',
                         fontWeight: e.id === editionId ? 600 : 500, fontFamily: 'inherit',
                       }}>
                         <span style={{ flex: 1 }}>{e.label}</span>
@@ -698,7 +700,7 @@ const AdminPalmares = ({ concours = 'france' }) => {
         ) : (<>
           <button className="btn btn-outline btn-sm" onClick={() => setImportModal(true)}><Icon.Upload size={14}/> Importer résultats</button>
           <ExportPdfDropdown open={exportMenu} setOpen={setExportMenu}/>
-          <button className="btn btn-primary btn-sm" onClick={() => setPublishModal(true)} style={{ background: 'var(--burgundy-800)' }}>
+          <button className="btn btn-primary btn-sm" onClick={() => setPublishModal(true)} style={{ background: brand.color }}>
             <Icon.Send size={14}/> {justPublished ? 'Republier' : 'Publier'}
           </button>
         </>)}
@@ -765,18 +767,18 @@ const AdminPalmares = ({ concours = 'france' }) => {
           return (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               padding: '12px 0', border: 'none',
-              borderBottom: active ? '2px solid var(--burgundy-800)' : '2px solid transparent',
+              borderBottom: active ? `2px solid ${brand.color}` : '2px solid transparent',
               background: 'transparent',
               fontSize: 13.5, fontWeight: active ? 600 : 500,
-              color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+              color: active ? brand.color : 'var(--fg-muted)',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
               marginBottom: -1, fontFamily: 'inherit',
             }}>
               {t.label}
               <span style={{
                 fontSize: 11, padding: '0 6px', borderRadius: 999,
-                background: active ? 'var(--burgundy-50)' : 'var(--slate-100)',
-                color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)', fontWeight: 500,
+                background: active ? brand.colorLight : 'var(--slate-100)',
+                color: active ? brand.color : 'var(--fg-muted)', fontWeight: 500,
               }}>{t.count}</span>
             </button>
           );
@@ -1262,6 +1264,7 @@ const AdminGeneric = ({ title, icon, sub, breadcrumb }) => (
 
 const AdminConcoursDashboard = ({ concours = 'France' }) => {
   const isFrance = concours === 'France';
+  const brand = getConcoursBrand(concours);
 
   // Stepper phases — phase courante = "Inscriptions terminées" (index 1)
   const phases = ['Inscriptions en cours', 'Inscriptions terminés', 'Contrôle J-14', 'Dégustation', 'Palmarès'];
@@ -1338,7 +1341,7 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
           {/* Background line */}
           <div style={{ position: 'absolute', left: 8, right: 8, top: 18, height: 4, background: 'var(--slate-200)', borderRadius: 999 }}/>
           {/* Progress line */}
-          <div style={{ position: 'absolute', left: 8, top: 18, height: 4, background: 'var(--burgundy-800)', borderRadius: 999,
+          <div style={{ position: 'absolute', left: 8, top: 18, height: 4, background: brand.color, borderRadius: 999,
             width: `calc((100% - 16px) * ${currentPhase} / ${phases.length - 1})` }}/>
           {/* Steps */}
           <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between' }}>
@@ -1353,14 +1356,14 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
                 }}>
                   <div style={{
                     width: 20, height: 20, borderRadius: '50%',
-                    background: done ? 'var(--burgundy-800)' : 'var(--slate-300)',
+                    background: done ? brand.color : 'var(--slate-300)',
                     border: '4px solid var(--bg-app, #fff)',
-                    boxShadow: done ? '0 0 0 2px var(--burgundy-800)' : 'none',
+                    boxShadow: done ? `0 0 0 2px ${brand.color}` : 'none',
                     position: 'relative', zIndex: 1,
                   }}/>
                   <div style={{
                     fontSize: 13, fontWeight: done ? 600 : 500, marginTop: 10,
-                    color: done ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+                    color: done ? brand.color : 'var(--fg-muted)',
                     whiteSpace: 'nowrap',
                   }}>{p}</div>
                 </div>
@@ -1381,7 +1384,7 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
               <span className="tnum" style={{ fontSize: 13, color: 'var(--fg-subtle)' }}>{ctrl.num} / {ctrl.total}</span>
             </div>
             <div style={{ height: 6, borderRadius: 999, background: 'var(--slate-200)', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${ctrl.pct}%`, background: 'var(--burgundy-800)', borderRadius: 999 }}/>
+              <div style={{ height: '100%', width: `${ctrl.pct}%`, background: brand.color, borderRadius: 999 }}/>
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 }}>
