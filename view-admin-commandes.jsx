@@ -67,23 +67,23 @@ const AdminCommandesMedailles = () => {
   const counts = { toutes: 312, a_expedier: 218, expediees: 81, livrees: 13 };
 
   // Format: [ref, producteur, appell, or, argent, bronze, quota_droit, statut, stock_bouteilles]
-  // or/argent/bronze : nombre de lots de 1 000 médailles commandés
-  // quota_droit      : droit max en lots (null = non confirmé)
+  // or/argent/bronze : nombre de médailles à l'unité commandées par type
+  // quota_droit      : droit max en médailles (null = non confirmé)
   // stock_bouteilles : volume déclaré du producteur (pour calcul seuil 3%)
   // Alertes :
-  //   • Petite commande → total lots < 1 (< 1 000 médailles)
+  //   • Petite commande → total médailles < 1 000
   //   • Dépassement 3% → total_médailles > stock_bouteilles × 0.03
   const ROWS = [
-    ['CMD-2026-0312', 'Domaine de la Chevalière',    'Pouilly-Fuissé',     3,  2,  1,  8,    'a-expedier', 180000],
-    ['CMD-2026-0311', 'Maison Joseph Drouhin',       'Beaune',             5,  3,  0,  10,   'a-expedier', 320000],
-    ['CMD-2026-0310', 'Château de Pierreclos',       'Saint-Véran',        0,  0,  1,  3,    'expedie',    12000 ], // ⚠ dépasse 3% : 1000/12000 = 8.3%
-    ['CMD-2026-0309', 'Domaine Bouchard Père',       'Meursault',          2,  4,  0,  8,    'expedie',    95000 ],
-    ['CMD-2026-0308', 'Domaine des 3 Pierres',       'Mâcon-Villages',     0,  3,  2,  null, 'livre',      14000 ], // ⚠ dépasse 3% : 5000/14000 = 35.7%
-    ['CMD-2026-0307', 'Cellier de Solutré',          'Pouilly-Fuissé',     0,  2,  1,  4,    'a-expedier', 70000 ],
-    ['CMD-2026-0306', 'Vignobles Lacroix',           'Mercurey',           0,  1,  0,  2,    'a-expedier', 5000  ], // ⚠ dépasse 3% : 1000/5000 = 20%
-    ['CMD-2026-0305', 'Domaine Sainte-Anne',         'Saint-Véran',        0,  0,  0,  null, 'expedie',    8000  ], // ⚠ petite cde : 0 lots (commande hors médailles)
-    ['CMD-2026-0304', 'Domaine Tabard',              'Brouilly',           0,  0,  2,  2,    'livre',      45000 ],
-    ['CMD-2026-0303', 'Vignerons de Buxy',           'Bourgogne Aligoté',  0,  0,  1,  null, 'a-expedier', 30000 ],
+    ['CMD-2026-0312', 'Domaine de la Chevalière',    'Pouilly-Fuissé',     3000,  2000,  1000,  8000,  'a-expedier', 180000],
+    ['CMD-2026-0311', 'Maison Joseph Drouhin',       'Beaune',             5000,  3000,  0,     10000, 'a-expedier', 320000],
+    ['CMD-2026-0310', 'Château de Pierreclos',       'Saint-Véran',        0,     0,     800,   3000,  'expedie',    12000 ], // ⚠ dépasse 3% : 800/12000 = 6.7%
+    ['CMD-2026-0309', 'Domaine Bouchard Père',       'Meursault',          2000,  4000,  0,     8000,  'expedie',    95000 ],
+    ['CMD-2026-0308', 'Domaine des 3 Pierres',       'Mâcon-Villages',     0,     3000,  2000,  null,  'livre',      14000 ], // ⚠ dépasse 3% : 5000/14000 = 35.7%
+    ['CMD-2026-0307', 'Cellier de Solutré',          'Pouilly-Fuissé',     0,     2000,  1000,  4000,  'a-expedier', 70000 ],
+    ['CMD-2026-0306', 'Vignobles Lacroix',           'Mercurey',           0,     500,   0,     2000,  'a-expedier', 5000  ], // ⚠ petite cde : 500 < 1000 + dépasse 3% : 500/5000 = 10%
+    ['CMD-2026-0305', 'Domaine Sainte-Anne',         'Saint-Véran',        250,   0,     0,     null,  'expedie',    8000  ], // ⚠ petite cde : 250 < 1000
+    ['CMD-2026-0304', 'Domaine Tabard',              'Brouilly',           0,     0,     2000,  2000,  'livre',      45000 ],
+    ['CMD-2026-0303', 'Vignerons de Buxy',           'Bourgogne Aligoté',  0,     0,     1200,  null,  'a-expedier', 30000 ],
   ];
 
   const filtered = ROWS.filter(r => {
@@ -218,7 +218,7 @@ const AdminCommandesMedailles = () => {
               <th className="num" title="Lots de 1 000 médailles Or">Or</th>
               <th className="num" title="Lots de 1 000 médailles Argent">Argent</th>
               <th className="num" title="Lots de 1 000 médailles Bronze">Bronze</th>
-              <SortableTh sortKey="qty"        currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort} align="right">Lots</SortableTh>
+              <SortableTh sortKey="qty"        currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort} align="right">Total</SortableTh>
               <th className="num">Quota</th>
               <th>Alertes</th>
               <SortableTh sortKey="statut"     currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Livraison</SortableTh>
@@ -227,10 +227,10 @@ const AdminCommandesMedailles = () => {
           </thead>
           <tbody>
             {paged.rows.map((r, i) => {
-              const totalLots   = r[3] + r[4] + r[5];
-              const totalPieces = totalLots * 1000;
-              // Alerte petite commande : moins de 1 lot (< 1 000 médailles)
-              const alertPetite = totalLots < 1;
+              const totalLots   = r[3] + r[4] + r[5]; // total en unités individuelles
+              const totalPieces = totalLots;
+              // Alerte petite commande : moins de 1 000 médailles
+              const alertPetite = totalLots < 1000;
               // Alerte dépassement stock : médailles commandées > 3% du stock déclaré
               const stockBouteilles = r[8] || null;
               const alertStock = stockBouteilles !== null && totalPieces > stockBouteilles * 0.03;

@@ -198,14 +198,15 @@ const AdminParamConcours = () => {
   const [dirty, setDirty]       = React.useState(false);
   const markDirty = () => setDirty(true);
 
-  // R84 — 3 produits fixes (pas d'équivalence, pas d'ajout/suppression)
-  // médailles       : lot de 1 000, déduit du quota déclaré du vin
+  // R84 — 3 produits fixes (à l'unité, pas d'équivalence, pas d'ajout/suppression)
+  // médailles       : prix de référence 45 €/1 000 — déduit du quota
   // plaques_metal   : à l'unité, hors quota
   // chevalets_plexi : à l'unité, hors quota
+  // image           : null = illustration SVG par défaut, sinon data-URL d'une image uploadée
   const [formats, setFormats] = React.useState([
-    { id: 'medailles',       label: 'Médailles',        sub: 'Lot de 1 000 médailles physiques · livré par le fournisseur', active: true, prix: 45.00, deductsStock: true,  lotLabel: '/ lot de 1 000', color: '#d97706' },
-    { id: 'plaques_metal',   label: 'Plaques métal',    sub: 'Aluminium brossé gravé · vitrines, présentoirs, caves',       active: true, prix: 8.50,  deductsStock: false, lotLabel: '/ unité',        color: '#64748b' },
-    { id: 'chevalets_plexi', label: 'Chevalets plexi',  sub: 'Présentoir plexiglas transparent · table et comptoir',        active: true, prix: 6.00,  deductsStock: false, lotLabel: '/ unité',        color: '#3b82f6' },
+    { id: 'medailles',       label: 'Médailles',        sub: 'Médaille physique · prix de référence 45 € / 1 000 pièces',  active: true, prix: 45.00, deductsStock: true,  lotLabel: '/ 1 000 médailles', color: '#d97706', image: null },
+    { id: 'plaques_metal',   label: 'Plaques métal',    sub: 'Aluminium brossé gravé · vitrines, présentoirs, caves',       active: true, prix: 8.50,  deductsStock: false, lotLabel: '/ unité',           color: '#64748b', image: null },
+    { id: 'chevalets_plexi', label: 'Chevalets plexi',  sub: 'Présentoir plexiglas transparent · table et comptoir',        active: true, prix: 6.00,  deductsStock: false, lotLabel: '/ unité',           color: '#3b82f6', image: null },
   ]);
 
   const updateFormat = (id, patch) => {
@@ -326,13 +327,60 @@ const AdminParamConcours = () => {
                     onChange={e => updateFormat(f.id, { active: e.target.checked })}
                     style={{ width: 16, height: 16, accentColor: 'var(--burgundy-800)', flexShrink: 0, cursor: 'pointer' }}
                   />
-                  {/* Pastille couleur */}
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: f.color, flexShrink: 0 }}/>
+
+                  {/* Vignette image avec bouton "Changer" au survol */}
+                  <label
+                    htmlFor={'img-' + f.id}
+                    style={{ position: 'relative', width: 52, height: 52, flexShrink: 0, cursor: 'pointer', borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    title="Cliquer pour changer l'image"
+                  >
+                    {f.image
+                      ? <img src={f.image} alt={f.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+                      : <span style={{ fontSize: 11, color: 'var(--fg-subtle)', textAlign: 'center', lineHeight: 1.2, padding: '0 4px' }}>Défaut SVG</span>
+                    }
+                    {/* Overlay hover */}
+                    <div className="img-overlay" style={{
+                      position: 'absolute', inset: 0,
+                      background: 'rgba(0,0,0,0.55)',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3,
+                      opacity: 0, transition: 'opacity .15s',
+                      color: '#fff',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                    onMouseLeave={e => e.currentTarget.style.opacity = 0}
+                    >
+                      <Icon.Upload size={14}/>
+                      <span style={{ fontSize: 10, fontWeight: 600 }}>Changer</span>
+                    </div>
+                    <input
+                      id={'img-' + f.id}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={e => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = ev => { updateFormat(f.id, { image: ev.target.result }); };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                  </label>
+
                   {/* Identité */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13.5, fontWeight: 500 }}>{f.label}</div>
                     {f.sub && <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 1 }}>{f.sub}</div>}
+                    {f.image && (
+                      <button
+                        onClick={() => updateFormat(f.id, { image: null })}
+                        style={{ fontSize: 11, color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0', marginTop: 2, fontFamily: 'inherit' }}
+                      >
+                        Retirer l'image personnalisée
+                      </button>
+                    )}
                   </div>
+
                   {/* Badge impact stock */}
                   <span style={{
                     padding: '3px 9px', borderRadius: 6, fontSize: 11.5, fontWeight: 600, flexShrink: 0,
@@ -341,6 +389,7 @@ const AdminParamConcours = () => {
                   }}>
                     {f.deductsStock ? 'déduit du quota' : 'hors quota'}
                   </span>
+
                   {/* Prix configurable */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                     <span style={{ fontSize: 12, color: 'var(--fg-muted)', whiteSpace: 'nowrap' }}>Prix</span>

@@ -2815,17 +2815,26 @@ const ProducteurCommandesHistorique = ({ onNavigate }) => {
 };
 
 // ─── Produits commandables (R84) ─────────────────────────────────
-// medailles       : lot de 1 000 médailles — déduit du quota déclaré
+// medailles       : à l'unité — prix de référence 45 € / 1 000 médailles
+//                   déduit du quota déclaré — commande libre (pas de minimum imposé)
+//                   alerte admin si commande < 1 000 pièces
 // plaques_metal   : à l'unité — NE déduit PAS du stock producteur
 // chevalets_plexi : à l'unité — NE déduit PAS du stock producteur
-const PRODUCT_KEYS = ['medailles', 'plaques_metal', 'chevalets_plexi'];
-const PRODUCT_LOT  = { medailles: 1000, plaques_metal: 1, chevalets_plexi: 1 };
-const PRICE_PER    = { medailles: 45.00, plaques_metal: 8.50, chevalets_plexi: 6.00 };
+const PRODUCT_KEYS  = ['medailles', 'plaques_metal', 'chevalets_plexi'];
+// PRICE_PER_1000 pour les médailles (prix de ref pour 1000), price à l'unité pour les autres
+const PRICE_PER_REF = { medailles: 45.00, plaques_metal: 8.50, chevalets_plexi: 6.00 };
+const PRICE_PER_REF_QTY = { medailles: 1000, plaques_metal: 1, chevalets_plexi: 1 };
+// Prix effectif par unité commandée
+const PRICE_PER    = {
+  medailles:       PRICE_PER_REF.medailles       / PRICE_PER_REF_QTY.medailles,       // 0.045 €/médaille
+  plaques_metal:   PRICE_PER_REF.plaques_metal,                                        // 8.50 €/unité
+  chevalets_plexi: PRICE_PER_REF.chevalets_plexi,                                      // 6.00 €/unité
+};
 const DEDUCTS_STOCK = { medailles: true, plaques_metal: false, chevalets_plexi: false };
 const FORMAT_LABELS = {
-  medailles:       { label: 'lot de médailles',   plural: 'lots de médailles'    },
-  plaques_metal:   { label: 'plaque métal',        plural: 'plaques métal'        },
-  chevalets_plexi: { label: 'chevalet plexi',      plural: 'chevalets plexi'      },
+  medailles:       { label: 'médaille',      plural: 'médailles'       },
+  plaques_metal:   { label: 'plaque métal',  plural: 'plaques métal'   },
+  chevalets_plexi: { label: 'chevalet plexi', plural: 'chevalets plexi' },
 };
 
 // Illustrations SVG inline pour chaque type de produit commandable
@@ -2909,8 +2918,8 @@ const ProducteurCommandes = ({ onNavigate }) => {
     medailles.reduce((acc, m) => { acc[m.id] = { medailles: 0, plaques_metal: 0, chevalets_plexi: 0 }; return acc; }, {})
   );
 
-  // Seules les médailles (×1000) déduisent du quota déclaré
-  const unitsOrdered = (wineId) => (cart[wineId].medailles || 0) * 1000;
+  // Seules les médailles déduisent du quota déclaré (comptées à l'unité)
+  const unitsOrdered = (wineId) => (cart[wineId].medailles || 0);
   const remainingAfter = (wine) => wine.quota - wine.used - unitsOrdered(wine.id);
 
   const setCount = (wineId, key, val) => {
@@ -3020,19 +3029,20 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
     bronze: { bg: '#fef3c7',          fg: '#a16207',          label: 'Bronze' },
   }[wine.medal];
 
-  // Trois produits commandables — cf. règles R84 :
-  // médailles : lot de 1 000, déduit du quota déclaré du vin
-  // plaque métal / chevalet plexi : à l'unité, sans impact sur le quota
+  // Trois produits commandables — R84
+  // médailles : à l'unité, prix de référence 45 €/1 000 — déduit du quota
+  //             aucun minimum imposé (alerte admin si < 1 000 côté back-office)
+  // plaque métal / chevalet plexi : à l'unité, sans impact quota
   const itemTypes = [
     {
       key: 'medailles',
       label: 'Médailles',
-      sub: 'Lot de 1 000 médailles physiques — déduit du quota de votre vin',
-      priceSub: '/ lot de 1 000',
+      sub: 'Médaille physique — déduit du quota de votre vin',
+      priceSub: '/ 1 000 médailles',
       icon: 'Medal',
       color: '#d97706',
       deductsStock: true,
-      lotSize: 1000,
+      lotSize: 1,
     },
     {
       key: 'plaques_metal',
@@ -3057,8 +3067,7 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
   ];
 
   const itemsActive = itemTypes.filter(t => (counts[t.key] || 0) > 0).length;
-  // Médailles commandées sur ce vin (en pièces)
-  const medaillesCount = (counts.medailles || 0) * 1000;
+  const medaillesCount = counts.medailles || 0;
 
   return (
     <div className="card" style={{
@@ -3188,7 +3197,10 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
                       <div style={{ fontSize: 13.5, fontWeight: 600, color: active ? 'var(--burgundy-900)' : 'var(--fg)' }}>{row.label}</div>
                       <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontVariantNumeric: 'tabular-nums' }}>
-                        {PRICE_PER[row.key].toLocaleString('fr-FR', { minimumFractionDigits: 2 })} € {row.priceSub}
+                        {row.key === 'medailles'
+                          ? PRICE_PER_REF.medailles.toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' € ' + row.priceSub
+                          : PRICE_PER[row.key].toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' € ' + row.priceSub
+                        }
                       </div>
                     </div>
                     <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 2 }}>{row.sub}</div>
@@ -3297,9 +3309,9 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
             }}>
               <div style={{ fontSize: 13.5, fontWeight: 500, marginBottom: 4 }}>{l.wine.name}</div>
               {[
-                { k: 'medailles',       sing: 'lot de 1 000 médailles', plur: 'lots de 1 000 médailles' },
-                { k: 'plaques_metal',   sing: 'plaque métal',           plur: 'plaques métal'           },
-                { k: 'chevalets_plexi', sing: 'chevalet plexi',         plur: 'chevalets plexi'         },
+                { k: 'medailles',       sing: 'médaille',      plur: 'médailles'      },
+                { k: 'plaques_metal',   sing: 'plaque métal',  plur: 'plaques métal'  },
+                { k: 'chevalets_plexi', sing: 'chevalet plexi', plur: 'chevalets plexi' },
               ].filter(f => (l.qty[f.k] || 0) > 0).map(f => {
                 const qty = l.qty[f.k];
                 const lineTotal = qty * PRICE_PER[f.k];
