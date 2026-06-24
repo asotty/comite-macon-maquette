@@ -1179,6 +1179,11 @@ const AdminParamEmails = () => {
   // Expéditeurs — initialisés depuis les données globales partagées
   const [senders, setSenders] = React.useState([...EXPEDITEURS_EMAIL]);
   const [senderModal, setSenderModal] = React.useState(null); // null | 'new' | sender object
+  // En-têtes & pieds de page
+  const [headers, setHeaders] = React.useState(() => JSON.parse(JSON.stringify(INITIAL_HEADERS)));
+  const [footers, setFooters] = React.useState(() => JSON.parse(JSON.stringify(INITIAL_FOOTERS)));
+  const [hfModal, setHfModal] = React.useState(null); // null | { type: 'header'|'footer', item? }
+  const [hfTab,   setHfTab  ] = React.useState('headers');
   const paged = useSortablePaged(EMAIL_TEMPLATES, {
     defaultPageSize: 25,
     accessors: {
@@ -1223,6 +1228,83 @@ const AdminParamEmails = () => {
           </button>
         </>}
       />
+
+      {/* Section — En-têtes & Pieds de page */}
+      <div style={{ marginBottom: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14, gap: 16 }}>
+          <div>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0, color: 'var(--fg)' }}>En-têtes &amp; Pieds de page</h3>
+            <p style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 3 }}>Modèles visuels réutilisables dans vos templates et envois groupés.</p>
+          </div>
+        </div>
+
+        {/* Onglets En-têtes / Pieds de page */}
+        <div style={{ display: 'flex', marginBottom: 14, border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', width: 'fit-content' }}>
+          {[['headers','En-têtes'],['footers','Pieds de page']].map(([key, label]) => (
+            <button key={key} type="button" onClick={() => setHfTab(key)}
+              style={{ padding: '8px 18px', fontSize: 13, fontWeight: 500, border: 'none', cursor: 'pointer', background: hfTab === key ? 'var(--burgundy-800)' : 'var(--bg)', color: hfTab === key ? '#fff' : 'var(--fg)', transition: 'all .12s' }}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Grille de cartes */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+          {(hfTab === 'headers' ? headers : footers).map(hf => (
+            <div key={hf.id} style={{ border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', background: 'var(--surface)' }}>
+              {/* Mini-aperçu du modèle */}
+              <div style={{ background: hf.bg, maxHeight: 76, overflow: 'hidden' }}>
+                {hf.blocks.slice(0, 4).map(b => <BlockPreview key={b.id} block={b}/>)}
+              </div>
+              {/* Nom + actions */}
+              <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500, fontSize: 13 }}>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{hf.name}</span>
+                    {hf.defaut && (
+                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 999, background: 'var(--burgundy-50)', color: 'var(--burgundy-800)', border: '1px solid rgba(83,20,66,.15)', flexShrink: 0 }}>Défaut</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 1 }}>{hf.blocks.length} bloc{hf.blocks.length !== 1 ? 's' : ''}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+                  {!hf.defaut && (
+                    <button className="btn btn-icon btn-sm btn-ghost" title="Définir par défaut"
+                      onClick={() => {
+                        const setter = hfTab === 'headers' ? setHeaders : setFooters;
+                        setter(prev => prev.map(x => ({ ...x, defaut: x.id === hf.id })));
+                      }}>
+                      <Icon.Star size={12}/>
+                    </button>
+                  )}
+                  <button className="btn btn-icon btn-sm btn-ghost" title="Modifier" onClick={() => setHfModal({ type: hfTab === 'headers' ? 'header' : 'footer', item: hf })}>
+                    <Icon.Edit size={12}/>
+                  </button>
+                  {!hf.defaut && (
+                    <button className="btn btn-icon btn-sm btn-ghost" title="Supprimer" style={{ color: 'var(--error, #dc2626)' }}
+                      onClick={() => {
+                        const setter = hfTab === 'headers' ? setHeaders : setFooters;
+                        setter(prev => prev.filter(x => x.id !== hf.id));
+                      }}>
+                      <Icon.Trash size={12}/>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Carte « Nouveau » */}
+          <button type="button"
+            onClick={() => setHfModal({ type: hfTab === 'headers' ? 'header' : 'footer' })}
+            style={{ border: '2px dashed var(--border)', borderRadius: 10, background: 'transparent', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '24px 16px', minHeight: 118, color: 'var(--fg-muted)', transition: 'all .12s', fontSize: 13, fontWeight: 500 }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--burgundy-800)'; e.currentTarget.style.color = 'var(--burgundy-800)'; e.currentTarget.style.background = 'var(--burgundy-50)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--fg-muted)'; e.currentTarget.style.background = 'transparent'; }}>
+            <Icon.Plus size={20}/>
+            Nouveau {hfTab === 'headers' ? 'en-tête' : 'pied de page'}
+          </button>
+        </div>
+      </div>
 
       {/* Section — Adresses expéditrices */}
       <div style={{ marginBottom: 36 }}>
@@ -1386,6 +1468,23 @@ const AdminParamEmails = () => {
           sender={senderModal === 'new' ? null : senderModal}
           onSave={handleSenderSave}
           onClose={() => setSenderModal(null)}
+        />
+      )}
+
+      {hfModal !== null && (
+        <HFBuilderModal
+          type={hfModal.type}
+          item={hfModal.item || null}
+          onSave={(saved) => {
+            const setter = hfModal.type === 'header' ? setHeaders : setFooters;
+            setter(prev => {
+              if (hfModal.item) {
+                return prev.map(x => x.id === saved.id ? saved : (saved.defaut ? { ...x, defaut: false } : x));
+              }
+              return [...(saved.defaut ? prev.map(x => ({ ...x, defaut: false })) : prev), saved];
+            });
+          }}
+          onClose={() => setHfModal(null)}
         />
       )}
     </div>

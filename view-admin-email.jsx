@@ -57,6 +57,13 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
   const defaultSender = EXPEDITEURS_EMAIL.find(e => e.defaut) || EXPEDITEURS_EMAIL[0];
   const [senderId, setSenderId] = React.useState(defaultSender?.id || '');
   const currentSender = EXPEDITEURS_EMAIL.find(e => e.id === senderId) || defaultSender;
+  // En-tête & pied de page
+  const defaultHeader = INITIAL_HEADERS.find(h => h.defaut) || INITIAL_HEADERS[0];
+  const defaultFooter = INITIAL_FOOTERS.find(f => f.defaut) || INITIAL_FOOTERS[0];
+  const [headerId, setHeaderId] = React.useState(defaultHeader?.id || 'none');
+  const [footerId, setFooterId] = React.useState(defaultFooter?.id || 'none');
+  const currentHeader = INITIAL_HEADERS.find(h => h.id === headerId) || null;
+  const currentFooter = INITIAL_FOOTERS.find(f => f.id === footerId) || null;
   const [previewIdx, setPreviewIdx] = React.useState(0);
 
   const handleFileAdd = (e) => {
@@ -124,6 +131,8 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
             body={body} setBody={setBody}
             attachments={attachments} onAddFiles={handleFileAdd} onRemoveAttachment={removeAttachment}
             senderId={senderId} onChangeSender={setSenderId}
+            headerId={headerId} onChangeHeader={setHeaderId}
+            footerId={footerId} onChangeFooter={setFooterId}
             onCancel={onClose}
             onPreview={() => setState('preview')}
             onSend={() => setState('confirm')}
@@ -136,6 +145,8 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
             renderPreview={renderPreview}
             attachments={attachments}
             sender={currentSender}
+            header={currentHeader}
+            footer={currentFooter}
             onBack={() => setState('compose')}
             onSend={() => setState('confirm')}
           />
@@ -156,7 +167,7 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
 };
 
 // R22 — 2 colonnes : options à gauche, corps du mail à droite
-const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey, subject, setSubject, body, setBody, attachments, onAddFiles, onRemoveAttachment, senderId, onChangeSender, onCancel, onPreview, onSend }) => (
+const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey, subject, setSubject, body, setBody, attachments, onAddFiles, onRemoveAttachment, senderId, onChangeSender, headerId, onChangeHeader, footerId, onChangeFooter, onCancel, onPreview, onSend }) => (
   <>
     {/* Header */}
     <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -180,6 +191,24 @@ const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey
             {EXPEDITEURS_EMAIL.map(s => (
               <option key={s.id} value={s.id}>{s.nom} — {s.email}</option>
             ))}
+          </select>
+        </div>
+
+        {/* En-tête */}
+        <div>
+          <FieldLabel>En-tête</FieldLabel>
+          <select className="input" value={headerId} onChange={e => onChangeHeader(e.target.value)} style={{ width: '100%' }}>
+            <option value="none">Aucun en-tête</option>
+            {INITIAL_HEADERS.map(h => <option key={h.id} value={h.id}>{h.name}{h.defaut ? ' ★' : ''}</option>)}
+          </select>
+        </div>
+
+        {/* Pied de page */}
+        <div>
+          <FieldLabel>Pied de page</FieldLabel>
+          <select className="input" value={footerId} onChange={e => onChangeFooter(e.target.value)} style={{ width: '100%' }}>
+            <option value="none">Aucun pied de page</option>
+            {INITIAL_FOOTERS.map(f => <option key={f.id} value={f.id}>{f.name}{f.defaut ? ' ★' : ''}</option>)}
           </select>
         </div>
 
@@ -298,7 +327,7 @@ const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey
   </>
 );
 
-const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPreview, attachments, sender, onBack, onSend }) => {
+const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPreview, attachments, sender, header, footer, onBack, onSend }) => {
   const total = previewRecipients.length;
   const p = renderPreview(previewIdx);
   return (
@@ -326,9 +355,21 @@ const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPrevi
           <span style={{ color: 'var(--fg)', fontWeight: 500 }}>{p.subject}</span>
         </div>
         <div style={{ height: 1, background: 'var(--border)', marginBottom: 18 }}/>
+        {/* En-tête email */}
+        {header && (
+          <div style={{ marginBottom: 16, border: '1px solid var(--border)', borderRadius: 6, overflow: 'hidden', background: header.bg }}>
+            {header.blocks.map(b => <BlockPreview key={b.id} block={b}/>)}
+          </div>
+        )}
         <div style={{ fontSize: 13.5, color: 'var(--fg)', lineHeight: 1.65, whiteSpace: 'pre-wrap', fontFamily: 'Inter, sans-serif' }}>
           {p.body}
         </div>
+        {/* Pied de page email */}
+        {footer && (
+          <div style={{ marginTop: 16, border: '1px solid var(--border)', borderRadius: 6, overflow: 'hidden', background: footer.bg }}>
+            {footer.blocks.map(b => <BlockPreview key={b.id} block={b}/>)}
+          </div>
+        )}
         {attachments.length > 0 && (
           <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--fg-muted)', marginBottom: 8 }}>
