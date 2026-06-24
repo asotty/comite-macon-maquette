@@ -65,7 +65,7 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
     <div data-screen-label="admin-controle-optimise">
       <PageHeader
         title="Contrôle optimisé"
-        subtitle={`Concours ${concours} 2026 · 47 dossiers à traiter · 142 soumis en attente`}
+        subtitle={`Édition 2026 · 47 dossiers à traiter · 142 soumis en attente`}
         breadcrumb={['Administration', `Concours ${concours}`, 'Contrôle optimisé']}
         actions={<>
           <button className="btn btn-outline btn-sm"><Icon.Download size={14}/> Export</button>

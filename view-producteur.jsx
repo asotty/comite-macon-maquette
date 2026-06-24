@@ -248,7 +248,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
             Concours des Grands Vins de France
           </div>
           <div style={{ fontSize: 13, color: 'var(--fg-muted)', marginBottom: 20 }}>
-            Concours des Grands Vins de France · Édition 2026
+            Édition 2026
           </div>
           {/* Statut inscription */}
           <div style={{
@@ -290,7 +290,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
             Concours des Grands Vins du Monde
           </div>
           <div style={{ fontSize: 13, color: 'var(--fg-subtle)', marginBottom: 20 }}>
-            Concours des Grands Vins du Monde · Édition 2027
+            Édition 2027
           </div>
           {/* Date d'ouverture */}
           <div style={{

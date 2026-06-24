@@ -694,7 +694,7 @@ const AdminPalmares = ({ concours = 'france' }) => {
             </div>
           </div>
         }
-        subtitle={`${edition.label} · 459 vins dégustés · ${totalMedailles} médailles attribuées`}
+        subtitle={`Édition ${editionId} · 459 vins dégustés · ${totalMedailles} médailles attribuées`}
         actions={isArchive ? (
           <ExportPdfDropdown open={exportMenu} setOpen={setExportMenu}/>
         ) : (<>

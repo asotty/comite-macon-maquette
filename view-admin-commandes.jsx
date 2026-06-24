@@ -142,7 +142,7 @@ const AdminCommandesMedailles = () => {
             <EditionPicker editions={COMMON_EDITIONS} value={editionId} onChange={setEditionId}/>
           </div>
         }
-        subtitle="Concours des Grands Vins de France 2026 · 312 commandes · 1 840 médailles commandées"
+        subtitle="312 commandes · 1 840 médailles commandées"
         actions={<>
           <button className="btn btn-outline btn-sm"><Icon.Download size={14}/> Export</button>
         </>}
