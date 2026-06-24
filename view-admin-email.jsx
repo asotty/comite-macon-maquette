@@ -40,6 +40,12 @@ Le Comité des Salons et Concours de Mâcon`,
 
 const VARIABLES = ['{prenom}', '{numero_dossier}', '{lien_espace}'];
 
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return bytes + ' o';
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' Ko';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+};
+
 const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows, onClose }) => {
   // Form state
   const [audience, setAudience] = React.useState(selectionCount > 0 ? 'selection' : 'view');
@@ -47,7 +53,15 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
   const tpl = TEMPLATES[tplKey];
   const [subject, setSubject] = React.useState(tpl.subject);
   const [body, setBody] = React.useState(tpl.body);
+  const [attachments, setAttachments] = React.useState([]);
   const [previewIdx, setPreviewIdx] = React.useState(0);
+
+  const handleFileAdd = (e) => {
+    const files = Array.from(e.target.files).map(f => ({ name: f.name, size: formatFileSize(f.size) }));
+    setAttachments(prev => [...prev, ...files]);
+    e.target.value = '';
+  };
+  const removeAttachment = (idx) => setAttachments(prev => prev.filter((_, i) => i !== idx));
 
   React.useEffect(() => { setSubject(TEMPLATES[tplKey].subject); setBody(TEMPLATES[tplKey].body); }, [tplKey]);
   React.useEffect(() => {
@@ -105,6 +119,7 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
             tplKey={tplKey} setTplKey={setTplKey}
             subject={subject} setSubject={setSubject}
             body={body} setBody={setBody}
+            attachments={attachments} onAddFiles={handleFileAdd} onRemoveAttachment={removeAttachment}
             onCancel={onClose}
             onPreview={() => setState('preview')}
             onSend={() => setState('confirm')}
@@ -115,6 +130,7 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
             previewIdx={previewIdx} setPreviewIdx={setPreviewIdx}
             previewRecipients={previewRecipients}
             renderPreview={renderPreview}
+            attachments={attachments}
             onBack={() => setState('compose')}
             onSend={() => setState('confirm')}
           />
@@ -122,6 +138,7 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
         {state === 'confirm' && (
           <ConfirmStep
             count={recipientCount}
+            attachmentCount={attachments.length}
             onCancel={() => setState('compose')}
             onConfirm={onClose}
           />
@@ -132,7 +149,7 @@ const EmailGroupModal = ({ state, setState, selectionCount, currentFilter, rows,
 };
 
 // R22 — 2 colonnes : options à gauche, corps du mail à droite
-const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey, subject, setSubject, body, setBody, onCancel, onPreview, onSend }) => (
+const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey, subject, setSubject, body, setBody, attachments, onAddFiles, onRemoveAttachment, onCancel, onPreview, onSend }) => (
   <>
     {/* Header */}
     <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -202,6 +219,43 @@ const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey
             ))}
           </div>
         </div>
+
+        {/* Pièces jointes */}
+        <div>
+          <FieldLabel>Pièces jointes {attachments.length > 0 && <span style={{ color: 'var(--fg-muted)', fontWeight: 400 }}>({attachments.length})</span>}</FieldLabel>
+          <label style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+            padding: '14px 12px', border: '2px dashed var(--border)',
+            borderRadius: 8, cursor: 'pointer', background: 'var(--slate-50)',
+            fontSize: 12.5, color: 'var(--fg-muted)', textAlign: 'center',
+            transition: 'border-color .12s',
+          }}>
+            <input type="file" multiple style={{ display: 'none' }} onChange={onAddFiles}/>
+            <Icon.Paperclip size={16}/>
+            Cliquez pour joindre un fichier
+            <span style={{ fontSize: 11, color: 'var(--fg-subtle)' }}>PDF, Word, Excel · max 10 Mo par fichier</span>
+          </label>
+          {attachments.length > 0 && (
+            <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {attachments.map((f, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '6px 10px', background: 'var(--surface)',
+                  border: '1px solid var(--border)', borderRadius: 6, fontSize: 12.5,
+                }}>
+                  <Icon.FileText size={13} style={{ color: 'var(--fg-muted)', flexShrink: 0 }}/>
+                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--fg)' }}>{f.name}</span>
+                  <span style={{ fontSize: 11, color: 'var(--fg-subtle)', flexShrink: 0 }}>{f.size}</span>
+                  <button type="button" onClick={() => onRemoveAttachment(i)} style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--fg-muted)', padding: 2, display: 'flex', borderRadius: 4,
+                    lineHeight: 0,
+                  }} title="Supprimer"><Icon.X size={12}/></button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Colonne droite — corps du mail */}
@@ -227,7 +281,7 @@ const ComposeStep = ({ audience, setAudience, audienceOptions, tplKey, setTplKey
   </>
 );
 
-const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPreview, onBack, onSend }) => {
+const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPreview, attachments, onBack, onSend }) => {
   const total = previewRecipients.length;
   const p = renderPreview(previewIdx);
   return (
@@ -254,6 +308,26 @@ const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPrevi
         <div style={{ fontSize: 13.5, color: 'var(--fg)', lineHeight: 1.65, whiteSpace: 'pre-wrap', fontFamily: 'Inter, sans-serif' }}>
           {p.body}
         </div>
+        {attachments.length > 0 && (
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--fg-muted)', marginBottom: 8 }}>
+              Pièces jointes ({attachments.length})
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {attachments.map((f, i) => (
+                <div key={i} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '5px 10px', background: 'var(--slate-50)',
+                  border: '1px solid var(--border)', borderRadius: 6, fontSize: 12.5,
+                }}>
+                  <Icon.FileText size={12} style={{ color: 'var(--fg-muted)' }}/>
+                  <span style={{ color: 'var(--fg)' }}>{f.name}</span>
+                  <span style={{ color: 'var(--fg-subtle)', fontSize: 11 }}>{f.size}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div style={{ padding: '16px 28px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -264,7 +338,7 @@ const PreviewStep = ({ previewIdx, setPreviewIdx, previewRecipients, renderPrevi
   );
 };
 
-const ConfirmStep = ({ count, onCancel, onConfirm }) => {
+const ConfirmStep = ({ count, attachmentCount, onCancel, onConfirm }) => {
   const [sent, setSent] = React.useState(false);
   if (sent) {
     return (
@@ -286,6 +360,7 @@ const ConfirmStep = ({ count, onCancel, onConfirm }) => {
       <h3 className="display" style={{ fontSize: 20, fontWeight: 500, margin: 0, letterSpacing: '-0.01em' }}>Envoyer à {count} producteur{count > 1 ? 's' : ''} ?</h3>
       <p style={{ fontSize: 13.5, color: 'var(--fg-muted)', marginTop: 10, lineHeight: 1.5 }}>
         Cette action est <strong style={{ color: 'var(--fg)' }}>irréversible</strong>. Les emails partiront immédiatement avec les variables remplies pour chaque destinataire.
+        {attachmentCount > 0 && <> Chaque email inclura <strong style={{ color: 'var(--fg)' }}>{attachmentCount} pièce{attachmentCount > 1 ? 's' : ''} jointe{attachmentCount > 1 ? 's' : ''}</strong>.</>}
       </p>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 24 }}>
         <button className="btn btn-outline" onClick={onCancel}>Retour</button>
