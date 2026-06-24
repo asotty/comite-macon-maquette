@@ -289,9 +289,6 @@ const AdminParamConcours = () => {
               </button>
             </div>
           </ParamRow>
-          <ParamRow label="Nombre max d'échantillons" hint="Plafond par dossier d'inscription">
-            <input type="number" className="input tnum" defaultValue={12} onChange={markDirty} style={{ maxWidth: 120 }}/>
-          </ParamRow>
           <ParamRow label="Prix repas — Dégustateur" hint="Tarif HT par dégustateur pour les repas du concours">
             <div style={{ position: 'relative', maxWidth: 160 }}>
               <input type="number" className="input tnum" defaultValue={38} onChange={markDirty} style={{ paddingRight: 28 }}/>
