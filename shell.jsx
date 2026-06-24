@@ -7,19 +7,18 @@ const navAdmin = [
     { id: 'fr-inscriptions', label: 'Inscriptions' },
     { id: 'fr-controle', label: 'Contrôle optimisé', badge: 47 },
     { id: 'fr-palmares', label: 'Résultats / Palmarès' },
-    { id: 'fr-derogations', label: 'Dérogations impression', badge: 2 },
   ]},
   { id: 'inscriptions-monde', label: 'Concours des Grands Vins du Monde', icon: <Icon.Globe size={16}/>, group: 'Concours', badge: 12, children: [
     { id: 'monde-dashboard', label: 'Tableau de bord' },
     { id: 'monde-inscriptions', label: 'Inscriptions' },
     { id: 'monde-controle', label: 'Contrôle optimisé' },
     { id: 'monde-palmares', label: 'Résultats / Palmarès' },
-    { id: 'monde-derogations', label: 'Dérogations impression' },
   ]},
   { id: 'commandes', label: 'Commandes médailles', icon: <Icon.Package size={16}/>, group: 'Logistique', children: [
     { id: 'cmd-liste', label: 'Commandes producteurs' },
     { id: 'cmd-stocks', label: 'Stocks' },
     { id: 'cmd-fournisseurs', label: 'Transmissions fournisseurs' },
+    { id: 'cmd-derogations', label: 'Dérogations impression', badge: 2 },
   ]},
   { id: 'salons', label: 'Salons & exposants', icon: <Icon.Building size={16}/>, group: 'Logistique', children: [
     { id: 'salons-events', label: 'Événements' },
