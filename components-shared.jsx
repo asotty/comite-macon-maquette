@@ -276,9 +276,9 @@ const CONCOURS_BRAND = {
     nom: 'Concours des Grands Vins de France',
     nomCourt: 'CGVF',
     logo: 'logo-medaille.webp',
-    color: '#7c1034',
+    color: 'var(--burgundy-800)',
     colorLight: 'var(--burgundy-50)',
-    colorBorder: 'rgba(124,16,52,0.15)',
+    colorBorder: 'rgba(83,20,66,0.15)',
   },
   monde: {
     id: 'monde',
