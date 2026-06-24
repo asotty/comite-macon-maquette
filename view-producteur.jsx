@@ -1769,10 +1769,10 @@ const FORMATS_SUPPORT = [
   { id: 'carton12',  label: 'Carton 12 bouteilles', equiv: 12 },
 ];
 
-// Démo : demandes de dérogation impression existantes (1 validée + 1 en attente)
+// Demo : 3 etats du process — validee / en_attente (BAT depose) / bat_requis (BAT pas encore depose)
 const DEROG_IMPRESSION_DEMO = [
   {
-    id: 'di1', medalId: 'csp22', medalName: 'Clos Saint-Pierre 2022', appell: 'Pouilly-Fuissé',
+    id: 'di1', medalId: 'csp22', medalName: 'Clos Saint-Pierre 2022', appell: 'Pouilly-Fuisse',
     medal: 'or', concours: 'france', format: 'Carton 6 bouteilles', quantite: 50, unites: 300,
     statut: 'validee', dateDemande: '2026-06-10', dateDecision: '2026-06-14', batFile: 'bat-csp2022.pdf',
   },
@@ -1781,14 +1781,20 @@ const DEROG_IMPRESSION_DEMO = [
     medal: 'argent', concours: 'france', format: 'Bouteille', quantite: 500, unites: 500,
     statut: 'en_attente', dateDemande: '2026-06-20', dateDecision: null, batFile: 'bat-vv2024.pdf',
   },
+  {
+    id: 'di3', medalId: 'lh23', medalName: 'Les Hauts 2023', appell: 'Saint-Veran',
+    medal: 'or', concours: 'monde', format: 'Carton 12 bouteilles', quantite: 20, unites: 240,
+    statut: 'bat_requis', dateDemande: '2026-06-23', dateDecision: null, batFile: null,
+  },
 ];
 
 // Badge de statut dérogation impression
 const DerogStatutBadge = ({ statut }) => {
   const cfg = {
-    en_attente: { label: 'En attente', bg: '#fffbeb', color: '#b45309', border: '#fcd34d', icon: Icon.Clock },
-    validee:    { label: 'Validée',    bg: '#f0fdf4', color: '#15803d', border: '#86efac', icon: Icon.CheckCircle },
-    refusee:    { label: 'Refusée',    bg: '#fff5f5', color: '#dc2626', border: '#fca5a5', icon: Icon.XCircle },
+    bat_requis: { label: 'BAT a deposer', bg: '#fff7ed', color: '#c2410c', border: '#fdba74', icon: Icon.Upload },
+    en_attente: { label: 'En attente',   bg: '#fffbeb', color: '#b45309', border: '#fcd34d', icon: Icon.Clock },
+    validee:    { label: 'Validee',      bg: '#f0fdf4', color: '#15803d', border: '#86efac', icon: Icon.CheckCircle },
+    refusee:    { label: 'Refusee',      bg: '#fff5f5', color: '#dc2626', border: '#fca5a5', icon: Icon.XCircle },
   }[statut] || { label: statut, bg: '#f3f4f6', color: '#6b7280', border: '#d1d5db', icon: Icon.Clock };
   const Ic = cfg.icon;
   return (
@@ -1890,7 +1896,7 @@ const ProducteurMedailles = ({ onNavigate }) => {
         actions={
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => onNavigate('p-derogations-imp')} className="btn btn-ghost btn-sm">
-              <Icon.Printer size={14}/> Imprimer sur etiquette
+              <Icon.Printer size={14}/> Mes derogations
             </button>
             <button onClick={() => onNavigate('p-cmd-historique')} className="btn btn-ghost btn-sm">
               <Icon.Package size={14}/> Mes commandes
@@ -1923,7 +1929,7 @@ const ProducteurMedailles = ({ onNavigate }) => {
 // Même pattern que ProducteurCommandes : bloc par vin, panier sticky, confirmation
 // ============================================================
 
-// Bloc dépliable pour une médaille — format support + quantité + BAT
+// Bloc dépliable pour une médaille — format support + quantité (BAT déposé après soumission)
 const DerogWineBlock = ({ m, entry, onChange, initialOpen }) => {
   const [open, setOpen] = React.useState(initialOpen || false);
 
@@ -1970,9 +1976,9 @@ const DerogWineBlock = ({ m, entry, onChange, initialOpen }) => {
             background: '#f0f5ff', fontSize: 12.5, color: '#3b4fc8', lineHeight: 1.55,
           }}>
             <strong>Impression sur etiquette :</strong> Vous imprimez vous-meme le visuel de
-            la medaille directement sur vos etiquettes de bouteilles. Le nombre d'unites
-            sera deduit de votre quota de macarons. Fournissez votre BAT (Bon A Tirer)
-            pour validation par le comite avant impression.
+            la medaille directement sur vos etiquettes. Selectionnez le format et la quantite,
+            soumettez la demande, puis deposez votre BAT dans un second temps. Les unites seront
+            deduites de votre quota a la validation par le comite.
           </div>
 
           <div style={{ marginBottom: 16 }}>
@@ -2025,37 +2031,12 @@ const DerogWineBlock = ({ m, entry, onChange, initialOpen }) => {
           )}
 
           {entry.quantite > 0 && (
-            <div>
-              <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--fg-muted)', display: 'block', marginBottom: 6 }}>
-                Fichier BAT <span style={{ color: 'var(--danger)', marginLeft: 2 }}>*</span>
-              </label>
-              <div style={{
-                border: `2px dashed ${entry.bat ? 'var(--success)' : 'var(--border)'}`,
-                borderRadius: 8, padding: '14px 18px', cursor: 'pointer',
-                background: entry.bat ? '#f0fdf4' : 'var(--bg)',
-                display: 'flex', alignItems: 'center', gap: 10,
-              }} onClick={() => onChange(m.id, 'bat', entry.bat ? null : 'bat-demo-' + m.id + '.pdf')}>
-                {entry.bat ? (
-                  <>
-                    <Icon.CheckCircle size={18} style={{ color: 'var(--success)', flexShrink: 0 }}/>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--success)' }}>{entry.bat}</div>
-                      <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>Cliquer pour retirer</div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Icon.Upload size={18} style={{ color: 'var(--fg-muted)', flexShrink: 0 }}/>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 500 }}>Deposer votre BAT ici</div>
-                      <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>PDF, JPG, PNG — max 20 Mo (cliquer pour simuler)</div>
-                    </div>
-                  </>
-                )}
-              </div>
-              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 6 }}>
-                Le BAT sera examine par le comite avant validation. Vous serez notifie par email.
-              </div>
+            <div style={{
+              padding: '10px 12px', borderRadius: 8, background: '#fffbeb',
+              border: '1px solid #fcd34d', fontSize: 12.5, color: '#92400e', marginTop: 4,
+            }}>
+              <Icon.Info size={13} style={{ verticalAlign: 'middle', marginRight: 5 }}/>
+              Apres soumission, vous pourrez deposer votre BAT (Bon A Tirer) depuis la section "Mes demandes" ci-dessous.
             </div>
           )}
         </div>
@@ -2069,10 +2050,10 @@ const DerogCart = ({ medals, cart, quotaRestant, onSubmit }) => {
   const lines = medals
     .map(m => {
       const e = cart[m.id] || {};
-      if (!e.format || !e.quantite || e.quantite === 0 || !e.bat) return null;
+      if (!e.format || !e.quantite || e.quantite === 0) return null;
       const fmt = FORMATS_SUPPORT.find(f => f.id === e.format);
       const unites = fmt ? e.quantite * fmt.equiv : 0;
-      return { m, format: fmt.label, quantite: e.quantite, unites, bat: e.bat };
+      return { m, format: fmt.label, quantite: e.quantite, unites };
     })
     .filter(Boolean);
 
@@ -2107,7 +2088,7 @@ const DerogCart = ({ medals, cart, quotaRestant, onSubmit }) => {
 
       {lines.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--fg-muted)', fontSize: 12.5 }}>
-          Selectionnez un format, une quantite et deposez votre BAT pour chaque medaille
+          Selectionnez un format et une quantite pour chaque medaille souhaitee
         </div>
       ) : (
         <div style={{ marginBottom: 16 }}>
@@ -2143,10 +2124,10 @@ const DerogCart = ({ medals, cart, quotaRestant, onSubmit }) => {
         disabled={!canSubmit}
         onClick={onSubmit}
       >
-        <Icon.Send size={14}/> Envoyer les demandes
+        <Icon.Send size={14}/> Soumettre les demandes
       </button>
       <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 8, textAlign: 'center', lineHeight: 1.4 }}>
-        Chaque demande sera examinee individuellement. Vous recevrez une reponse par email.
+        Apres soumission, deposez votre BAT depuis la section "Mes demandes".
       </div>
     </div>
   );
@@ -2163,12 +2144,19 @@ const DerogConfirmation = ({ result, onNavigate }) => (
         <Icon.CheckCircle size={36} style={{ color: 'var(--success)' }}/>
       </div>
       <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
-        Demandes envoyees !
+        Demandes soumises !
       </h2>
-      <p style={{ color: 'var(--fg-muted)', marginBottom: 28, lineHeight: 1.6 }}>
-        Vos {result.count} demande{result.count > 1 ? 's' : ''} de derogation impression
-        ont bien ete transmises. Le comite les examinera et vous notifiera par email dans les 2 a 5 jours ouvres.
+      <p style={{ color: 'var(--fg-muted)', marginBottom: 16, lineHeight: 1.6 }}>
+        Vos {result.count} demande{result.count > 1 ? 's' : ''} ont ete transmises au comite.
       </p>
+      <div style={{
+        padding: '14px 16px', borderRadius: 10, background: '#fff7ed', border: '1px solid #fdba74',
+        marginBottom: 28, textAlign: 'left', fontSize: 13, lineHeight: 1.6, color: '#7c2d12',
+      }}>
+        <strong>Etape suivante :</strong> deposez votre BAT (Bon A Tirer) pour chaque demande
+        depuis la section "Mes demandes" de cette page. Le comite validera votre BAT avant de
+        vous autoriser a proceder a l'impression.
+      </div>
       <div className="card" style={{ padding: 20, textAlign: 'left', marginBottom: 28 }}>
         <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 10 }}>Recapitulatif de la soumission</div>
         {result.lines.map((l, i) => (
@@ -2198,8 +2186,10 @@ const DerogConfirmation = ({ result, onNavigate }) => (
   </div>
 );
 
-// Section liste des demandes existantes
-const MesDemandesDerogSection = ({ demandes }) => {
+// Section liste des demandes — avec action "Déposer BAT" si statut bat_requis
+const MesDemandesDerogSection = ({ demandes, onBatDepose }) => {
+  const [batExpanded, setBatExpanded] = React.useState(null);
+
   if (demandes.length === 0) return null;
   return (
     <div style={{ marginTop: 32 }}>
@@ -2210,33 +2200,75 @@ const MesDemandesDerogSection = ({ demandes }) => {
         <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f5f0fa', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Icon.List size={16}/>
         </div>
-        <span style={{ fontSize: 15, fontWeight: 600 }}>Mes demandes en cours</span>
+        <span style={{ fontSize: 15, fontWeight: 600 }}>Mes demandes</span>
         <span style={{ fontSize: 11.5, fontWeight: 600, padding: '2px 8px', borderRadius: 999, background: '#f5f0fa', color: 'var(--primary)' }}>
           {demandes.length}
         </span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {demandes.map(d => (
-          <div key={d.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px' }}>
-            <img src={medalImg(d.medal, d.concours)} alt={d.medal}
-              style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }}/>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {d.medalName}
+          <div key={d.id} className="card" style={{ overflow: 'hidden' }}>
+            {/* Ligne principale */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px' }}>
+              <img src={medalImg(d.medal, d.concours)} alt={d.medal}
+                style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }}/>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {d.medalName}
+                </div>
+                <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 2 }}>
+                  {d.format} · {d.quantite} ex. · {d.unites} unites
+                </div>
               </div>
-              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 2 }}>
-                {d.format} · {d.quantite} ex. · {d.unites} unites
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+                <DerogStatutBadge statut={d.statut}/>
+                <span style={{ fontSize: 11, color: 'var(--fg-muted)' }}>
+                  {d.dateDemande}{d.dateDecision ? ' · ' + d.dateDecision : ''}
+                </span>
               </div>
+              {/* Action selon statut */}
+              {d.statut === 'bat_requis' && (
+                <button
+                  className="btn btn-primary btn-sm"
+                  style={{ fontSize: 11.5, whiteSpace: 'nowrap' }}
+                  onClick={() => setBatExpanded(batExpanded === d.id ? null : d.id)}
+                >
+                  <Icon.Upload size={12}/> Deposer BAT
+                </button>
+              )}
+              {d.statut === 'en_attente' && d.batFile && (
+                <button className="btn btn-ghost btn-sm" style={{ fontSize: 11.5 }}>
+                  <Icon.FileText size={12}/> Voir BAT
+                </button>
+              )}
+              {d.statut === 'validee' && (
+                <button className="btn btn-ghost btn-sm" style={{ fontSize: 11.5 }}>
+                  <Icon.FileText size={12}/> BAT valide
+                </button>
+              )}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-              <DerogStatutBadge statut={d.statut}/>
-              <span style={{ fontSize: 11, color: 'var(--fg-muted)' }}>
-                {d.dateDemande}{d.dateDecision ? ' · ' + d.dateDecision : ''}
-              </span>
-            </div>
-            <button className="btn btn-ghost btn-sm" style={{ fontSize: 11.5 }}>
-              <Icon.FileText size={12}/> BAT
-            </button>
+
+            {/* Zone dépôt BAT (ouverte si bat_requis et cliqué) */}
+            {batExpanded === d.id && (
+              <div style={{ padding: '0 18px 18px', borderTop: '1px solid var(--border)' }}>
+                <div style={{ paddingTop: 14, fontSize: 13, fontWeight: 600, marginBottom: 10 }}>
+                  Deposer votre BAT pour cette demande
+                </div>
+                <div style={{
+                  border: '2px dashed var(--border)', borderRadius: 8, padding: '16px 18px',
+                  cursor: 'pointer', background: 'var(--bg)', display: 'flex', alignItems: 'center', gap: 10,
+                }} onClick={() => { onBatDepose(d.id); setBatExpanded(null); }}>
+                  <Icon.Upload size={18} style={{ color: 'var(--fg-muted)', flexShrink: 0 }}/>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 500 }}>Cliquer pour selectionner votre BAT</div>
+                    <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>PDF, JPG, PNG — max 20 Mo (simulation : clic pour valider)</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 8 }}>
+                  Le BAT sera transmis au comite pour validation. Vous serez notifie par email sous 2 a 5 jours ouvres.
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -2262,7 +2294,7 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
   }, []);
 
   const [cart, setCart] = React.useState(() =>
-    Object.fromEntries(medals.map(m => [m.id, { format: null, quantite: 0, bat: null }]))
+    Object.fromEntries(medals.map(m => [m.id, { format: null, quantite: 0 }]))
   );
 
   const [demandes, setDemandes] = React.useState(DEROG_IMPRESSION_DEMO);
@@ -2278,10 +2310,10 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
     const lines = medals
       .map(m => {
         const e = cart[m.id] || {};
-        if (!e.format || !e.quantite || !e.bat) return null;
+        if (!e.format || !e.quantite) return null;
         const fmt = FORMATS_SUPPORT.find(f => f.id === e.format);
         const unites = fmt ? e.quantite * fmt.equiv : 0;
-        return { id: m.id, name: m.name, format: fmt.label, quantite: e.quantite, unites, bat: e.bat };
+        return { id: m.id, name: m.name, format: fmt.label, quantite: e.quantite, unites };
       })
       .filter(Boolean);
 
@@ -2294,13 +2326,22 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
         medalId: l.id, medalName: l.name,
         appell: m.appell, medal: m.medal, concours: m.concours,
         format: l.format, quantite: l.quantite, unites: l.unites,
-        statut: 'en_attente',
+        statut: 'bat_requis',
         dateDemande: '2026-06-23', dateDecision: null,
-        batFile: l.bat,
+        batFile: null,
       };
     });
     setDemandes(prev => [...nouvelles, ...prev]);
     setSubmitted({ count: lines.length, lines, totalUnites });
+  };
+
+  // Simule le dépôt d'un BAT : passe la demande de bat_requis → en_attente
+  const handleBatDepose = (demandeId) => {
+    setDemandes(prev => prev.map(d =>
+      d.id === demandeId
+        ? { ...d, statut: 'en_attente', batFile: 'bat-' + demandeId + '.pdf' }
+        : d
+    ));
   };
 
   if (submitted) return <DerogConfirmation result={submitted} onNavigate={onNavigate}/>;
@@ -2311,8 +2352,8 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
   return (
     <div>
       <PageHeader
-        title="Imprimer sur etiquette"
-        subtitle="Demandez une derogation pour imprimer les visuels medaille directement sur vos etiquettes. Chaque demande est examinee par le comite."
+        title="Gerer mes derogations"
+        subtitle="Demandez une derogation pour imprimer les visuels medaille directement sur vos etiquettes, puis deposez votre BAT. Le comite valide chaque demande."
         actions={
           <button onClick={() => onNavigate('p-medailles')} className="btn btn-ghost btn-sm">
             <Icon.ArrowLeft size={14}/> Retour au palmares
@@ -2331,10 +2372,10 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
           </div>
           <div style={{ fontSize: 13, lineHeight: 1.6 }}>
             <strong>Comment fonctionne la derogation impression ?</strong><br/>
-            1. Selectionnez les medailles concernees et le format de votre support (bouteille, carton 6 ou 12).<br/>
-            2. Indiquez la quantite de supports et deposez votre <strong>BAT</strong> (Bon A Tirer).<br/>
-            3. Le comite valide votre BAT sous 2 a 5 jours. Une fois valide, les unites sont <strong>deduites de votre quota de macarons</strong>.<br/>
-            4. Vous pouvez alors proceder a l'impression chez votre propre imprimeur.
+            <strong>1. Demande</strong> — Selectionnez les medailles, le format de support et la quantite, puis soumettez.<br/>
+            <strong>2. BAT</strong> — Deposez votre Bon A Tirer (fichier d'impression) depuis la section "Mes demandes".<br/>
+            <strong>3. Validation</strong> — Le comite examine votre BAT sous 2 a 5 jours. Les unites sont <strong>deduites de votre quota</strong> a la validation.<br/>
+            <strong>4. Impression</strong> — Une fois valide, vous pouvez proceder a l'impression chez votre imprimeur.
           </div>
         </div>
       </div>
@@ -2370,7 +2411,7 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
             ))}
           </div>
 
-          <MesDemandesDerogSection demandes={demandes}/>
+          <MesDemandesDerogSection demandes={demandes} onBatDepose={handleBatDepose}/>
         </div>
 
         <DerogCart medals={medals} cart={cart} quotaRestant={quotaRestant} onSubmit={handleSubmit}/>
