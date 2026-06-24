@@ -2,6 +2,7 @@
 // Périmètre : tous les dossiers à traiter. Tri par défaut : Score OCR croissant.
 
 const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
+  const brand = getConcoursBrand(concours);
   const [tab, setTab] = React.useState('a-verifier');
   const [ctrlState, setCtrlState] = React.useState('idle'); // idle | confirm | running | done
   const [ctrlProgress, setCtrlProgress] = React.useState(0);
@@ -72,7 +73,7 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
             className="btn btn-primary btn-sm"
             onClick={() => setCtrlState('confirm')}
             disabled={ctrlState === 'running'}
-            style={{ background: 'var(--burgundy-800)' }}
+            style={{ background: brand.color }}
           >
             <Icon.Sparkles size={14}/> Contrôle auto ({TOTAL_SOUMIS} soumis)
           </button>
@@ -80,7 +81,7 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
       />
 
       {ctrlState === 'confirm' && (
-        <CtrlConfirmDialog total={TOTAL_SOUMIS} onCancel={() => setCtrlState('idle')} onConfirm={() => setCtrlState('running')}/>
+        <CtrlConfirmDialog brand={brand} total={TOTAL_SOUMIS} onCancel={() => setCtrlState('idle')} onConfirm={() => setCtrlState('running')}/>
       )}
 
       {ctrlState === 'running' && (
@@ -89,6 +90,7 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
 
       {ctrlState === 'done' && (
         <ResultBanner
+          brand={brand}
           validated={98}
           aControler={36}
           rejected={8}
@@ -105,11 +107,11 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               padding: '12px 0',
               border: 'none',
-              borderBottom: active ? '2px solid var(--burgundy-800)' : '2px solid transparent',
+              borderBottom: active ? `2px solid ${brand.color}` : '2px solid transparent',
               background: 'transparent',
               fontSize: 13.5,
               fontWeight: active ? 600 : 500,
-              color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+              color: active ? brand.color : 'var(--fg-muted)',
               cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 8,
               marginBottom: -1,
@@ -117,8 +119,8 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
               {t.label}
               <span style={{
                 fontSize: 11, padding: '0 6px', borderRadius: 999,
-                background: active ? 'var(--burgundy-50)' : 'var(--slate-100)',
-                color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+                background: active ? brand.colorLight : 'var(--slate-100)',
+                color: active ? brand.color : 'var(--fg-muted)',
                 fontWeight: 500,
               }}>{tabCounts[t.id]}</span>
             </button>
@@ -154,7 +156,7 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: 30 }}><input type="checkbox" style={{ accentColor: 'var(--burgundy-800)' }}/></th>
+                <th style={{ width: 30 }}><input type="checkbox" style={{ accentColor: brand.color }}/></th>
                 <SortableTh sortKey="ref"        currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>N° inscription</SortableTh>
                 <SortableTh sortKey="producteur" currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Producteur · Région</SortableTh>
                 <SortableTh sortKey="ech"        currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort} align="right">Échant.</SortableTh>
@@ -167,8 +169,8 @@ const AdminControleOptimise = ({ concours = 'France', onOpenDossier }) => {
             <tbody>
               {rows.map((r, i) => (
                 <tr key={r[0]} style={{ cursor: 'pointer' }} onClick={() => onOpenDossier && onOpenDossier(r[0])}>
-                  <td onClick={e => e.stopPropagation()}><input type="checkbox" style={{ accentColor: 'var(--burgundy-800)' }}/></td>
-                  <td><code style={{ fontSize: 12, color: 'var(--burgundy-800)', fontFamily: 'Menlo, monospace' }}>{r[0]}</code></td>
+                  <td onClick={e => e.stopPropagation()}><input type="checkbox" style={{ accentColor: brand.color }}/></td>
+                  <td><code style={{ fontSize: 12, color: brand.color, fontFamily: 'Menlo, monospace' }}>{r[0]}</code></td>
                   <td>
                     <div style={{ fontWeight: 500, color: 'var(--fg)' }}>{r[1]}</div>
                     <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>{r[2]}</div>
@@ -224,12 +226,12 @@ const ScoreOCRCell = ({ score }) => {
 
 // ─── Confirm dialog (lancer le contrôle auto) ──────────────────────
 
-const CtrlConfirmDialog = ({ total, onCancel, onConfirm }) => (
+const CtrlConfirmDialog = ({ brand, total, onCancel, onConfirm }) => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,15,15,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }} onClick={onCancel}>
     <div className="card" style={{ width: 440, padding: 0, overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
       <div style={{ padding: '20px 24px 12px', borderBottom: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <span style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--burgundy-50)', color: 'var(--burgundy-800)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ width: 32, height: 32, borderRadius: 8, background: brand.colorLight, color: brand.color, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
             <Icon.Sparkles size={16}/>
           </span>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Lancer le contrôle automatique</h3>
@@ -245,7 +247,7 @@ const CtrlConfirmDialog = ({ total, onCancel, onConfirm }) => (
       </div>
       <div style={{ padding: 16, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
         <button className="btn btn-outline btn-sm" onClick={onCancel}>Annuler</button>
-        <button className="btn btn-primary btn-sm" onClick={onConfirm} style={{ background: 'var(--burgundy-800)' }}>
+        <button className="btn btn-primary btn-sm" onClick={onConfirm} style={{ background: brand.color }}>
           <Icon.Sparkles size={13}/> Lancer
         </button>
       </div>
@@ -285,7 +287,7 @@ const RunningBanner = ({ progress, total, onCancel }) => {
 
 // ─── Result banner (après contrôle auto) ───────────────────────────
 
-const ResultBanner = ({ validated, aControler, rejected, onSeeAControler, onDismiss }) => (
+const ResultBanner = ({ brand, validated, aControler, rejected, onSeeAControler, onDismiss }) => (
   <div style={{
     display: 'flex', alignItems: 'center', gap: 14,
     padding: '14px 16px',
@@ -306,7 +308,7 @@ const ResultBanner = ({ validated, aControler, rejected, onSeeAControler, onDism
         {' '}<strong style={{ color: '#991b1b' }}>{rejected}</strong> rejetés
       </span>
     </div>
-    <button className="btn btn-primary btn-sm" onClick={onSeeAControler} style={{ background: 'var(--burgundy-800)' }}>
+    <button className="btn btn-primary btn-sm" onClick={onSeeAControler} style={{ background: brand.color }}>
       Voir les {aControler} dossiers à contrôler <Icon.ArrowRight size={13}/>
     </button>
     <button className="btn btn-icon btn-sm btn-ghost" onClick={onDismiss} title="Fermer"><Icon.X size={13}/></button>

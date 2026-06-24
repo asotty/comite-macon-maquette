@@ -1,7 +1,7 @@
 // Admin views — dashboard + key list pages
 
 // Menu déroulant Actions rapides — header du dashboard admin
-const ActionsRapidesMenu = () => {
+const ActionsRapidesMenu = ({ brand }) => {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef(null);
   React.useEffect(() => {
@@ -22,7 +22,7 @@ const ActionsRapidesMenu = () => {
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
         className="btn btn-primary btn-sm"
-        style={{ paddingRight: 10 }}
+        style={{ paddingRight: 10, ...(brand ? { background: brand.color } : {}) }}
       >
         <Icon.Plus size={14}/> Actions rapides <Icon.ChevronDown size={12} style={{ transition: 'transform .15s', transform: open ? 'rotate(180deg)' : 'none' }}/>
       </button>
@@ -537,7 +537,7 @@ const AdminInscriptions = ({ concours = 'France', onOpenDossier }) => {
       </div>
       <TablePagination {...paged}
         leftSlot={<span style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginRight: 12 }}>
-          1 ligne sélectionnée — <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--burgundy-800)', fontWeight: 500 }}>Lancer le contrôle</a>
+          1 ligne sélectionnée — <a href="#" onClick={e => e.preventDefault()} style={{ color: brand.color, fontWeight: 500 }}>Lancer le contrôle</a>
         </span>}/>
     </div>
   );
@@ -1330,7 +1330,7 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
         actions={<>
           <button className="btn btn-outline btn-sm"><Icon.Refresh size={14}/> Actualiser</button>
           <button className="btn btn-outline btn-sm"><Icon.Download size={14}/> Export</button>
-          <ActionsRapidesMenu/>
+          <ActionsRapidesMenu brand={brand}/>
         </>}
       />
 
@@ -1526,7 +1526,7 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
           <div style={{ padding: '18px 22px 8px', fontSize: 16, fontWeight: 700 }}>Activité récente</div>
           <div style={{ padding: '0 22px 18px' }}>
             {[
-              { who: 'Dom. Chevalière',  what: 'a soumis 8 échantillons',  when: 'il y a 12 min', icon: <Icon.Wine size={13}/>, color: 'var(--burgundy-800)', bg: 'var(--burgundy-50)' },
+              { who: 'Dom. Chevalière',  what: 'a soumis 8 échantillons',  when: 'il y a 12 min', icon: <Icon.Wine size={13}/>, color: brand.color, bg: brand.colorLight },
               { who: 'Sophie L.',         what: 'a validé Pied-de-Rieux',   when: 'il y a 28 min', icon: <Icon.Check size={13}/>, color: '#166534',           bg: 'var(--success-bg)' },
               { who: 'Cantina Verdicchio',what: 'a payé 480 €',             when: 'il y a 1 h',    icon: <Icon.Euro size={13}/>,  color: 'var(--gold-700)',   bg: 'var(--gold-100)' },
               { who: 'Système',           what: 'a contrôlé 14 dossiers',   when: 'il y a 2 h',    icon: <Icon.ShieldCheck size={13}/>, color: '#1e40af',     bg: '#eef4ff' },
@@ -1554,7 +1554,7 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
         </div>
 
         <div style={{
-          background: 'var(--burgundy-900)', borderRadius: 12, padding: 24, color: '#fff',
+          background: isFrance ? 'var(--burgundy-900)' : '#003840', borderRadius: 12, padding: 24, color: '#fff',
           position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column',
         }}>
           <svg style={{ position: 'absolute', right: -28, bottom: -28, opacity: 0.07 }} width="180" height="180" viewBox="0 0 24 24" fill="#fff">
@@ -1571,7 +1571,7 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
             Extraction OCR + croisement DREV/analyses ~ 18 min
           </div>
           <div style={{ marginTop: 'auto', paddingTop: 20, position: 'relative' }}>
-            <button className="btn btn-sm" style={{ background: '#f5f5f3', color: 'var(--burgundy-900)', fontWeight: 600, border: 'none' }}>
+            <button className="btn btn-sm" style={{ background: '#f5f5f3', color: isFrance ? 'var(--burgundy-900)' : '#003840', fontWeight: 600, border: 'none' }}>
               <Icon.Sparkles size={13}/> Lancer le contrôle
             </button>
           </div>
