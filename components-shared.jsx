@@ -268,4 +268,73 @@ const Toast = ({ message, onClose }) => (
   </div>
 );
 
-Object.assign(window, { Logo, StatusBadge, KpiCard, PageHeader, Empty, Toast });
+// ── Concours branding ──────────────────────────────────────────────
+
+const CONCOURS_BRAND = {
+  france: {
+    id: 'france',
+    nom: 'Concours des Grands Vins de France',
+    nomCourt: 'CGVF',
+    logo: 'logo-medaille.webp',
+    color: '#7c1034',
+    colorLight: 'var(--burgundy-50)',
+    colorBorder: 'rgba(124,16,52,0.15)',
+  },
+  monde: {
+    id: 'monde',
+    nom: 'Concours des Grands Vins du Monde',
+    nomCourt: 'CGVM',
+    logo: 'logo-comite-vin-monde.png',
+    color: '#004D57',
+    colorAccent: '#BC9F54',
+    colorLight: '#e6eff0',
+    colorBorder: 'rgba(0,77,87,0.15)',
+  },
+};
+
+// Detect which concours brand from a string (id, route or label)
+const getConcoursBrand = (id) => {
+  if (!id) return CONCOURS_BRAND.france;
+  const s = String(id).toLowerCase();
+  if (s.includes('monde') || s === 'monde') return CONCOURS_BRAND.monde;
+  return CONCOURS_BRAND.france;
+};
+
+// Small logo in a colored badge — size controls outer box
+const ConcoursLogo = ({ concours, size = 26 }) => {
+  const brand = (concours && typeof concours === 'object' && concours.id)
+    ? concours : getConcoursBrand(concours);
+  const inner = Math.round(size * 0.65);
+  return (
+    <div style={{
+      width: size, height: size,
+      borderRadius: Math.round(size * 0.22),
+      background: brand.colorLight,
+      border: `1px solid ${brand.colorBorder}`,
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      flexShrink: 0,
+    }}>
+      <img src={brand.logo} alt={brand.nomCourt}
+        style={{ width: inner, height: inner, objectFit: 'contain' }}/>
+    </div>
+  );
+};
+
+// Pill : logo + short name (CGVF / CGVM)
+const ConcoursPillBrand = ({ concours }) => {
+  const brand = (concours && typeof concours === 'object' && concours.id)
+    ? concours : getConcoursBrand(concours);
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 5,
+      padding: '2px 8px 2px 4px', borderRadius: 999,
+      background: brand.colorLight, border: `1px solid ${brand.colorBorder}`,
+    }}>
+      <img src={brand.logo} alt={brand.nomCourt}
+        style={{ width: 14, height: 14, objectFit: 'contain', flexShrink: 0 }}/>
+      <span style={{ fontSize: 11.5, fontWeight: 600, color: brand.color }}>{brand.nomCourt}</span>
+    </span>
+  );
+};
+
+Object.assign(window, { Logo, StatusBadge, KpiCard, PageHeader, Empty, Toast, CONCOURS_BRAND, getConcoursBrand, ConcoursLogo, ConcoursPillBrand });

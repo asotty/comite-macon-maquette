@@ -136,7 +136,7 @@ const AdminDossierDetail = ({ onBack, onNavigate }) => {
           <div style={{ fontSize: 13, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 10 }}>
             <code style={{ fontFamily: 'Menlo, monospace', color: 'var(--burgundy-800)', fontWeight: 500 }}>{DOSSIER.ref}</code>
             <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--fg-subtle)' }}/>
-            <span>{DOSSIER.concours}</span>
+            <ConcoursPillBrand concours={DOSSIER.concours}/>
             <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--fg-subtle)' }}/>
             <span>{DOSSIER.totalEch} échantillons</span>
             <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--fg-subtle)' }}/>

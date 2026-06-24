@@ -131,7 +131,7 @@ const AdminDerogImpPanel = ({ row, onClose, onValider, onRefuser }) => {
               }}>
                 <Icon.Award size={11}/> {row.medaille}
               </span>
-              <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>Concours {row.concours === 'france' ? 'France' : 'Monde'}</span>
+              <ConcoursPillBrand concours={row.concours}/>
             </div>
           </div>
 

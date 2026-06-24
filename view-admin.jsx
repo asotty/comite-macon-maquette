@@ -277,19 +277,17 @@ const ConcoursStatsCard = ({ label, delta, stats }) => (
   </div>
 );
 
-// Pill concours — pastille France ou Monde
+// Pill concours — pastille France ou Monde avec logo
 const ConcoursPill = ({ kind }) => {
-  const m = kind === 'France'
-    ? { bg: 'var(--burgundy-50)', fg: 'var(--burgundy-800)' }
-    : { bg: '#e6eff0', fg: '#004D57' };
+  const brand = getConcoursBrand(kind);
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
-      padding: '4px 10px', borderRadius: 999,
-      background: m.bg, color: m.fg,
-      fontSize: 12, fontWeight: 600,
+      padding: '3px 10px 3px 5px', borderRadius: 999,
+      background: brand.colorLight, border: `1px solid ${brand.colorBorder}`,
+      color: brand.color, fontSize: 12, fontWeight: 600,
     }}>
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor', opacity: 0.6 }}/>
+      <img src={brand.logo} alt={brand.nomCourt} style={{ width: 14, height: 14, objectFit: 'contain', flexShrink: 0 }}/>
       {kind}
     </span>
   );

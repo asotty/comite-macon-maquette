@@ -92,7 +92,7 @@ const DegustateurDashboard = ({ onNavigate }) => {
                     background: 'var(--burgundy-50)', border: '1px solid var(--burgundy-200)',
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <img src="assets/medaille-or.webp" alt="CGVF" style={{ width: 30, height: 30, objectFit: 'contain' }}/>
+                    <img src="logo-medaille.webp" alt="CGVF" style={{ width: 30, height: 30, objectFit: 'contain' }}/>
                   </div>
                 )}
                 <div style={{ fontSize: 13.5, fontWeight: 600, lineHeight: 1.3 }}>{c.nom}</div>
@@ -917,7 +917,7 @@ const DegustateurConcours = () => {
               }}>
                 {c.nom.includes('Monde')
                   ? <img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 26, height: 26, objectFit: 'contain' }}/>
-                  : <img src="assets/medaille-or.webp" alt="CGVF" style={{ width: 26, height: 26, objectFit: 'contain' }}/>}
+                  : <img src="logo-medaille.webp" alt="CGVF" style={{ width: 26, height: 26, objectFit: 'contain' }}/>}
               </div>
               <div style={{ flex: 1 }}>
                 <div className="display" style={{ fontSize: 18, fontWeight: 500 }}>{c.nom} {c.edition}</div>
@@ -1071,7 +1071,7 @@ const DegustateurHistorique = () => {
             }}>
               {p.type === 'monde'
                 ? <img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 20, height: 20, objectFit: 'contain' }}/>
-                : <img src="assets/medaille-or.webp" alt="CGVF" style={{ width: 20, height: 20, objectFit: 'contain' }}/>}
+                : <img src="logo-medaille.webp" alt="CGVF" style={{ width: 20, height: 20, objectFit: 'contain' }}/>}
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14.5, fontWeight: 600 }}>{p.concours}</div>

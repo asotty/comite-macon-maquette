@@ -2,13 +2,21 @@
 // Driven by a "route" prop that the parent App owns.
 
 const navAdmin = [
-  { id: 'inscriptions-fr', label: 'Concours des Grands Vins de France', icon: <Icon.Trophy size={16}/>, group: 'Concours', badge: 47, children: [
+  { id: 'inscriptions-fr', label: 'Concours des Grands Vins de France', brand: 'france',
+    icon: <div style={{ width: 22, height: 22, borderRadius: 5, background: 'var(--burgundy-50)', border: '1px solid rgba(124,16,52,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <img src="logo-medaille.webp" alt="CGVF" style={{ width: 15, height: 15, objectFit: 'contain' }}/>
+          </div>,
+    group: 'Concours', badge: 47, children: [
     { id: 'fr-dashboard', label: 'Tableau de bord' },
     { id: 'fr-inscriptions', label: 'Inscriptions' },
     { id: 'fr-controle', label: 'Contrôle optimisé', badge: 47 },
     { id: 'fr-palmares', label: 'Résultats / Palmarès' },
   ]},
-  { id: 'inscriptions-monde', label: 'Concours des Grands Vins du Monde', icon: <Icon.Globe size={16}/>, group: 'Concours', badge: 12, children: [
+  { id: 'inscriptions-monde', label: 'Concours des Grands Vins du Monde', brand: 'monde',
+    icon: <div style={{ width: 22, height: 22, borderRadius: 5, background: '#e6eff0', border: '1px solid rgba(0,77,87,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 15, height: 15, objectFit: 'contain' }}/>
+          </div>,
+    group: 'Concours', badge: 12, children: [
     { id: 'monde-dashboard', label: 'Tableau de bord' },
     { id: 'monde-inscriptions', label: 'Inscriptions' },
     { id: 'monde-controle', label: 'Contrôle optimisé' },
@@ -85,6 +93,13 @@ const NavItem = ({ item, route, onNavigate }) => {
   const [open, setOpen] = React.useState(childActive);
   React.useEffect(() => { if (childActive) setOpen(true); }, [childActive]);
 
+  // Brand-aware colors
+  const isMonde     = item.brand === 'monde';
+  const activeBg    = isMonde ? '#e6eff0'  : 'var(--burgundy-50)';
+  const activeColor = isMonde ? '#004D57'  : 'var(--burgundy-800)';
+  const activeBadge = isMonde ? '#004D57'  : 'var(--burgundy-800)';
+  const borderColor = isMonde ? 'rgba(0,77,87,0.2)' : 'var(--border)';
+
   const handleClick = () => {
     if (hasChildren) {
       setOpen(o => !o);
@@ -104,8 +119,8 @@ const NavItem = ({ item, route, onNavigate }) => {
           padding: '8px 10px',
           borderRadius: 7,
           border: 'none',
-          background: active && !hasChildren ? 'var(--burgundy-50)' : (active && hasChildren ? 'transparent' : 'transparent'),
-          color: active ? 'var(--burgundy-800)' : 'var(--slate-700)',
+          background: active && !hasChildren ? activeBg : 'transparent',
+          color: active ? activeColor : 'var(--slate-700)',
           fontSize: 13.5,
           fontWeight: active ? 600 : 500,
           textAlign: 'left',
@@ -115,13 +130,13 @@ const NavItem = ({ item, route, onNavigate }) => {
         onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--slate-100)'; }}
         onMouseLeave={e => { if (!active || hasChildren) e.currentTarget.style.background = 'transparent'; }}
       >
-        <span style={{ color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)', display: 'inline-flex' }}>{item.icon}</span>
+        <span style={{ color: active ? activeColor : 'var(--fg-muted)', display: 'inline-flex' }}>{item.icon}</span>
         <span style={{ flex: 1 }}>{item.label}</span>
         {item.badge && (
           <span style={{
             fontSize: 10.5, fontWeight: 600,
             padding: '1px 6px',
-            background: active && !hasChildren ? 'var(--burgundy-800)' : 'var(--slate-200)',
+            background: active && !hasChildren ? activeBadge : 'var(--slate-200)',
             color: active && !hasChildren ? 'white' : 'var(--slate-700)',
             borderRadius: 999,
             minWidth: 18, textAlign: 'center',
@@ -145,7 +160,7 @@ const NavItem = ({ item, route, onNavigate }) => {
         <div style={{
           marginLeft: 23,
           paddingLeft: 11,
-          borderLeft: '1px solid var(--border)',
+          borderLeft: `1px solid ${borderColor}`,
           marginTop: 2,
           marginBottom: 4,
         }}>
@@ -159,8 +174,8 @@ const NavItem = ({ item, route, onNavigate }) => {
                   padding: '6px 10px',
                   borderRadius: 6,
                   border: 'none',
-                  background: cActive ? 'var(--burgundy-50)' : 'transparent',
-                  color: cActive ? 'var(--burgundy-800)' : 'var(--slate-600)',
+                  background: cActive ? activeBg : 'transparent',
+                  color: cActive ? activeColor : 'var(--slate-600)',
                   fontSize: 12.5,
                   fontWeight: cActive ? 600 : 500,
                   textAlign: 'left',
@@ -175,7 +190,7 @@ const NavItem = ({ item, route, onNavigate }) => {
                   <span style={{
                     fontSize: 10, fontWeight: 600,
                     padding: '1px 6px',
-                    background: cActive ? 'var(--burgundy-800)' : 'var(--slate-200)',
+                    background: cActive ? activeBadge : 'var(--slate-200)',
                     color: cActive ? 'white' : 'var(--slate-700)',
                     borderRadius: 999,
                   }}>{c.badge}</span>

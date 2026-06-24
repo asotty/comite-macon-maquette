@@ -104,14 +104,7 @@
               <tr key={i} style={{ cursor: 'pointer' }} onClick={() => handleRow(r)}>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{
-                      width: 28, height: 28, borderRadius: 7,
-                      background: r.concours.includes('Monde') ? '#e6eff0' : 'var(--burgundy-50)',
-                      color: r.concours.includes('Monde') ? '#004D57' : 'var(--burgundy-800)',
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      {r.concours.includes('Monde') ? <Icon.Globe size={14}/> : <Icon.Trophy size={14}/>}
-                    </div>
+                    <ConcoursLogo concours={r.concours} size={28}/>
                     <div>
                       <div style={{ fontWeight: 500 }}>{r.concours}</div>
                       <div style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>Édition {r.edition}</div>
@@ -244,14 +237,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
           background: 'linear-gradient(135deg, #fff 60%, #fdf4f7 100%)',
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: 14,
-              background: 'var(--burgundy-800)', color: '#fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <Icon.Trophy size={26}/>
-            </div>
+            <ConcoursLogo concours="france" size={56}/>
             <span style={{
               fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 999,
               background: '#dcfce7', color: '#15803d',
@@ -293,14 +279,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
           background: 'var(--slate-50)',
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: 14,
-              background: 'var(--slate-300)', color: '#fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <Icon.Globe size={26}/>
-            </div>
+            <ConcoursLogo concours="monde" size={56}/>
             <span style={{
               fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 999,
               background: 'var(--slate-200)', color: 'var(--slate-500)',
@@ -380,14 +359,7 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
                 <tr key={i} style={{ cursor: 'pointer' }} onClick={() => onNavigate(r.status === 'brouillon' ? 'p-inscription' : 'p-inscriptions')}>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{
-                        width: 28, height: 28, borderRadius: 7,
-                        background: r.concours.includes('Monde') ? '#e6eff0' : 'var(--burgundy-50)',
-                        color: r.concours.includes('Monde') ? '#004D57' : 'var(--burgundy-800)',
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        {r.concours.includes('Monde') ? <Icon.Globe size={14}/> : <Icon.Trophy size={14}/>}
-                      </div>
+                      <ConcoursLogo concours={r.concours} size={28}/>
                       <span style={{ fontWeight: 500 }}>{r.concours}</span>
                     </div>
                   </td>
@@ -434,8 +406,8 @@ const PKpi = ({ label, value, sub, cta }) => (
 const DuplicateInscriptionModal = ({ source, onClose, onConfirm }) => {
   const [target, setTarget] = React.useState('france-2027');
   const targets = [
-    { id: 'france-2027', label: 'Concours des Grands Vins de France 2027', sub: "Inscriptions ouvertes jusqu'au 15 mai 2027", icon: <Icon.Trophy size={14}/>, color: 'var(--burgundy-800)', bg: 'var(--burgundy-50)' },
-    { id: 'monde-2026',  label: 'Concours des Grands Vins du Monde 2026',  sub: "Inscriptions ouvertes jusqu'au 30 juin 2026", icon: <Icon.Globe size={14}/>,  color: '#004D57',           bg: '#e6eff0' },
+    { id: 'france-2027', label: 'Concours des Grands Vins de France 2027', sub: "Inscriptions ouvertes jusqu'au 15 mai 2027", icon: <img src="logo-medaille.webp" alt="CGVF" style={{ width: 14, height: 14, objectFit: 'contain' }}/>, color: 'var(--burgundy-800)', bg: 'var(--burgundy-50)' },
+    { id: 'monde-2026',  label: 'Concours des Grands Vins du Monde 2026',  sub: "Inscriptions ouvertes jusqu'au 30 juin 2026", icon: <img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 14, height: 14, objectFit: 'contain' }}/>,  color: '#004D57',           bg: '#e6eff0' },
   ];
 
   return (
@@ -1910,13 +1882,13 @@ const ProducteurMedailles = ({ onNavigate }) => {
       />
       <Section
         title="Concours des Grands Vins de France"
-        icon={<Icon.Trophy size={16}/>}
+        icon={<img src="logo-medaille.webp" alt="CGVF" style={{ width: 16, height: 16, objectFit: 'contain' }}/>}
         items={france}
         accent="var(--burgundy-800)"
       />
       <Section
         title="Concours des Grands Vins du Monde"
-        icon={<Icon.Globe size={16}/>}
+        icon={<img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 16, height: 16, objectFit: 'contain' }}/>}
         items={monde}
         accent="#BC9F54"
       />
@@ -2438,9 +2410,7 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
             <div>
               <div style={{ marginBottom: 28 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 10, borderBottom: '2px solid var(--burgundy-800)' }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 6, background: 'var(--burgundy-800)22', color: 'var(--burgundy-800)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon.Trophy size={14}/>
-                  </div>
+                  <ConcoursLogo concours="france" size={28}/>
                   <span style={{ fontSize: 14.5, fontWeight: 600 }}>Concours des Grands Vins de France</span>
                 </div>
                 {france.map(m => (
@@ -2449,9 +2419,7 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 10, borderBottom: '2px solid #BC9F54' }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 6, background: '#BC9F5422', color: '#BC9F54', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon.Globe size={14}/>
-                  </div>
+                  <ConcoursLogo concours="monde" size={28}/>
                   <span style={{ fontSize: 14.5, fontWeight: 600 }}>Concours des Grands Vins du Monde</span>
                 </div>
                 {monde.map(m => (
