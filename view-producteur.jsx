@@ -2532,14 +2532,14 @@ const CommandeConfirmation = ({ order, onNavigate }) => (
             <div key={l.wine.id}>
               <div style={{ fontSize: 13.5, fontWeight: 500 }}>{l.wine.name}</div>
               <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>
-                {ALL_FORMAT_KEYS
+                {PRODUCT_KEYS
                   .filter(k => (l.qty[k] || 0) > 0)
                   .map(k => {
                     const n = l.qty[k];
                     const lbl = FORMAT_LABELS[k];
                     return `${n} ${n > 1 ? lbl.plural : lbl.label}`;
                   })
-                  .join(' · ')} <span style={{ color: 'var(--fg-subtle)' }}>·</span> <span className="tnum" style={{ color: 'var(--fg)', fontWeight: 500 }}>{l.units} unités</span>
+                  .join(' · ')}
               </div>
             </div>
           ))}
