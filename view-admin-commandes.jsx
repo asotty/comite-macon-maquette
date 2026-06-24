@@ -66,17 +66,24 @@ const AdminCommandesMedailles = () => {
 
   const counts = { toutes: 312, a_expedier: 218, expediees: 81, livrees: 13 };
 
+  // Format: [ref, producteur, appell, or, argent, bronze, quota_droit, statut, stock_bouteilles]
+  // or/argent/bronze : nombre de lots de 1 000 médailles commandés
+  // quota_droit      : droit max en lots (null = non confirmé)
+  // stock_bouteilles : volume déclaré du producteur (pour calcul seuil 3%)
+  // Alertes :
+  //   • Petite commande → total lots < 1 (< 1 000 médailles)
+  //   • Dépassement 3% → total_médailles > stock_bouteilles × 0.03
   const ROWS = [
-    ['CMD-2026-0312', 'Domaine de la Chevalière',    'Pouilly-Fuissé',     12, 18, 6,  60,   'a-expedier'],
-    ['CMD-2026-0311', 'Maison Joseph Drouhin',       'Beaune',             24, 12, 0,  60,   'a-expedier'],
-    ['CMD-2026-0310', 'Château de Pierreclos',       'Saint-Véran',        6,  12, 4,  30,   'expedie'],
-    ['CMD-2026-0309', 'Domaine Bouchard Père',       'Meursault',          18, 24, 0,  42,   'expedie'],
-    ['CMD-2026-0308', 'Domaine des 3 Pierres',       'Mâcon-Villages',     0,  24, 12, null, 'livre'],
-    ['CMD-2026-0307', 'Cellier de Solutré',          'Pouilly-Fuissé',     0,  18, 6,  30,   'a-expedier'],
-    ['CMD-2026-0306', 'Vignobles Lacroix',           'Mercurey',           0,  12, 8,  18,   'a-expedier'],
-    ['CMD-2026-0305', 'Domaine Sainte-Anne',         'Saint-Véran',        0,  6,  12, 30,   'expedie'],
-    ['CMD-2026-0304', 'Domaine Tabard',              'Brouilly',           0,  0,  24, 24,   'livre'],
-    ['CMD-2026-0303', 'Vignerons de Buxy',           'Bourgogne Aligoté',  0,  0,  18, null, 'a-expedier'],
+    ['CMD-2026-0312', 'Domaine de la Chevalière',    'Pouilly-Fuissé',     3,  2,  1,  8,    'a-expedier', 180000],
+    ['CMD-2026-0311', 'Maison Joseph Drouhin',       'Beaune',             5,  3,  0,  10,   'a-expedier', 320000],
+    ['CMD-2026-0310', 'Château de Pierreclos',       'Saint-Véran',        0,  0,  1,  3,    'expedie',    12000 ], // ⚠ dépasse 3% : 1000/12000 = 8.3%
+    ['CMD-2026-0309', 'Domaine Bouchard Père',       'Meursault',          2,  4,  0,  8,    'expedie',    95000 ],
+    ['CMD-2026-0308', 'Domaine des 3 Pierres',       'Mâcon-Villages',     0,  3,  2,  null, 'livre',      14000 ], // ⚠ dépasse 3% : 5000/14000 = 35.7%
+    ['CMD-2026-0307', 'Cellier de Solutré',          'Pouilly-Fuissé',     0,  2,  1,  4,    'a-expedier', 70000 ],
+    ['CMD-2026-0306', 'Vignobles Lacroix',           'Mercurey',           0,  1,  0,  2,    'a-expedier', 5000  ], // ⚠ dépasse 3% : 1000/5000 = 20%
+    ['CMD-2026-0305', 'Domaine Sainte-Anne',         'Saint-Véran',        0,  0,  0,  null, 'expedie',    8000  ], // ⚠ petite cde : 0 lots (commande hors médailles)
+    ['CMD-2026-0304', 'Domaine Tabard',              'Brouilly',           0,  0,  2,  2,    'livre',      45000 ],
+    ['CMD-2026-0303', 'Vignerons de Buxy',           'Bourgogne Aligoté',  0,  0,  1,  null, 'a-expedier', 30000 ],
   ];
 
   const filtered = ROWS.filter(r => {
@@ -208,18 +215,28 @@ const AdminCommandesMedailles = () => {
             <tr>
               <SortableTh sortKey="ref"        currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>N° Commande</SortableTh>
               <SortableTh sortKey="producteur" currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Producteur</SortableTh>
-              <th className="num">Or</th>
-              <th className="num">Argent</th>
-              <th className="num">Bronze</th>
-              <SortableTh sortKey="qty"        currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort} align="right">Total</SortableTh>
+              <th className="num" title="Lots de 1 000 médailles Or">Or</th>
+              <th className="num" title="Lots de 1 000 médailles Argent">Argent</th>
+              <th className="num" title="Lots de 1 000 médailles Bronze">Bronze</th>
+              <SortableTh sortKey="qty"        currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort} align="right">Lots</SortableTh>
               <th className="num">Quota</th>
+              <th>Alertes</th>
               <SortableTh sortKey="statut"     currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Livraison</SortableTh>
               <th style={{ width: 36 }}></th>
             </tr>
           </thead>
           <tbody>
-            {paged.rows.map((r, i) => (
-              <tr key={i}>
+            {paged.rows.map((r, i) => {
+              const totalLots   = r[3] + r[4] + r[5];
+              const totalPieces = totalLots * 1000;
+              // Alerte petite commande : moins de 1 lot (< 1 000 médailles)
+              const alertPetite = totalLots < 1;
+              // Alerte dépassement stock : médailles commandées > 3% du stock déclaré
+              const stockBouteilles = r[8] || null;
+              const alertStock = stockBouteilles !== null && totalPieces > stockBouteilles * 0.03;
+              const pctStock = stockBouteilles ? ((totalPieces / stockBouteilles) * 100).toFixed(1) : null;
+              return (
+              <tr key={i} style={{ background: (alertPetite || alertStock) ? 'rgba(254,242,242,0.4)' : undefined }}>
                 <td style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)', fontSize: 12.5, color: 'var(--fg)', fontWeight: 500 }}>{r[0]}</td>
                 <td>
                   <div style={{ fontWeight: 500 }}>{r[1]}</div>
@@ -240,8 +257,33 @@ const AdminCommandesMedailles = () => {
                     <span style={{ width: 6, height: 6, borderRadius: 999, background: '#c2410c' }}/>{r[5]}
                   </span> : <span className="subtle">—</span>}
                 </td>
-                <td className="num tnum" style={{ fontWeight: 600 }}>{r[3] + r[4] + r[5]}</td>
-                <td className="num"><QuotaCell ordered={r[3] + r[4] + r[5]} quota={r[6]}/></td>
+                <td className="num tnum" style={{ fontWeight: 600 }}>{totalLots}</td>
+                <td className="num"><QuotaCell ordered={totalLots} quota={r[6]}/></td>
+                <td style={{ minWidth: 160 }}>
+                  {alertPetite && (
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 5,
+                      padding: '3px 8px', borderRadius: 6,
+                      background: '#fef3c7', color: '#a16207',
+                      fontSize: 11.5, fontWeight: 600, marginBottom: alertStock ? 4 : 0,
+                    }}>
+                      <Icon.AlertTriangle size={11}/>
+                      {'< 1 000 médailles'}
+                    </span>
+                  )}
+                  {alertStock && (
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 5,
+                      padding: '3px 8px', borderRadius: 6,
+                      background: '#fef2f2', color: '#991b1b',
+                      fontSize: 11.5, fontWeight: 600,
+                    }} title={`${totalPieces.toLocaleString('fr-FR')} médailles / ${stockBouteilles.toLocaleString('fr-FR')} bouteilles = ${pctStock}% (seuil 3%)`}>
+                      <Icon.AlertCircle size={11}/>
+                      {pctStock}% du stock
+                    </span>
+                  )}
+                  {!alertPetite && !alertStock && <span className="subtle" style={{ fontSize: 11.5 }}>—</span>}
+                </td>
                 <td><LivraisonBadge kind={r[7]}/></td>
                 <td onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
                   <button className="btn btn-icon btn-sm btn-ghost" onClick={() => setRowMenu(rowMenu === i ? null : i)}>
@@ -266,7 +308,8 @@ const AdminCommandesMedailles = () => {
                   )}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

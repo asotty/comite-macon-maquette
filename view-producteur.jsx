@@ -2814,15 +2814,70 @@ const ProducteurCommandesHistorique = ({ onNavigate }) => {
   return <ProducteurCommandesListe onOpenCommande={setViewing} onOpenNew={() => onNavigate('p-commandes')}/>;
 };
 
-const UNIT_PER  = { autocollants: 1, autocollants_rect: 1, plaques: 10, diplomes: 5, boites: 100 };
-const PRICE_PER = { autocollants: 0.15, autocollants_rect: 0.20, plaques: 25.00, diplomes: 8.00, boites: 45.00 };
-const ALL_FORMAT_KEYS = Object.keys(UNIT_PER);
+// ─── Produits commandables (R84) ─────────────────────────────────
+// medailles       : lot de 1 000 médailles — déduit du quota déclaré
+// plaques_metal   : à l'unité — NE déduit PAS du stock producteur
+// chevalets_plexi : à l'unité — NE déduit PAS du stock producteur
+const PRODUCT_KEYS = ['medailles', 'plaques_metal', 'chevalets_plexi'];
+const PRODUCT_LOT  = { medailles: 1000, plaques_metal: 1, chevalets_plexi: 1 };
+const PRICE_PER    = { medailles: 45.00, plaques_metal: 8.50, chevalets_plexi: 6.00 };
+const DEDUCTS_STOCK = { medailles: true, plaques_metal: false, chevalets_plexi: false };
 const FORMAT_LABELS = {
-  autocollants:      { label: 'autocollant rond',       plural: 'autocollants ronds'         },
-  autocollants_rect: { label: 'autocollant rectangulaire', plural: 'autocollants rectangulaires' },
-  plaques:           { label: 'plaque métal',           plural: 'plaques métal'              },
-  diplomes:          { label: 'certificat',             plural: 'certificats'                },
-  boites:            { label: 'boîte vrac',             plural: 'boîtes vrac'                },
+  medailles:       { label: 'lot de médailles',   plural: 'lots de médailles'    },
+  plaques_metal:   { label: 'plaque métal',        plural: 'plaques métal'        },
+  chevalets_plexi: { label: 'chevalet plexi',      plural: 'chevalets plexi'      },
+};
+
+// Illustrations SVG inline pour chaque type de produit commandable
+const ProductVisual = ({ type, size = 44 }) => {
+  if (type === 'medailles') return (
+    <svg width={size} height={size} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      {/* Ruban */}
+      <path d="M17 4 L22 14 L27 4 Z" fill="#dc2626" opacity="0.85"/>
+      <rect x="19" y="4" width="6" height="10" rx="1" fill="#b91c1c" opacity="0.7"/>
+      {/* Corps médaille */}
+      <circle cx="22" cy="28" r="13" fill="#fef3c7" stroke="#d97706" strokeWidth="2"/>
+      <circle cx="22" cy="28" r="9"  fill="#fbbf24" stroke="#d97706" strokeWidth="1.5"/>
+      {/* Étoile centrale */}
+      <path d="M22 22l1.5 4.5H28l-3.8 2.8 1.5 4.5L22 31l-3.7 2.8 1.5-4.5L16 26.5h4.5z" fill="#a16207"/>
+    </svg>
+  );
+  if (type === 'plaques_metal') return (
+    <svg width={size} height={size} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      {/* Plaque principale */}
+      <rect x="5" y="9" width="34" height="26" rx="3" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1.5"/>
+      {/* Reflet métal brossé */}
+      <rect x="5" y="9" width="34" height="7" rx="3" fill="#cbd5e1" opacity="0.6"/>
+      <rect x="7" y="11" width="30" height="1.5" rx="1" fill="#fff" opacity="0.5"/>
+      {/* Zone gravure */}
+      <rect x="9"  y="19" width="26" height="12" rx="2" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="1"/>
+      {/* Ligne décorative */}
+      <rect x="12" y="22" width="20" height="1.5" rx="1" fill="#94a3b8"/>
+      <rect x="14" y="25" width="16" height="1.5" rx="1" fill="#94a3b8" opacity="0.6"/>
+      <rect x="16" y="28" width="12" height="1.5" rx="1" fill="#94a3b8" opacity="0.4"/>
+      {/* Trous de fixation */}
+      <circle cx="10" cy="12.5" r="2" fill="#94a3b8" opacity="0.7"/>
+      <circle cx="34" cy="12.5" r="2" fill="#94a3b8" opacity="0.7"/>
+    </svg>
+  );
+  if (type === 'chevalets_plexi') return (
+    <svg width={size} height={size} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      {/* Face avant panneau plexi transparent */}
+      <rect x="10" y="4" width="22" height="26" rx="2" fill="#dbeafe" fillOpacity="0.6" stroke="#93c5fd" strokeWidth="1.5"/>
+      {/* Reflet plexi */}
+      <rect x="12" y="6" width="5" height="22" rx="1" fill="#fff" fillOpacity="0.35"/>
+      {/* Contenu imprimé sur le panneau */}
+      <rect x="14" y="9"  width="14" height="2" rx="1" fill="#3b82f6" opacity="0.7"/>
+      <rect x="14" y="13" width="10" height="1.5" rx="1" fill="#60a5fa" opacity="0.5"/>
+      <rect x="14" y="16" width="12" height="1.5" rx="1" fill="#60a5fa" opacity="0.4"/>
+      {/* Pied en V */}
+      <line x1="16" y1="30" x2="10" y2="42" stroke="#93c5fd" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="28" y1="30" x2="34" y2="42" stroke="#93c5fd" strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Traverse de stabilisation */}
+      <line x1="13" y1="37" x2="31" y2="37" stroke="#bfdbfe" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+  return null;
 };
 
 const ProducteurCommandes = ({ onNavigate }) => {
@@ -2849,15 +2904,13 @@ const ProducteurCommandes = ({ onNavigate }) => {
   const [concourTab, setConcourTab] = React.useState('france');
   const medaillesTab = medailles.filter(m => m.concours === concourTab);
 
-  // État panier : { wineId: { autocollants, plaques, boites } }
+  // État panier : { wineId: { medailles, plaques_metal, chevalets_plexi } }
   const [cart, setCart] = React.useState(() =>
-    medailles.reduce((acc, m) => { acc[m.id] = { autocollants: 0, autocollants_rect: 0, plaques: 0, diplomes: 0, boites: 0 }; return acc; }, {})
+    medailles.reduce((acc, m) => { acc[m.id] = { medailles: 0, plaques_metal: 0, chevalets_plexi: 0 }; return acc; }, {})
   );
 
-  const unitsOrdered = (wineId) => {
-    const c = cart[wineId];
-    return c.autocollants * UNIT_PER.autocollants + c.plaques * UNIT_PER.plaques + c.boites * UNIT_PER.boites;
-  };
+  // Seules les médailles (×1000) déduisent du quota déclaré
+  const unitsOrdered = (wineId) => (cart[wineId].medailles || 0) * 1000;
   const remainingAfter = (wine) => wine.quota - wine.used - unitsOrdered(wine.id);
 
   const setCount = (wineId, key, val) => {
@@ -2866,12 +2919,18 @@ const ProducteurCommandes = ({ onNavigate }) => {
   };
 
   // Totaux panier — filtrés sur l'onglet actif
+  // unitsOrdered ne compte que les médailles pour la jauge quota
+  // cartLines inclut tout vin ayant au moins un produit sélectionné
   const cartLines = medaillesTab
-    .map(m => ({ wine: m, qty: cart[m.id], units: unitsOrdered(m.id) }))
-    .filter(l => l.units > 0);
-  const totalItems = cartLines.reduce((s, l) => s + ALL_FORMAT_KEYS.filter(k => (l.qty[k] || 0) > 0).length, 0);
-  const totalUnits = cartLines.reduce((s, l) => s + l.units, 0);
-  const totalPrice = cartLines.reduce((s, l) => s + ALL_FORMAT_KEYS.reduce((ps, k) => ps + (l.qty[k] || 0) * PRICE_PER[k], 0), 0);
+    .map(m => {
+      const qty = cart[m.id];
+      const hasAny = PRODUCT_KEYS.some(k => (qty[k] || 0) > 0);
+      return { wine: m, qty, units: unitsOrdered(m.id), hasAny };
+    })
+    .filter(l => l.hasAny);
+  const totalItems = cartLines.reduce((s, l) => s + PRODUCT_KEYS.filter(k => (l.qty[k] || 0) > 0).length, 0);
+  const totalUnits = cartLines.reduce((s, l) => s + l.units, 0); // total médailles uniquement (pour l'affichage quota)
+  const totalPrice = cartLines.reduce((s, l) => s + PRODUCT_KEYS.reduce((ps, k) => ps + (l.qty[k] || 0) * PRICE_PER[k], 0), 0);
   const hasOverflow = medaillesTab.some(m => remainingAfter(m) < 0);
 
   const handleSubmit = () => {
@@ -2961,50 +3020,45 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
     bronze: { bg: '#fef3c7',          fg: '#a16207',          label: 'Bronze' },
   }[wine.medal];
 
+  // Trois produits commandables — cf. règles R84 :
+  // médailles : lot de 1 000, déduit du quota déclaré du vin
+  // plaque métal / chevalet plexi : à l'unité, sans impact sur le quota
   const itemTypes = [
     {
-      key: 'autocollants',
-      label: 'Autocollants ronds',
-      sub: 'Macaron Ø 35 mm · à coller sur les bouteilles',
+      key: 'medailles',
+      label: 'Médailles',
+      sub: 'Lot de 1 000 médailles physiques — déduit du quota de votre vin',
+      priceSub: '/ lot de 1 000',
       icon: 'Medal',
-      equiv: '1 unité / autocollant',
-      color: '#f59e0b',
+      color: '#d97706',
+      deductsStock: true,
+      lotSize: 1000,
     },
     {
-      key: 'autocollants_rect',
-      label: 'Autocollants rectangulaires',
-      sub: 'Format col 80 × 30 mm · version horizontale sur étiquette',
-      icon: 'Layers',
-      equiv: '1 unité / autocollant',
-      color: '#8b5cf6',
-    },
-    {
-      key: 'plaques',
+      key: 'plaques_metal',
       label: 'Plaques métal',
-      sub: 'Aluminium brossé · vitrines, présentoirs et caves',
+      sub: 'Aluminium brossé gravé · vitrines, présentoirs, caves — sans impact quota',
+      priceSub: '/ unité',
       icon: 'Award',
-      equiv: '10 unités équivalent par plaque',
-      color: '#0ea5e9',
-    },
-    {
-      key: 'diplomes',
-      label: 'Certificats / Diplômes',
-      sub: 'Format A4 encadrable · attestation officielle du concours',
-      icon: 'FileText',
-      equiv: '5 unités équivalent par certificat',
-      color: '#16a34a',
-    },
-    {
-      key: 'boites',
-      label: 'Boîtes vrac',
-      sub: 'Conditionnement cave · pour les grands volumes de stock',
-      icon: 'Package',
-      equiv: '100 unités équivalent par boîte',
       color: '#64748b',
+      deductsStock: false,
+      lotSize: 1,
+    },
+    {
+      key: 'chevalets_plexi',
+      label: 'Chevalets plexi',
+      sub: 'Présentoir plexiglas transparent · table et comptoir — sans impact quota',
+      priceSub: '/ unité',
+      icon: 'Layers',
+      color: '#3b82f6',
+      deductsStock: false,
+      lotSize: 1,
     },
   ];
 
-  const itemsActive = itemTypes.filter(t => counts[t.key] > 0).length;
+  const itemsActive = itemTypes.filter(t => (counts[t.key] || 0) > 0).length;
+  // Médailles commandées sur ce vin (en pièces)
+  const medaillesCount = (counts.medailles || 0) * 1000;
 
   return (
     <div className="card" style={{
@@ -3088,7 +3142,7 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
             </span>
           ) : unitsOrdered > 0 ? (
             <span className="badge badge-primary" style={{ fontWeight: 600 }}>
-              {unitsOrdered.toLocaleString('fr-FR')} u. · {itemsActive} article{itemsActive > 1 ? 's' : ''}
+              {medaillesCount.toLocaleString('fr-FR')} médailles · {itemsActive} article{itemsActive > 1 ? 's' : ''}
             </span>
           ) : (
             <span style={{ fontSize: 12, color: 'var(--fg-subtle)' }}>Aucune quantité</span>
@@ -3111,42 +3165,33 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
         <div className="slide-up" style={{ padding: '4px 20px 20px', borderTop: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
             {itemTypes.map(row => {
-              const IcoComp = Icon[row.icon] || Icon.Package;
               const active = (counts[row.key] || 0) > 0;
-              const maxForType = Math.max(0, Math.floor((wine.quota - wine.used - (unitsOrdered - (counts[row.key] || 0) * UNIT_PER[row.key])) / UNIT_PER[row.key]));
-              const unitsForType = (counts[row.key] || 0) * UNIT_PER[row.key];
+              // Médailles : max limité par le quota restant (en lots de 1000)
+              // Plaque/Chevalet : pas de max quota (illimité)
+              const maxForType = row.deductsStock
+                ? Math.max(0, Math.floor((wine.quota - wine.used - (unitsOrdered - (counts[row.key] || 0) * row.lotSize)) / row.lotSize))
+                : undefined;
+              const piecesForType = (counts[row.key] || 0) * row.lotSize;
               return (
                 <div key={row.key} style={{
                   display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '11px 14px',
+                  padding: '12px 14px',
                   background: active ? 'var(--burgundy-50)' : 'var(--surface-2)',
                   border: '1px solid ' + (active ? 'var(--burgundy-200)' : 'var(--border)'),
                   borderRadius: 8,
                   transition: 'all .12s',
                 }}>
-                  {/* Icône colorée */}
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-                    background: active ? row.color + '22' : 'var(--surface)',
-                    border: '1px solid ' + (active ? row.color + '44' : 'var(--border)'),
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: active ? row.color : 'var(--fg-muted)',
-                    transition: 'all .12s',
-                  }}>
-                    <IcoComp size={16}/>
-                  </div>
+                  {/* Illustration produit */}
+                  <ProductVisual type={row.key} size={44}/>
                   {/* Texte */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
                       <div style={{ fontSize: 13.5, fontWeight: 600, color: active ? 'var(--burgundy-900)' : 'var(--fg)' }}>{row.label}</div>
                       <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontVariantNumeric: 'tabular-nums' }}>
-                        {PRICE_PER[row.key].toLocaleString('fr-FR', { minimumFractionDigits: 2 })} € / pce
+                        {PRICE_PER[row.key].toLocaleString('fr-FR', { minimumFractionDigits: 2 })} € {row.priceSub}
                       </div>
                     </div>
-                    <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 1 }}>{row.sub}</div>
-                    <div style={{ fontSize: 11, color: active ? row.color : 'var(--fg-subtle)', marginTop: 3, fontWeight: active ? 500 : 400 }}>
-                      {row.equiv}
-                    </div>
+                    <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 2 }}>{row.sub}</div>
                   </div>
                   {/* Stepper */}
                   <Stepper
@@ -3155,18 +3200,24 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
                     disabled={isExhausted}
                     max={maxForType}
                   />
-                  {/* Montant ligne + équivalent unités */}
-                  <div className="tnum" style={{ minWidth: 90, textAlign: 'right', flexShrink: 0 }}>
+                  {/* Montant ligne */}
+                  <div className="tnum" style={{ minWidth: 96, textAlign: 'right', flexShrink: 0 }}>
                     {active ? (
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--burgundy-800)', marginBottom: 2 }}>
-                        {(counts[row.key] * PRICE_PER[row.key]).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
-                      </div>
+                      <>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--burgundy-800)', marginBottom: 2 }}>
+                          {((counts[row.key] || 0) * PRICE_PER[row.key]).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                        </div>
+                        {row.deductsStock ? (
+                          <div style={{ fontSize: 11, color: row.color, fontWeight: 500 }}>
+                            {piecesForType.toLocaleString('fr-FR')} médailles
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: 11, color: 'var(--fg-subtle)' }}>hors quota</div>
+                        )}
+                      </>
                     ) : (
-                      <div style={{ fontSize: 12, color: 'var(--fg-subtle)', marginBottom: 2 }}>—</div>
+                      <div style={{ fontSize: 12, color: 'var(--fg-subtle)' }}>—</div>
                     )}
-                    <div style={{ fontSize: 11.5, color: active ? 'var(--fg-muted)' : 'var(--fg-subtle)', fontWeight: active ? 500 : 400 }}>
-                      = {unitsForType} unité{unitsForType !== 1 ? 's' : ''}
-                    </div>
                   </div>
                 </div>
               );
@@ -3246,11 +3297,9 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
             }}>
               <div style={{ fontSize: 13.5, fontWeight: 500, marginBottom: 4 }}>{l.wine.name}</div>
               {[
-                { k: 'autocollants',      sing: 'autocollant rond',        plur: 'autocollants ronds' },
-                { k: 'autocollants_rect', sing: 'autocollant rect.',       plur: 'autocollants rect.' },
-                { k: 'plaques',           sing: 'plaque métal',            plur: 'plaques métal' },
-                { k: 'diplomes',          sing: 'certificat',              plur: 'certificats' },
-                { k: 'boites',            sing: 'boîte vrac',              plur: 'boîtes vrac' },
+                { k: 'medailles',       sing: 'lot de 1 000 médailles', plur: 'lots de 1 000 médailles' },
+                { k: 'plaques_metal',   sing: 'plaque métal',           plur: 'plaques métal'           },
+                { k: 'chevalets_plexi', sing: 'chevalet plexi',         plur: 'chevalets plexi'         },
               ].filter(f => (l.qty[f.k] || 0) > 0).map(f => {
                 const qty = l.qty[f.k];
                 const lineTotal = qty * PRICE_PER[f.k];
@@ -3274,7 +3323,7 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{totalItems} article{totalItems > 1 ? 's' : ''}</div>
-          <div style={{ fontSize: 11.5, color: 'var(--fg-subtle)', marginTop: 2 }} className="tnum">{totalUnits.toLocaleString('fr-FR')} unités</div>
+          <div style={{ fontSize: 11.5, color: 'var(--fg-subtle)', marginTop: 2 }} className="tnum">{totalUnits.toLocaleString('fr-FR')} médailles</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600, marginBottom: 2 }}>Total</div>
