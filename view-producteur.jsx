@@ -2298,7 +2298,10 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
   );
 
   const [demandes, setDemandes] = React.useState(DEROG_IMPRESSION_DEMO);
-  const [submitted, setSubmitted] = React.useState(null);
+  // onglet actif : 'demande' | 'en_cours' | 'terminees'
+  const [tab, setTab] = React.useState('demande');
+  // banniere de confirmation apres soumission
+  const [lastSubmit, setLastSubmit] = React.useState(null);
 
   const quotaRestant = 1200;
 
@@ -2317,8 +2320,6 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
       })
       .filter(Boolean);
 
-    const totalUnites = lines.reduce((s, l) => s + l.unites, 0);
-
     const nouvelles = lines.map(l => {
       const m = medals.find(x => x.id === l.id);
       return {
@@ -2332,10 +2333,13 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
       };
     });
     setDemandes(prev => [...nouvelles, ...prev]);
-    setSubmitted({ count: lines.length, lines, totalUnites });
+    // Reinitialiser le panier
+    setCart(Object.fromEntries(medals.map(m => [m.id, { format: null, quantite: 0 }])));
+    // Basculer vers l'onglet "Mes demandes en cours" + afficher confirmation
+    setLastSubmit({ count: lines.length });
+    setTab('en_cours');
   };
 
-  // Simule le dépôt d'un BAT : passe la demande de bat_requis → en_attente
   const handleBatDepose = (demandeId) => {
     setDemandes(prev => prev.map(d =>
       d.id === demandeId
@@ -2344,16 +2348,23 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
     ));
   };
 
-  if (submitted) return <DerogConfirmation result={submitted} onNavigate={onNavigate}/>;
-
   const france = medals.filter(m => m.concours === 'france');
   const monde  = medals.filter(m => m.concours === 'monde');
+
+  const demandesEnCours   = demandes.filter(d => d.statut === 'bat_requis' || d.statut === 'en_attente');
+  const demandesTerminees = demandes.filter(d => d.statut === 'validee'    || d.statut === 'refusee');
+
+  const TABS = [
+    { id: 'demande',   label: 'Faire une demande',       icon: Icon.Plus   },
+    { id: 'en_cours',  label: 'Mes demandes en cours',   icon: Icon.Clock,  count: demandesEnCours.length   },
+    { id: 'terminees', label: 'Mes demandes terminees',  icon: Icon.Check,  count: demandesTerminees.length },
+  ];
 
   return (
     <div>
       <PageHeader
         title="Gerer mes derogations"
-        subtitle="Demandez une derogation pour imprimer les visuels medaille directement sur vos etiquettes, puis deposez votre BAT. Le comite valide chaque demande."
+        subtitle="Demandez une derogation pour imprimer vos medailles sur etiquette, deposez votre BAT, le comite valide."
         actions={
           <button onClick={() => onNavigate('p-medailles')} className="btn btn-ghost btn-sm">
             <Icon.ArrowLeft size={14}/> Retour au palmares
@@ -2361,61 +2372,149 @@ const ProducteurDerogationsImpression = ({ onNavigate }) => {
         }
       />
 
-      <div className="card" style={{
-        padding: '16px 20px', marginBottom: 24,
-        background: 'linear-gradient(135deg, #f0f5ff 0%, #faf5ff 100%)',
-        border: '1px solid #c7d2fe',
+      {/* Barre d'onglets */}
+      <div style={{
+        display: 'flex', gap: 0, borderBottom: '2px solid var(--border)',
+        marginBottom: 28,
       }}>
-        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Icon.Info size={18}/>
-          </div>
-          <div style={{ fontSize: 13, lineHeight: 1.6 }}>
-            <strong>Comment fonctionne la derogation impression ?</strong><br/>
-            <strong>1. Demande</strong> — Selectionnez les medailles, le format de support et la quantite, puis soumettez.<br/>
-            <strong>2. BAT</strong> — Deposez votre Bon A Tirer (fichier d'impression) depuis la section "Mes demandes".<br/>
-            <strong>3. Validation</strong> — Le comite examine votre BAT sous 2 a 5 jours. Les unites sont <strong>deduites de votre quota</strong> a la validation.<br/>
-            <strong>4. Impression</strong> — Une fois valide, vous pouvez proceder a l'impression chez votre imprimeur.
-          </div>
-        </div>
+        {TABS.map(t => {
+          const Ic = t.icon;
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => { setTab(t.id); if (t.id !== 'en_cours') setLastSubmit(null); }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '10px 20px', fontSize: 13.5, fontWeight: active ? 600 : 400,
+                background: 'none', border: 'none', cursor: 'pointer',
+                borderBottom: active ? '2px solid var(--primary)' : '2px solid transparent',
+                marginBottom: -2, color: active ? 'var(--primary)' : 'var(--fg-muted)',
+                transition: 'color .15s',
+              }}
+            >
+              <Ic size={14}/>
+              {t.label}
+              {t.count > 0 && (
+                <span style={{
+                  fontSize: 11, fontWeight: 700, padding: '1px 7px', borderRadius: 999,
+                  background: active ? 'var(--primary)' : 'var(--fg-muted)',
+                  color: '#fff', marginLeft: 2,
+                }}>
+                  {t.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, alignItems: 'start' }}>
+      {/* Onglet : Faire une demande */}
+      {tab === 'demande' && (
         <div>
-          <div style={{ marginBottom: 28 }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
-              paddingBottom: 10, borderBottom: '2px solid var(--burgundy-800)',
-            }}>
-              <div style={{ width: 28, height: 28, borderRadius: 6, background: 'var(--burgundy-800)22', color: 'var(--burgundy-800)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon.Trophy size={14}/>
+          {/* Bandeau process */}
+          <div className="card" style={{
+            padding: '14px 18px', marginBottom: 24,
+            background: 'linear-gradient(135deg, #f0f5ff 0%, #faf5ff 100%)',
+            border: '1px solid #c7d2fe', fontSize: 13, lineHeight: 1.65,
+          }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon.Info size={16}/>
               </div>
-              <span style={{ fontSize: 14.5, fontWeight: 600 }}>Concours des Grands Vins de France</span>
-            </div>
-            {france.map(m => (
-              <DerogWineBlock key={m.id} m={m} entry={cart[m.id] || {}} onChange={handleChange} initialOpen={focusWine === m.id}/>
-            ))}
-          </div>
-          <div>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
-              paddingBottom: 10, borderBottom: '2px solid #BC9F54',
-            }}>
-              <div style={{ width: 28, height: 28, borderRadius: 6, background: '#BC9F5422', color: '#BC9F54', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon.Globe size={14}/>
+              <div>
+                <strong>1. Demande</strong> — Format + quantite puis soumettre.
+                <span style={{ margin: '0 8px', color: 'var(--fg-muted)' }}>|</span>
+                <strong>2. BAT</strong> — Deposez votre Bon A Tirer depuis l'onglet "En cours".
+                <span style={{ margin: '0 8px', color: 'var(--fg-muted)' }}>|</span>
+                <strong>3. Validation comite</strong> — Sous 2 a 5 jours, quota deduit a la validation.
+                <span style={{ margin: '0 8px', color: 'var(--fg-muted)' }}>|</span>
+                <strong>4. Impression</strong> — Chez votre imprimeur.
               </div>
-              <span style={{ fontSize: 14.5, fontWeight: 600 }}>Concours des Grands Vins du Monde</span>
             </div>
-            {monde.map(m => (
-              <DerogWineBlock key={m.id} m={m} entry={cart[m.id] || {}} onChange={handleChange} initialOpen={focusWine === m.id}/>
-            ))}
           </div>
 
-          <MesDemandesDerogSection demandes={demandes} onBatDepose={handleBatDepose}/>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, alignItems: 'start' }}>
+            <div>
+              <div style={{ marginBottom: 28 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 10, borderBottom: '2px solid var(--burgundy-800)' }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 6, background: 'var(--burgundy-800)22', color: 'var(--burgundy-800)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon.Trophy size={14}/>
+                  </div>
+                  <span style={{ fontSize: 14.5, fontWeight: 600 }}>Concours des Grands Vins de France</span>
+                </div>
+                {france.map(m => (
+                  <DerogWineBlock key={m.id} m={m} entry={cart[m.id] || {}} onChange={handleChange} initialOpen={focusWine === m.id}/>
+                ))}
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 10, borderBottom: '2px solid #BC9F54' }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 6, background: '#BC9F5422', color: '#BC9F54', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon.Globe size={14}/>
+                  </div>
+                  <span style={{ fontSize: 14.5, fontWeight: 600 }}>Concours des Grands Vins du Monde</span>
+                </div>
+                {monde.map(m => (
+                  <DerogWineBlock key={m.id} m={m} entry={cart[m.id] || {}} onChange={handleChange} initialOpen={focusWine === m.id}/>
+                ))}
+              </div>
+            </div>
+            <DerogCart medals={medals} cart={cart} quotaRestant={quotaRestant} onSubmit={handleSubmit}/>
+          </div>
         </div>
+      )}
 
-        <DerogCart medals={medals} cart={cart} quotaRestant={quotaRestant} onSubmit={handleSubmit}/>
-      </div>
+      {/* Onglet : Mes demandes en cours */}
+      {tab === 'en_cours' && (
+        <div>
+          {/* Banniere confirmation apres soumission */}
+          {lastSubmit && (
+            <div className="fade-in" style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: '14px 18px', borderRadius: 10, marginBottom: 20,
+              background: '#f0fdf4', border: '1px solid #86efac',
+            }}>
+              <Icon.CheckCircle size={20} style={{ color: 'var(--success)', flexShrink: 0 }}/>
+              <div style={{ flex: 1 }}>
+                <strong style={{ fontSize: 13.5 }}>
+                  {lastSubmit.count} demande{lastSubmit.count > 1 ? 's' : ''} soumise{lastSubmit.count > 1 ? 's' : ''} !
+                </strong>
+                <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>
+                  Deposez maintenant votre BAT pour chaque demande ci-dessous.
+                </div>
+              </div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setLastSubmit(null)}>
+                <Icon.X size={14}/>
+              </button>
+            </div>
+          )}
+          {demandesEnCours.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--fg-muted)', fontSize: 13.5 }}>
+              <Icon.Clock size={32} style={{ marginBottom: 12, opacity: 0.3 }}/>
+              <div>Aucune demande en cours.</div>
+              <button className="btn btn-primary btn-sm" style={{ marginTop: 16 }} onClick={() => setTab('demande')}>
+                <Icon.Plus size={13}/> Faire une demande
+              </button>
+            </div>
+          ) : (
+            <MesDemandesDerogSection demandes={demandesEnCours} onBatDepose={handleBatDepose}/>
+          )}
+        </div>
+      )}
+
+      {/* Onglet : Mes demandes terminées */}
+      {tab === 'terminees' && (
+        <div>
+          {demandesTerminees.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--fg-muted)', fontSize: 13.5 }}>
+              <Icon.Check size={32} style={{ marginBottom: 12, opacity: 0.3 }}/>
+              <div>Aucune demande terminee pour l'instant.</div>
+            </div>
+          ) : (
+            <MesDemandesDerogSection demandes={demandesTerminees} onBatDepose={() => {}}/>
+          )}
+        </div>
+      )}
     </div>
   );
 };
