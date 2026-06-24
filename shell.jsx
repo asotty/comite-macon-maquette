@@ -42,6 +42,7 @@ const navAdmin = [
     { id: 'param-concours', label: 'Configuration concours' },
     { id: 'param-salons', label: 'Configuration salons' },
     { id: 'param-appellations', label: 'Appellations & régions' },
+    { id: 'param-derogations', label: 'Dérogations impression' },
     { id: 'param-fournisseurs', label: 'Fournisseurs médailles' },
     { id: 'param-emails', label: 'Templates emails' },
     { id: 'param-api', label: 'Configuration API' },

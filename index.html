@@ -32,7 +32,7 @@
 <script type="text/babel" src="components-shared.jsx?v=5"></script>
 <script type="text/babel" src="tweaks-panel.jsx?v=3"></script>
 <script type="text/babel" src="view-login.jsx?v=7"></script>
-<script type="text/babel" src="shell.jsx?v=17"></script>
+<script type="text/babel" src="shell.jsx?v=18"></script>
 <script type="text/babel" src="view-admin.jsx?v=17"></script>
 <script type="text/babel" src="view-admin-email.jsx?v=5"></script>
 <script type="text/babel" src="view-admin-dossier.jsx?v=21"></script>
@@ -44,7 +44,7 @@
 <script type="text/babel" src="view-admin-producteurs.jsx?v=4"></script>
 <script type="text/babel" src="view-admin-degustateurs.jsx?v=4"></script>
 <script type="text/babel" src="view-admin-finances.jsx?v=3"></script>
-<script type="text/babel" src="view-admin-parametres.jsx?v=6"></script>
+<script type="text/babel" src="view-admin-parametres.jsx?v=7"></script>
 <script type="text/babel" src="view-producteur.jsx?v=28"></script>
 <script type="text/babel" src="view-degustateur.jsx?v=16"></script>
 <script type="text/babel" src="view-exposant.jsx?v=3"></script>
@@ -153,6 +153,7 @@ function App() {
     else if (route === 'param-api') view = <AdminParamAPI/>;
     else if (route === 'param-utilisateurs') view = <AdminParamUtilisateurs/>;
     else if (route === 'param-paiements') view = <AdminParamPaiements/>;
+    else if (route === 'param-derogations') view = <AdminParamDerogations/>;
   } else if (portal === 'producteur') {
     if (route === 'p-dashboard') view = <ProducteurDashboard kpiVariant={tweaks.kpiVariant} showKpiIcons={tweaks.showKpiIcons} onNavigate={setRoute}/>;
     else if (route === 'p-inscriptions' || route === 'p-ins-cours' || route === 'p-ins-historique') view = <ProducteurInscriptionsList onOpenWizard={() => setRoute('p-inscription')}/>;

@@ -1,4 +1,4 @@
-// ─── Paramètres : 6 pages ────────────────────────────────────────
+// ─── Paramètres : 7 pages ────────────────────────────────────────
 
 // Shared section helpers
 
@@ -144,6 +144,48 @@ const AdminParamFormatsSupport = ({ markDirty }) => {
         </div>
       </ParamRow>
     </ParamCard>
+  );
+};
+
+// ─── Page Dérogations impression ──────────────────────────────────
+
+const AdminParamDerogations = () => {
+  const [dirty, setDirty] = React.useState(false);
+  const markDirty = () => setDirty(true);
+
+  return (
+    <div data-screen-label="admin-param-derogations">
+      <PageHeader
+        breadcrumb={['Administration', 'Paramètres', 'Dérogations impression']}
+        title="Dérogations impression"
+        subtitle="Formats de support proposés aux producteurs lors d'une demande de dérogation étiquette"
+      />
+
+      <AdminParamFormatsSupport markDirty={markDirty}/>
+
+      {/* Sticky save bar */}
+      {dirty && (
+        <div style={{
+          position: 'sticky', bottom: 16, marginTop: 18,
+          padding: '12px 16px',
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          borderRadius: 10,
+          boxShadow: '0 8px 24px rgba(15,23,42,0.10)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+        }}>
+          <span style={{ fontSize: 12.5, color: 'var(--fg-muted)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: 999, background: '#f59e0b' }}/>
+            Modifications non sauvegardées
+          </span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-outline btn-sm" onClick={() => setDirty(false)}>Annuler</button>
+            <button className="btn btn-primary btn-sm" onClick={() => setDirty(false)} style={{ background: 'var(--burgundy-800)' }}>
+              <Icon.Check size={13}/> Sauvegarder
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -504,9 +546,6 @@ const AdminParamConcours = () => {
             </div>
           </ParamRow>
         </ParamCard>
-
-        {/* Formats de support — dérogation impression étiquette */}
-        <AdminParamFormatsSupport markDirty={markDirty}/>
 
       </div>
 
@@ -2314,6 +2353,7 @@ const AdminParamSalons = () => {
 
 Object.assign(window, {
   AdminParamConcours,
+  AdminParamDerogations,
   AdminParamAppellations,
   AdminParamFournisseurs,
   AdminParamEmails,
