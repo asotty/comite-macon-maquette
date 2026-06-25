@@ -588,8 +588,100 @@ const DegustateurRepas = ({ onNavigate }) => {
 };
 
 // Modale de réservation — récap + accompagnateurs + CTA paiement/confirmation
+// Allergènes courants proposés à la sélection
+const ALLERGENES = [
+  'Gluten', 'Lactose', 'Fruits à coque', 'Arachides',
+  'Œufs', 'Crustacés & fruits de mer', 'Soja', 'Sulfites',
+];
+
+// Formulaire régime alimentaire réutilisable (dégustateur ou accompagnateur)
+const RegimeForm = ({ value, onChange }) => {
+  const toggle = (allergen) => {
+    const next = value.allergies.includes(allergen)
+      ? value.allergies.filter(a => a !== allergen)
+      : [...value.allergies, allergen];
+    onChange({ ...value, allergies: next });
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {/* Végétarien */}
+      <div>
+        <div style={{ fontSize: 12, color: 'var(--fg-muted)', fontWeight: 500, marginBottom: 8 }}>Régime</div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {[{ v: false, label: 'Omnivore' }, { v: true, label: 'Végétarien' }].map(opt => (
+            <label key={String(opt.v)} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
+              border: '1px solid ' + (value.vegetarien === opt.v ? 'var(--burgundy-800)' : 'var(--border)'),
+              background: value.vegetarien === opt.v ? 'var(--burgundy-50)' : 'var(--surface)',
+            }}>
+              <input
+                type="radio"
+                checked={value.vegetarien === opt.v}
+                onChange={() => onChange({ ...value, vegetarien: opt.v })}
+                style={{ accentColor: 'var(--burgundy-800)' }}
+              />
+              {opt.label}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Allergies — cases à cocher */}
+      <div>
+        <div style={{ fontSize: 12, color: 'var(--fg-muted)', fontWeight: 500, marginBottom: 8 }}>
+          Allergies / intolérances <span style={{ fontWeight: 400, color: 'var(--fg-subtle)' }}>(cochez ce qui vous concerne)</span>
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {ALLERGENES.map(a => {
+            const checked = value.allergies.includes(a);
+            return (
+              <label key={a} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '5px 12px', borderRadius: 20, cursor: 'pointer', fontSize: 12.5,
+                border: '1px solid ' + (checked ? 'var(--burgundy-800)' : 'var(--border)'),
+                background: checked ? 'var(--burgundy-50)' : 'var(--surface)',
+                color: checked ? 'var(--burgundy-900)' : 'var(--fg)',
+                transition: 'all .12s',
+              }}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggle(a)}
+                  style={{ accentColor: 'var(--burgundy-800)', width: 13, height: 13 }}
+                />
+                {a}
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Champ libre */}
+      <div>
+        <div style={{ fontSize: 12, color: 'var(--fg-muted)', fontWeight: 500, marginBottom: 6 }}>
+          Autres précisions <span style={{ fontWeight: 400, color: 'var(--fg-subtle)' }}>(optionnel)</span>
+        </div>
+        <textarea
+          className="textarea"
+          rows={2}
+          placeholder="Ex : allergie sévère aux noix, végétalien, régime sans porc…"
+          value={value.autres}
+          onChange={e => onChange({ ...value, autres: e.target.value })}
+          style={{ maxWidth: '100%', width: '100%', fontSize: 13, resize: 'vertical' }}
+        />
+      </div>
+    </div>
+  );
+};
+
+const REGIME_INIT = () => ({ vegetarien: false, allergies: [], autres: '' });
+
 const ReservationModal = ({ repas, onClose, onConfirm }) => {
   const [nbAccomp, setNbAccomp] = React.useState(0);
+  const [regimeDegs,  setRegimeDegs]  = React.useState(REGIME_INIT());
+  const [regimeAccom, setRegimeAccom] = React.useState(REGIME_INIT());
   const isFree = repas.prix === 0;
   const prixAccomp = 28.00; // prix accompagnateur (issu des paramètres concours)
   const totalAmount = isFree ? 0 : repas.prix + nbAccomp * prixAccomp;
@@ -637,15 +729,15 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
 
         {/* Bloc 2 — MA PLACE (dégustateur) */}
         <div style={{ padding: '16px 24px 0' }}>
-          <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-            Ma place
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10 }}>
-            <div style={{ fontSize: 13.5, fontWeight: 500 }}>Dégustateur</div>
-            <div className="tnum" style={{ fontSize: 14, fontWeight: 600, color: isFree ? 'var(--success)' : 'var(--fg)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Ma place — Dégustateur
+            </div>
+            <div className="tnum" style={{ fontSize: 13.5, fontWeight: 600, color: isFree ? 'var(--success)' : 'var(--fg)' }}>
               {isFree ? 'Gratuit' : formatPrix(repas.prix)}
             </div>
           </div>
+          <RegimeForm value={regimeDegs} onChange={setRegimeDegs}/>
         </div>
 
         {/* Bloc 3 — ACCOMPAGNATEURS */}
@@ -675,6 +767,16 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
               >+</button>
             </div>
           </div>
+
+          {/* Régime accompagnateur — apparaît seulement si nbAccomp > 0 */}
+          {nbAccomp > 0 && (
+            <div style={{ marginTop: 14, padding: '16px', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10 }}>
+              <div style={{ fontSize: 12, color: 'var(--fg-muted)', fontWeight: 500, marginBottom: 12 }}>
+                Restrictions alimentaires — Accompagnateur
+              </div>
+              <RegimeForm value={regimeAccom} onChange={setRegimeAccom}/>
+            </div>
+          )}
         </div>
 
         {/* Total */}
@@ -695,11 +797,11 @@ const ReservationModal = ({ repas, onClose, onConfirm }) => {
         <div style={{ padding: '16px 24px 22px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button onClick={onClose} className="btn btn-outline">Annuler</button>
           {isFree ? (
-            <button onClick={() => onConfirm({ repas, paid: false, nbAccomp, montant: 0 })} className="btn btn-primary">
+            <button onClick={() => onConfirm({ repas, paid: false, nbAccomp, montant: 0, regimeDegs, regimeAccom })} className="btn btn-primary">
               <Icon.Check size={14}/> Confirmer ma réservation
             </button>
           ) : (
-            <button onClick={() => onConfirm({ repas, paid: true, nbAccomp, montant: totalAmount })} className="btn btn-primary">
+            <button onClick={() => onConfirm({ repas, paid: true, nbAccomp, montant: totalAmount, regimeDegs, regimeAccom })} className="btn btn-primary">
               Réserver et payer · {formatPrix(totalAmount)} <Icon.ArrowRight size={14}/>
             </button>
           )}
