@@ -2543,10 +2543,36 @@ const CommandeConfirmation = ({ order, onNavigate }) => (
               </div>
             </div>
           ))}
-          <div style={{ marginTop: 6, paddingTop: 10, borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontSize: 13, color: 'var(--fg-muted)' }}>{order.totalItems} article{order.totalItems > 1 ? 's' : ''}</span>
-            <span className="tnum display" style={{ fontSize: 18, fontWeight: 600 }}>{order.totalUnits.toLocaleString('fr-FR')} unités</span>
-          </div>
+          {/* Sous-totaux imprimeur / comité + grand total */}
+          {(() => {
+            const pImprimeur = order.lines.reduce((s, l) => s + (l.qty.medailles || 0) * PRICE_PER.medailles, 0);
+            const pComite    = order.lines.reduce((s, l) => s + (l.qty.plaques_metal || 0) * PRICE_PER.plaques_metal + (l.qty.chevalets_plexi || 0) * PRICE_PER.chevalets_plexi, 0);
+            const pTotal     = pImprimeur + pComite;
+            return (
+              <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                {pImprimeur > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 12, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Icon.Printer size={11} style={{ color: 'var(--fg-subtle)' }}/> Imprimeur <span style={{ fontStyle: 'italic', color: 'var(--fg-subtle)' }}>médailles</span>
+                    </span>
+                    <span className="tnum" style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>{pImprimeur.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</span>
+                  </div>
+                )}
+                {pComite > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 12, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Icon.Building size={11} style={{ color: 'var(--fg-subtle)' }}/> Comité <span style={{ fontStyle: 'italic', color: 'var(--fg-subtle)' }}>supports</span>
+                    </span>
+                    <span className="tnum" style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>{pComite.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</span>
+                  </div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 4, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: 13, color: 'var(--fg-muted)' }}>{order.totalItems} article{order.totalItems > 1 ? 's' : ''} · {order.totalUnits.toLocaleString('fr-FR')} médailles</span>
+                  <span className="tnum display" style={{ fontSize: 20, fontWeight: 700, color: 'var(--burgundy-800)' }}>{pTotal.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</span>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
@@ -3358,7 +3384,14 @@ const Stepper = ({ value, onChange, disabled, max }) => (
   </div>
 );
 
-const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, hasOverflow, onSubmit }) => (
+const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, hasOverflow, onSubmit }) => {
+  // Imprimeur = médailles / Comité = plaques métal + chevalets plexi
+  const priceImprimeur = lines.reduce((s, l) => s + (l.qty.medailles || 0) * PRICE_PER.medailles, 0);
+  const priceComite    = lines.reduce((s, l) =>
+    s + (l.qty.plaques_metal || 0) * PRICE_PER.plaques_metal
+      + (l.qty.chevalets_plexi || 0) * PRICE_PER.chevalets_plexi, 0);
+
+  return (
   <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
     <div style={{ padding: '18px 22px 4px' }}>
       <div style={{ fontSize: 16, fontWeight: 600, letterSpacing: '-0.01em' }}>Votre commande</div>
@@ -3384,8 +3417,8 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
             }}>
               <div style={{ fontSize: 13.5, fontWeight: 500, marginBottom: 4 }}>{l.wine.name}</div>
               {[
-                { k: 'medailles',       sing: 'médaille',      plur: 'médailles'      },
-                { k: 'plaques_metal',   sing: 'plaque métal',  plur: 'plaques métal'  },
+                { k: 'medailles',       sing: 'médaille',       plur: 'médailles'       },
+                { k: 'plaques_metal',   sing: 'plaque métal',   plur: 'plaques métal'   },
                 { k: 'chevalets_plexi', sing: 'chevalet plexi', plur: 'chevalets plexi' },
               ].filter(f => (l.qty[f.k] || 0) > 0).map(f => {
                 const qty = l.qty[f.k];
@@ -3405,18 +3438,42 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
       )}
     </div>
 
-    {/* Totaux */}
-    <div style={{ padding: '14px 22px', background: 'var(--surface-2)', borderTop: '1px solid var(--border)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{totalItems} article{totalItems > 1 ? 's' : ''}</div>
-          <div style={{ fontSize: 11.5, color: 'var(--fg-subtle)', marginTop: 2 }} className="tnum">{totalUnits.toLocaleString('fr-FR')} médailles</div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600, marginBottom: 2 }}>Total</div>
-          <div className="tnum display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--burgundy-800)', letterSpacing: '-0.02em' }}>
-            {(totalPrice || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} <span style={{ fontSize: 16 }}>€</span>
+    {/* Totaux — imprimeur / comité / grand total */}
+    <div style={{ padding: '14px 22px', background: 'var(--surface-2)', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {/* Sous-total imprimeur (médailles) */}
+      {priceImprimeur > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Icon.Printer size={12} style={{ color: 'var(--fg-subtle)' }}/>
+            <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>Imprimeur</span>
+            <span style={{ fontSize: 11, color: 'var(--fg-subtle)', fontStyle: 'italic' }}>médailles</span>
           </div>
+          <span className="tnum" style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>
+            {priceImprimeur.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+          </span>
+        </div>
+      )}
+      {/* Sous-total comité (plaques + chevalets) */}
+      {priceComite > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Icon.Building size={12} style={{ color: 'var(--fg-subtle)' }}/>
+            <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>Comité</span>
+            <span style={{ fontSize: 11, color: 'var(--fg-subtle)', fontStyle: 'italic' }}>supports</span>
+          </div>
+          <span className="tnum" style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>
+            {priceComite.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+          </span>
+        </div>
+      )}
+      {/* Séparateur + Grand total */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: (priceImprimeur > 0 || priceComite > 0) ? 8 : 0, marginTop: (priceImprimeur > 0 || priceComite > 0) ? 2 : 0, borderTop: (priceImprimeur > 0 || priceComite > 0) ? '1px solid var(--border)' : 'none' }}>
+        <div>
+          <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Total</div>
+          <div style={{ fontSize: 11, color: 'var(--fg-subtle)', marginTop: 2 }} className="tnum">{totalUnits.toLocaleString('fr-FR')} médailles</div>
+        </div>
+        <div className="tnum display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--burgundy-800)', letterSpacing: '-0.02em' }}>
+          {(totalPrice || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} <span style={{ fontSize: 16 }}>€</span>
         </div>
       </div>
     </div>
@@ -3440,7 +3497,8 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
       </button>
     </div>
   </div>
-);
+  );
+};
 
 // ============================================================
 // Mon compte — wrapper avec sous-nav horizontale + 3 sous-pages
