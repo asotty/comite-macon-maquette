@@ -289,13 +289,13 @@ const AdminParamConcours = () => {
               </button>
             </div>
           </ParamRow>
-          <ParamRow label="Prix repas — Dégustateur" hint="Tarif HT par dégustateur pour les repas du concours">
+          <ParamRow label="Prix repas — Dégustateur" hint="Tarif TTC par dégustateur pour les repas du concours">
             <div style={{ position: 'relative', maxWidth: 160 }}>
               <input type="number" className="input tnum" defaultValue={38} onChange={markDirty} style={{ paddingRight: 28 }}/>
               <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€</span>
             </div>
           </ParamRow>
-          <ParamRow label="Prix repas — Accompagnateur" hint="Tarif HT par accompagnateur (distinct du tarif dégustateur)">
+          <ParamRow label="Prix repas — Accompagnateur" hint="Tarif TTC par accompagnateur (distinct du tarif dégustateur)">
             <div style={{ position: 'relative', maxWidth: 160 }}>
               <input type="number" className="input tnum" defaultValue={28} onChange={markDirty} style={{ paddingRight: 28 }}/>
               <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€</span>
