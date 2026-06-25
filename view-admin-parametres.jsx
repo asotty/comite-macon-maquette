@@ -198,6 +198,10 @@ const AdminParamConcours = () => {
   const [dirty, setDirty]       = React.useState(false);
   const markDirty = () => setDirty(true);
 
+  // Repas payant/gratuit par type de participant
+  const [repasDegsPayant,  setRepasDegsPayant]  = React.useState(true);
+  const [repasAccomPayant, setRepasAccomPayant] = React.useState(true);
+
   // R84 — 3 produits fixes (à l'unité, pas d'équivalence, pas d'ajout/suppression)
   // médailles       : prix de référence 45 €/1 000 — déduit du quota
   // plaques_metal   : à l'unité, hors quota
@@ -289,16 +293,62 @@ const AdminParamConcours = () => {
               </button>
             </div>
           </ParamRow>
-          <ParamRow label="Prix repas — Dégustateur" hint="Tarif TTC par dégustateur pour les repas du concours">
-            <div style={{ position: 'relative', maxWidth: 160 }}>
-              <input type="number" className="input tnum" defaultValue={38} onChange={markDirty} style={{ paddingRight: 28 }}/>
-              <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€</span>
+          <ParamRow label="Repas — Dégustateur" hint="Définissez si le repas est inclus gratuitement ou payant pour les dégustateurs">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 14px', borderRadius: 8, border: '1px solid ' + (repasDegsPayant ? 'var(--border)' : 'var(--burgundy-800)'), background: repasDegsPayant ? 'var(--surface)' : 'var(--burgundy-50)', cursor: 'pointer', fontSize: 13 }}>
+                  <input type="radio" name="repas-degs" checked={!repasDegsPayant} onChange={() => { setRepasDegsPayant(false); markDirty(); }} style={{ accentColor: 'var(--burgundy-800)' }}/>
+                  Gratuit — inscription libre
+                </label>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 14px', borderRadius: 8, border: '1px solid ' + (!repasDegsPayant ? 'var(--border)' : 'var(--burgundy-800)'), background: !repasDegsPayant ? 'var(--surface)' : 'var(--burgundy-50)', cursor: 'pointer', fontSize: 13 }}>
+                  <input type="radio" name="repas-degs" checked={repasDegsPayant} onChange={() => { setRepasDegsPayant(true); markDirty(); }} style={{ accentColor: 'var(--burgundy-800)' }}/>
+                  Payant
+                </label>
+              </div>
+              {repasDegsPayant && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ position: 'relative', maxWidth: 160 }}>
+                    <input type="number" className="input tnum" defaultValue={38} onChange={markDirty} style={{ paddingRight: 28 }}/>
+                    <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€</span>
+                  </div>
+                  <span style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>TTC / dégustateur</span>
+                </div>
+              )}
+              {!repasDegsPayant && (
+                <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Icon.Info size={13} style={{ color: 'var(--gold-600)', flexShrink: 0 }}/>
+                  Aucune étape de paiement — le dégustateur s'inscrit directement.
+                </div>
+              )}
             </div>
           </ParamRow>
-          <ParamRow label="Prix repas — Accompagnateur" hint="Tarif TTC par accompagnateur (distinct du tarif dégustateur)">
-            <div style={{ position: 'relative', maxWidth: 160 }}>
-              <input type="number" className="input tnum" defaultValue={28} onChange={markDirty} style={{ paddingRight: 28 }}/>
-              <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€</span>
+          <ParamRow label="Repas — Accompagnateur" hint="Définissez si le repas est inclus gratuitement ou payant pour les accompagnateurs">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 14px', borderRadius: 8, border: '1px solid ' + (repasAccomPayant ? 'var(--border)' : 'var(--burgundy-800)'), background: repasAccomPayant ? 'var(--surface)' : 'var(--burgundy-50)', cursor: 'pointer', fontSize: 13 }}>
+                  <input type="radio" name="repas-accom" checked={!repasAccomPayant} onChange={() => { setRepasAccomPayant(false); markDirty(); }} style={{ accentColor: 'var(--burgundy-800)' }}/>
+                  Gratuit — inscription libre
+                </label>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 14px', borderRadius: 8, border: '1px solid ' + (!repasAccomPayant ? 'var(--border)' : 'var(--burgundy-800)'), background: !repasAccomPayant ? 'var(--surface)' : 'var(--burgundy-50)', cursor: 'pointer', fontSize: 13 }}>
+                  <input type="radio" name="repas-accom" checked={repasAccomPayant} onChange={() => { setRepasAccomPayant(true); markDirty(); }} style={{ accentColor: 'var(--burgundy-800)' }}/>
+                  Payant
+                </label>
+              </div>
+              {repasAccomPayant && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ position: 'relative', maxWidth: 160 }}>
+                    <input type="number" className="input tnum" defaultValue={28} onChange={markDirty} style={{ paddingRight: 28 }}/>
+                    <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€</span>
+                  </div>
+                  <span style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>TTC / accompagnateur</span>
+                </div>
+              )}
+              {!repasAccomPayant && (
+                <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Icon.Info size={13} style={{ color: 'var(--gold-600)', flexShrink: 0 }}/>
+                  Aucune étape de paiement — l'accompagnateur s'inscrit directement.
+                </div>
+              )}
             </div>
           </ParamRow>
         </ParamCard>
