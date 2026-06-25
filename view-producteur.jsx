@@ -2964,18 +2964,93 @@ const ProducteurCommandes = ({ onNavigate }) => {
         subtitle="Sélectionnez vos quantités — quota basé sur vos volumes déclarés"
       />
 
-      {/* Onglets Concours des Grands Vins de France / Concours des Grands Vins du Monde */}
-      <div style={{ display: 'flex', gap: 0, marginBottom: 20, borderBottom: '1px solid var(--border)' }}>
-        {[{ k: 'france', label: 'Concours des Grands Vins de France' }, { k: 'monde', label: 'Concours des Grands Vins du Monde' }].map(t => (
-          <button key={t.k} onClick={() => setConcourTab(t.k)} style={{
-            padding: '10px 20px', border: 'none', background: 'transparent',
-            borderBottom: concourTab === t.k ? '2px solid var(--burgundy-800)' : '2px solid transparent',
-            fontWeight: concourTab === t.k ? 600 : 400,
-            color: concourTab === t.k ? 'var(--burgundy-800)' : 'var(--fg-muted)',
-            cursor: 'pointer', fontSize: 14, fontFamily: 'inherit',
-          }}>{t.label}</button>
-        ))}
-      </div>
+      {/* Sélecteur de concours — cards visuellement distinctes */}
+      {(() => {
+        const TABS = [
+          {
+            k: 'france',
+            brand: CONCOURS_BRAND.france,
+            sub: 'Médailles France · Édition 2026',
+            nbVins: medailles.filter(m => m.concours === 'france').length,
+          },
+          {
+            k: 'monde',
+            brand: CONCOURS_BRAND.monde,
+            sub: 'Médailles Monde · Édition 2026',
+            nbVins: medailles.filter(m => m.concours === 'monde').length,
+          },
+        ];
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
+            {TABS.map(t => {
+              const active = concourTab === t.k;
+              const b = t.brand;
+              return (
+                <button
+                  key={t.k}
+                  onClick={() => setConcourTab(t.k)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 16,
+                    padding: '16px 20px',
+                    border: '2px solid ' + (active ? b.colorBorder.replace('0.15', '0.5') : 'var(--border)'),
+                    borderRadius: 14,
+                    background: active
+                      ? `linear-gradient(135deg, ${b.colorLight} 0%, color-mix(in srgb, ${b.colorLight} 60%, white) 100%)`
+                      : 'var(--surface)',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    textAlign: 'left',
+                    transition: 'all .15s',
+                    boxShadow: active ? `0 0 0 3px ${b.colorBorder}` : 'none',
+                    opacity: active ? 1 : 0.65,
+                  }}
+                >
+                  {/* Logo + icône check */}
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <ConcoursLogo concours={t.k} size={52}/>
+                    {active && (
+                      <div style={{
+                        position: 'absolute', bottom: -4, right: -4,
+                        width: 18, height: 18, borderRadius: '50%',
+                        background: b.color, color: '#fff',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: '2px solid var(--surface)',
+                      }}>
+                        <Icon.Check size={10}/>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Texte */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: 14, fontWeight: active ? 700 : 500,
+                      color: active ? b.color : 'var(--fg-muted)',
+                      letterSpacing: '-0.01em', lineHeight: 1.3,
+                    }}>
+                      {b.nom}
+                    </div>
+                    <div style={{ fontSize: 12, color: active ? b.color : 'var(--fg-subtle)', marginTop: 3, opacity: active ? 0.75 : 1 }}>
+                      {t.sub}
+                    </div>
+                    <div style={{
+                      marginTop: 8,
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      fontSize: 11.5, fontWeight: 600,
+                      padding: '2px 8px', borderRadius: 99,
+                      background: active ? b.colorBorder : 'var(--surface-2)',
+                      color: active ? b.color : 'var(--fg-muted)',
+                      border: '1px solid ' + (active ? b.colorBorder : 'var(--border)'),
+                    }}>
+                      <Icon.Grape size={11}/> {t.nbVins} cuvée{t.nbVins > 1 ? 's' : ''} médaillée{t.nbVins > 1 ? 's' : ''}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, alignItems: 'flex-start' }}>
         {/* Gauche — vins médaillés */}
