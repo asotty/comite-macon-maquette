@@ -869,14 +869,56 @@ const AppellationModal = ({ region, editing, onCancel, onConfirm }) => {
 
 // ─── Page 3 — Fournisseurs médailles ──────────────────────────────
 
+const FR_REGIONS = [
+  { id: 'ARA',  label: 'Auvergne-Rhône-Alpes' },
+  { id: 'BFC',  label: 'Bourgogne-Franche-Comté' },
+  { id: 'BRE',  label: 'Bretagne' },
+  { id: 'CVL',  label: 'Centre-Val de Loire' },
+  { id: 'GE',   label: 'Grand Est' },
+  { id: 'HDF',  label: 'Hauts-de-France' },
+  { id: 'IDF',  label: 'Île-de-France' },
+  { id: 'NOR',  label: 'Normandie' },
+  { id: 'NAQ',  label: 'Nouvelle-Aquitaine' },
+  { id: 'OCC',  label: 'Occitanie' },
+  { id: 'PDL',  label: 'Pays de la Loire' },
+  { id: 'PAC',  label: 'Provence-Alpes-Côte d\'Azur' },
+  { id: 'CORS', label: 'Corse' },
+];
+const FDP_TRANCHES = [
+  { id: 'xs', label: '< 2 kg',   maxKg: 2 },
+  { id: 'sm', label: '2–5 kg',   maxKg: 5 },
+  { id: 'md', label: '5–10 kg',  maxKg: 10 },
+  { id: 'lg', label: '10–20 kg', maxKg: 20 },
+  { id: 'xl', label: '> 20 kg',  maxKg: Infinity },
+];
+const FDP_TIMINGS = [
+  { id: 'standard', label: 'Standard', sub: '5–7 j ouvrés' },
+  { id: 'express',  label: 'Express',  sub: '2–3 j ouvrés' },
+];
+
 const AdminParamFournisseurs = () => {
   const [addModal, setAddModal] = React.useState(false);
   const [editId, setEditId] = React.useState(null);
 
   const FOURNISSEURS = [
-    { id: 'lyon',     nom: 'Médailleur Lyon',   contact: 'Pierre Dupont', email: 'contact@medailleur-lyon.fr',   tel: '04 78 12 34 56', formatId: 'CSV',  delai: 14, status: 'actif',   producteurs: 248, medailles: ['or', 'argent', 'bronze'] },
-    { id: 'bordeaux', nom: 'Médailleur Bordeaux','contact': 'Marie Verdier', email: 'commandes@verdier-medailles.fr','tel': '05 56 78 12 34', formatId: 'CSV',  delai: 21, status: 'actif',   producteurs: 52,  medailles: ['or', 'argent', 'bronze'] },
-    { id: 'paris',    nom: 'Arthus-Bertrand',   contact: 'Sophie Martin', email: 'btob@arthus-bertrand.fr',      tel: '01 42 60 73 19', formatId: 'XLSX', delai: 30, status: 'inactif', producteurs: 12,  medailles: ['or'] },
+    {
+      id: 'lyon', nom: 'Médailleur Lyon', contact: 'Pierre Dupont', email: 'contact@medailleur-lyon.fr', tel: '04 78 12 34 56',
+      formatId: 'CSV', delai: 14, status: 'actif', producteurs: 248, medailles: ['or', 'argent', 'bronze'],
+      zones: ['ARA', 'BFC', 'OCC', 'PAC', 'CORS'],
+      fdp: { xs: { standard: 6.90, express: 14.50 }, sm: { standard: 9.50, express: 18.00 }, md: { standard: 13.50, express: 26.00 }, lg: { standard: 19.00, express: 38.00 }, xl: { standard: 28.00, express: 55.00 } },
+    },
+    {
+      id: 'bordeaux', nom: 'Médailleur Bordeaux', contact: 'Marie Verdier', email: 'commandes@verdier-medailles.fr', tel: '05 56 78 12 34',
+      formatId: 'CSV', delai: 21, status: 'actif', producteurs: 52, medailles: ['or', 'argent', 'bronze'],
+      zones: ['NAQ', 'PDL', 'BRE', 'NOR', 'CVL'],
+      fdp: { xs: { standard: 7.50, express: 15.00 }, sm: { standard: 10.50, express: 19.50 }, md: { standard: 14.50, express: 28.00 }, lg: { standard: 21.00, express: 42.00 }, xl: { standard: 30.00, express: 60.00 } },
+    },
+    {
+      id: 'paris', nom: 'Arthus-Bertrand', contact: 'Sophie Martin', email: 'btob@arthus-bertrand.fr', tel: '01 42 60 73 19',
+      formatId: 'XLSX', delai: 30, status: 'inactif', producteurs: 12, medailles: ['or'],
+      zones: ['IDF', 'GE', 'HDF'],
+      fdp: { xs: { standard: 7.90, express: 15.50 }, sm: { standard: 11.00, express: 20.00 }, md: { standard: 15.00, express: 29.00 }, lg: { standard: 22.00, express: 44.00 }, xl: { standard: 32.00, express: 62.00 } },
+    },
   ];
 
   const paged = useSortablePaged(FOURNISSEURS, {
@@ -908,8 +950,9 @@ const AdminParamFournisseurs = () => {
               <SortableTh sortKey="contact"     currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Contact</SortableTh>
               <SortableTh sortKey="formatId"    currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Format d'export</SortableTh>
               <th>Médailles gérées</th>
+              <th>Zones géographiques</th>
               <SortableTh sortKey="delai"       currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort} align="right">Délai (j)</SortableTh>
-              <SortableTh sortKey="producteurs" currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort} align="right">Producteurs rattachés</SortableTh>
+              <SortableTh sortKey="producteurs" currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort} align="right">Prod. rattachés</SortableTh>
               <SortableTh sortKey="statut"      currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Statut</SortableTh>
               <th style={{ width: 100 }}></th>
             </tr>
@@ -967,6 +1010,21 @@ const AdminParamFournisseurs = () => {
                     })}
                   </div>
                 </td>
+                <td>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                    {(f.zones || []).slice(0, 4).map(z => (
+                      <span key={z} title={(FR_REGIONS.find(r => r.id === z) || {}).label} style={{
+                        fontSize: 10, fontWeight: 600, padding: '1px 5px', borderRadius: 4,
+                        background: 'var(--burgundy-50)', color: 'var(--burgundy-800)',
+                        border: '1px solid var(--burgundy-200, #e9d5d5)',
+                      }}>{z}</span>
+                    ))}
+                    {(f.zones || []).length > 4 && (
+                      <span style={{ fontSize: 10, color: 'var(--fg-muted)', padding: '1px 4px' }}>+{f.zones.length - 4}</span>
+                    )}
+                    {(f.zones || []).length === 0 && <span style={{ fontSize: 11, color: 'var(--fg-subtle)', fontStyle: 'italic' }}>—</span>}
+                  </div>
+                </td>
                 <td className="num tnum">{f.delai}</td>
                 <td className="num tnum">{f.producteurs}</td>
                 <td><CompteBadge kind={f.status}/></td>
@@ -995,6 +1053,12 @@ const AdminParamFournisseurs = () => {
   );
 };
 
+const FournisseurModalSectionTitle = ({ children }) => (
+  <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--fg-muted)', marginBottom: 8, marginTop: 4, paddingBottom: 6, borderBottom: '1px solid var(--border)' }}>
+    {children}
+  </div>
+);
+
 const FournisseurModal = ({ editing, onCancel, onConfirm }) => {
   React.useEffect(() => {
     const k = (e) => e.key === 'Escape' && onCancel();
@@ -1002,56 +1066,72 @@ const FournisseurModal = ({ editing, onCancel, onConfirm }) => {
     return () => window.removeEventListener('keydown', k);
   }, [onCancel]);
 
-  const [medailles, setMedailles] = React.useState(
-    editing?.medailles || ['or', 'argent', 'bronze']
-  );
+  const [medailles, setMedailles] = React.useState((editing && editing.medailles) ? editing.medailles : ['or', 'argent', 'bronze']);
   const toggleMedaille = (m) => setMedailles(arr => arr.includes(m) ? arr.filter(x => x !== m) : [...arr, m]);
+
+  const [zones, setZones] = React.useState((editing && editing.zones) ? editing.zones : []);
+  const toggleZone = (z) => setZones(arr => arr.includes(z) ? arr.filter(x => x !== z) : [...arr, z]);
+
+  const buildInitFdp = () => {
+    var init = {};
+    FDP_TRANCHES.forEach(function(t) {
+      init[t.id] = {};
+      FDP_TIMINGS.forEach(function(tm) {
+        var val = (editing && editing.fdp && editing.fdp[t.id] && editing.fdp[t.id][tm.id] !== undefined) ? editing.fdp[t.id][tm.id] : '';
+        init[t.id][tm.id] = val;
+      });
+    });
+    return init;
+  };
+  const [fdpData, setFdpData] = React.useState(buildInitFdp);
+  const updateFdp = (tId, tmId, val) => setFdpData(prev => ({ ...prev, [tId]: { ...prev[tId], [tmId]: val } }));
+
   return (
     <div onClick={onCancel} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div onClick={e => e.stopPropagation()} className="card" style={{ width: 520, padding: 0, overflow: 'hidden', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+      <div onClick={e => e.stopPropagation()} className="card" style={{ width: 660, padding: 0, overflow: 'hidden', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '22px 26px 14px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
           <h2 className="display" style={{ fontSize: 19, fontWeight: 500, margin: 0 }}>
             {editing ? `Modifier ${editing.nom}` : 'Ajouter un fournisseur'}
           </h2>
           <button onClick={onCancel} className="btn btn-icon btn-sm btn-ghost"><Icon.X size={14}/></button>
         </div>
-        <div style={{ padding: '18px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Nom du fournisseur</span>
-            <input className="input" defaultValue={editing?.nom || ''}/></label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Contact</span>
-              <input className="input" defaultValue={editing?.contact || ''}/></label>
-            <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Téléphone</span>
-              <input className="input" defaultValue={editing?.tel || ''} style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)' }}/></label>
-          </div>
-          <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Email commandes</span>
-            <input type="email" className="input" defaultValue={editing?.email || ''} style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)' }}/></label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Format d'export</span>
-              <select className="input" defaultValue={editing?.formatId || 'CSV'}><option>CSV</option><option>XLSX</option><option>XML</option></select></label>
-            <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Délai de production (jours)</span>
-              <input type="number" className="input tnum" defaultValue={editing?.delai || 14}/></label>
+        <div style={{ padding: '18px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* ── Infos générales */}
+          <div>
+            <FournisseurModalSectionTitle>Informations générales</FournisseurModalSectionTitle>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Nom du fournisseur</span>
+                <input className="input" defaultValue={editing?.nom || ''}/></label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Contact</span>
+                  <input className="input" defaultValue={editing?.contact || ''}/></label>
+                <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Téléphone</span>
+                  <input className="input" defaultValue={editing?.tel || ''} style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)' }}/></label>
+              </div>
+              <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Email commandes</span>
+                <input type="email" className="input" defaultValue={editing?.email || ''} style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)' }}/></label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Format d'export</span>
+                  <select className="input" defaultValue={editing?.formatId || 'CSV'}><option>CSV</option><option>XLSX</option><option>XML</option></select></label>
+                <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Délai de production (jours)</span>
+                  <input type="number" className="input tnum" defaultValue={editing?.delai || 14}/></label>
+              </div>
+            </div>
           </div>
 
+          {/* ── Types de médailles */}
           <div>
-            <span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>
-              Types de médailles gérés <span style={{ color: '#dc2626' }}>*</span>
-            </span>
+            <FournisseurModalSectionTitle>Types de médailles gérés</FournisseurModalSectionTitle>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {[
-                { id: 'or',     label: 'Or',     dot: '#d4a017' },
+                { id: 'or', label: 'Or', dot: '#d4a017' },
                 { id: 'argent', label: 'Argent', dot: '#94a3b8' },
                 { id: 'bronze', label: 'Bronze', dot: '#c2410c' },
               ].map(m => {
                 const active = medailles.includes(m.id);
                 return (
-                  <label key={m.id} style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '10px 12px',
-                    border: `1px solid ${active ? 'var(--burgundy-800)' : 'var(--border)'}`,
-                    background: active ? 'var(--burgundy-50)' : 'var(--surface)',
-                    borderRadius: 8, cursor: 'pointer',
-                  }}>
+                  <label key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: `1px solid ${active ? 'var(--burgundy-800)' : 'var(--border)'}`, background: active ? 'var(--burgundy-50)' : 'var(--surface)', borderRadius: 8, cursor: 'pointer' }}>
                     <input type="checkbox" checked={active} onChange={() => toggleMedaille(m.id)} style={{ accentColor: 'var(--burgundy-800)' }}/>
                     <span style={{ width: 10, height: 10, borderRadius: 999, background: m.dot, flexShrink: 0 }}/>
                     <span style={{ fontSize: 13, fontWeight: 500, color: active ? 'var(--burgundy-800)' : 'var(--fg)' }}>{m.label}</span>
@@ -1059,15 +1139,83 @@ const FournisseurModal = ({ editing, onCancel, onConfirm }) => {
                 );
               })}
             </div>
-            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <Icon.Info size={11}/> Seules les commandes correspondant aux types cochés seront transmises à ce fournisseur.
-            </div>
             {medailles.length === 0 && (
               <div style={{ fontSize: 11.5, color: '#991b1b', marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 <Icon.AlertTriangle size={11}/> Au moins un type doit être sélectionné.
               </div>
             )}
           </div>
+
+          {/* ── Zones géographiques */}
+          <div>
+            <FournisseurModalSectionTitle>Zones géographiques desservies</FournisseurModalSectionTitle>
+            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Icon.Globe size={11}/>
+              Les producteurs de ces régions seront automatiquement rattachés à ce fournisseur.
+              {zones.length > 0 && <span style={{ marginLeft: 4, fontWeight: 600, color: 'var(--burgundy-800)' }}>{zones.length} région(s) sélectionnée(s)</span>}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {FR_REGIONS.map(function(r) {
+                var active = zones.includes(r.id);
+                return (
+                  <label key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', border: '1px solid ' + (active ? 'var(--burgundy-800)' : 'var(--border)'), background: active ? 'var(--burgundy-50)' : 'var(--surface)', borderRadius: 6, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={active} onChange={function() { toggleZone(r.id); }} style={{ accentColor: 'var(--burgundy-800)' }}/>
+                    <span style={{ fontSize: 10.5, fontWeight: 700 }}>{r.id}</span>
+                    <span style={{ fontSize: 10.5 }}>{r.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Barème frais de port */}
+          <div>
+            <FournisseurModalSectionTitle>Barème frais de port (€ TTC)</FournisseurModalSectionTitle>
+            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginBottom: 10 }}>
+              Référence : 1 médaille ≈ 5 g · 1 000 médailles ≈ 5 kg
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+                <thead>
+                  <tr style={{ background: 'var(--surface-2)' }}>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, border: '1px solid var(--border)', fontSize: 11 }}>Tranche poids</th>
+                    {FDP_TIMINGS.map(function(tm) {
+                      return (
+                        <th key={tm.id} style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 600, border: '1px solid var(--border)', fontSize: 11 }}>
+                          <div>{tm.label}</div>
+                          <div style={{ fontWeight: 400, fontSize: 10.5 }}>{tm.sub}</div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {FDP_TRANCHES.map(function(t, i) {
+                    return (
+                      <tr key={t.id} style={{ background: i % 2 === 0 ? 'var(--surface)' : 'var(--surface-2)' }}>
+                        <td style={{ padding: '8px 12px', fontWeight: 600, border: '1px solid var(--border)' }}>{t.label}</td>
+                        {FDP_TIMINGS.map(function(tm) {
+                          return (
+                            <td key={tm.id} style={{ padding: '6px 10px', border: '1px solid var(--border)', textAlign: 'center' }}>
+                              <input
+                                type="number" step="0.01" min="0"
+                                value={fdpData[t.id] && fdpData[t.id][tm.id] !== undefined ? fdpData[t.id][tm.id] : ''}
+                                onChange={function(e) { updateFdp(t.id, tm.id, e.target.value); }}
+                                className="input tnum"
+                                style={{ width: 72, padding: '4px 8px', fontSize: 12.5, textAlign: 'right' }}
+                              />
+                              {' '}€
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
         <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 8, borderTop: '1px solid var(--border)', background: 'var(--slate-50)' }}>
           <button className="btn btn-outline" onClick={onCancel}>Annuler</button>

@@ -2543,19 +2543,34 @@ const CommandeConfirmation = ({ order, onNavigate }) => (
               </div>
             </div>
           ))}
-          {/* Sous-totaux imprimeur / comité + grand total */}
+          {/* Sous-totaux imprimeur / FDP indicatif / comité + grand total */}
           {(() => {
-            const pImprimeur = order.lines.reduce((s, l) => s + (l.qty.medailles || 0) * PRICE_PER.medailles, 0);
-            const pComite    = order.lines.reduce((s, l) => s + (l.qty.plaques_metal || 0) * PRICE_PER.plaques_metal + (l.qty.chevalets_plexi || 0) * PRICE_PER.chevalets_plexi, 0);
-            const pTotal     = pImprimeur + pComite;
+            const pImprimeur  = order.lines.reduce((s, l) => s + (l.qty.medailles || 0) * PRICE_PER.medailles, 0);
+            const pComite     = order.lines.reduce((s, l) => s + (l.qty.plaques_metal || 0) * PRICE_PER.plaques_metal + (l.qty.chevalets_plexi || 0) * PRICE_PER.chevalets_plexi, 0);
+            const totMed      = order.lines.reduce((s, l) => s + (l.qty.medailles || 0), 0);
+            const fourn       = getAssignedFournisseur(MOCK_PRODUCER_REGION);
+            const fdp         = getFdpIndicatif(totMed, fourn, 'standard');
+            const pTotal      = pImprimeur + pComite;
+            const poidsKg     = (totMed * POIDS_PAR_MEDAILLE_G) / 1000;
+            const tranche     = totMed > 0 ? (FDP_TRANCHES_P.find(t => poidsKg <= t.maxKg) || FDP_TRANCHES_P[FDP_TRANCHES_P.length - 1]) : null;
             return (
               <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 5 }}>
                 {pImprimeur > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 12, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <Icon.Printer size={11} style={{ color: 'var(--fg-subtle)' }}/> Imprimeur <span style={{ fontStyle: 'italic', color: 'var(--fg-subtle)' }}>médailles</span>
+                      <Icon.Printer size={11} style={{ color: 'var(--fg-subtle)' }}/> Imprimeur
+                      <span style={{ fontSize: 10.5, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 4, padding: '0px 5px', color: 'var(--fg-muted)' }}>{fourn.nom}</span>
                     </span>
                     <span className="tnum" style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>{pImprimeur.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</span>
+                  </div>
+                )}
+                {totMed > 0 && fdp > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 12, color: 'var(--fg-muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <Icon.Package size={11} style={{ color: 'var(--fg-subtle)' }}/> FDP indicatif
+                      <span style={{ fontSize: 10, color: 'var(--fg-subtle)', fontStyle: 'italic' }}>{tranche?.label} · standard</span>
+                    </span>
+                    <span className="tnum" style={{ fontSize: 12, color: 'var(--fg-muted)' }}>≈ {fdp.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</span>
                   </div>
                 )}
                 {pComite > 0 && (
@@ -2861,6 +2876,34 @@ const FORMAT_LABELS = {
   medailles:       { label: 'médaille',      plural: 'médailles'       },
   plaques_metal:   { label: 'plaque métal',  plural: 'plaques métal'   },
   chevalets_plexi: { label: 'chevalet plexi', plural: 'chevalets plexi' },
+};
+// Poids d'une médaille standard (en grammes) — pour calcul FDP indicatif
+const POIDS_PAR_MEDAILLE_G = 5;
+// Région du producteur connecté (en prod : issu du profil utilisateur)
+const MOCK_PRODUCER_REGION = 'BFC';
+const FDP_TRANCHES_P = [
+  { id: 'xs', label: '< 2 kg',   maxKg: 2 },
+  { id: 'sm', label: '2–5 kg',   maxKg: 5 },
+  { id: 'md', label: '5–10 kg',  maxKg: 10 },
+  { id: 'lg', label: '10–20 kg', maxKg: 20 },
+  { id: 'xl', label: '> 20 kg',  maxKg: Infinity },
+];
+const FDP_TIMINGS_P = [
+  { id: 'standard', label: 'Standard', sub: '5–7 j ouvrés' },
+  { id: 'express',  label: 'Express',  sub: '2–3 j ouvrés' },
+];
+const FOURNISSEURS_FDP = [
+  { id: 'lyon',     nom: 'Médailleur Lyon',     zones: ['ARA', 'BFC', 'OCC', 'PAC', 'CORS'], fdp: { xs: { standard: 6.90, express: 14.50 }, sm: { standard: 9.50, express: 18.00 }, md: { standard: 13.50, express: 26.00 }, lg: { standard: 19.00, express: 38.00 }, xl: { standard: 28.00, express: 55.00 } } },
+  { id: 'bordeaux', nom: 'Médailleur Bordeaux', zones: ['NAQ', 'PDL', 'BRE', 'NOR', 'CVL'],  fdp: { xs: { standard: 7.50, express: 15.00 }, sm: { standard: 10.50, express: 19.50 }, md: { standard: 14.50, express: 28.00 }, lg: { standard: 21.00, express: 42.00 }, xl: { standard: 30.00, express: 60.00 } } },
+  { id: 'paris',    nom: 'Arthus-Bertrand',     zones: ['IDF', 'GE', 'HDF'],                fdp: { xs: { standard: 7.90, express: 15.50 }, sm: { standard: 11.00, express: 20.00 }, md: { standard: 15.00, express: 29.00 }, lg: { standard: 22.00, express: 44.00 }, xl: { standard: 32.00, express: 62.00 } } },
+];
+const getAssignedFournisseur = (regionId) =>
+  FOURNISSEURS_FDP.find(f => f.zones.includes(regionId)) || FOURNISSEURS_FDP[0];
+const getFdpIndicatif = (totalMedailles, fournisseur, timingId) => {
+  if (!totalMedailles || !fournisseur) return 0;
+  const poidsKg = (totalMedailles * POIDS_PAR_MEDAILLE_G) / 1000;
+  const tranche = FDP_TRANCHES_P.find(t => poidsKg <= t.maxKg) || FDP_TRANCHES_P[FDP_TRANCHES_P.length - 1];
+  return fournisseur.fdp[tranche.id]?.[timingId] || 0;
 };
 
 // Illustrations SVG inline pour chaque type de produit commandable
@@ -3385,11 +3428,20 @@ const Stepper = ({ value, onChange, disabled, max }) => (
 );
 
 const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, hasOverflow, onSubmit }) => {
+  const [fdpTiming, setFdpTiming] = React.useState('standard');
   // Imprimeur = médailles / Comité = plaques métal + chevalets plexi
-  const priceImprimeur = lines.reduce((s, l) => s + (l.qty.medailles || 0) * PRICE_PER.medailles, 0);
-  const priceComite    = lines.reduce((s, l) =>
+  const priceImprimeur  = lines.reduce((s, l) => s + (l.qty.medailles || 0) * PRICE_PER.medailles, 0);
+  const priceComite     = lines.reduce((s, l) =>
     s + (l.qty.plaques_metal || 0) * PRICE_PER.plaques_metal
       + (l.qty.chevalets_plexi || 0) * PRICE_PER.chevalets_plexi, 0);
+  const totalMedailles  = lines.reduce((s, l) => s + (l.qty.medailles || 0), 0);
+  const assignedFourn   = getAssignedFournisseur(MOCK_PRODUCER_REGION);
+  const fdpPrice        = getFdpIndicatif(totalMedailles, assignedFourn, fdpTiming);
+  const fdpTranche      = (() => {
+    if (!totalMedailles) return null;
+    const kg = (totalMedailles * POIDS_PAR_MEDAILLE_G) / 1000;
+    return FDP_TRANCHES_P.find(t => kg <= t.maxKg) || FDP_TRANCHES_P[FDP_TRANCHES_P.length - 1];
+  })();
 
   return (
   <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -3438,7 +3490,7 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
       )}
     </div>
 
-    {/* Totaux — imprimeur / comité / grand total */}
+    {/* Totaux — imprimeur / comité / FDP / grand total */}
     <div style={{ padding: '14px 22px', background: 'var(--surface-2)', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 6 }}>
       {/* Sous-total imprimeur (médailles) */}
       {priceImprimeur > 0 && (
@@ -3451,6 +3503,37 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
           <span className="tnum" style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>
             {priceImprimeur.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
           </span>
+        </div>
+      )}
+      {/* FDP indicatif — affiché seulement si médailles > 0 */}
+      {totalMedailles > 0 && (
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Icon.Package size={12} style={{ color: 'var(--fg-subtle)' }}/>
+              <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>FDP indicatif</span>
+              <span style={{ fontSize: 10, color: 'var(--fg-subtle)', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 4, padding: '1px 5px' }}>{assignedFourn.nom}</span>
+            </div>
+            <span className="tnum" style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)' }}>
+              {fdpPrice.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+            </span>
+          </div>
+          {/* Toggle Standard / Express */}
+          <div style={{ display: 'flex', gap: 4 }}>
+            {FDP_TIMINGS_P.map(tm => (
+              <button key={tm.id} onClick={() => setFdpTiming(tm.id)} style={{
+                flex: 1, padding: '4px 8px', borderRadius: 6, border: `1px solid ${fdpTiming === tm.id ? 'var(--burgundy-800)' : 'var(--border)'}`,
+                background: fdpTiming === tm.id ? 'var(--burgundy-50)' : 'transparent', cursor: 'pointer',
+                fontSize: 11, fontWeight: 600, color: fdpTiming === tm.id ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+              }}>
+                {tm.label} <span style={{ fontWeight: 400, fontSize: 10 }}>({tm.sub})</span>
+              </button>
+            ))}
+          </div>
+          <div style={{ fontSize: 10.5, color: 'var(--fg-subtle)', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Icon.Info size={10}/>
+            Tranche {fdpTranche?.label} · {((totalMedailles * POIDS_PAR_MEDAILLE_G) / 1000).toFixed(1)} kg estimé · hors taxes · non contractuel
+          </div>
         </div>
       )}
       {/* Sous-total comité (plaques + chevalets) */}
@@ -3467,9 +3550,9 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
         </div>
       )}
       {/* Séparateur + Grand total */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: (priceImprimeur > 0 || priceComite > 0) ? 8 : 0, marginTop: (priceImprimeur > 0 || priceComite > 0) ? 2 : 0, borderTop: (priceImprimeur > 0 || priceComite > 0) ? '1px solid var(--border)' : 'none' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 8, marginTop: 2, borderTop: '1px solid var(--border)' }}>
         <div>
-          <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Total</div>
+          <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Total commande</div>
           <div style={{ fontSize: 11, color: 'var(--fg-subtle)', marginTop: 2 }} className="tnum">{totalUnits.toLocaleString('fr-FR')} médailles</div>
         </div>
         <div className="tnum display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--burgundy-800)', letterSpacing: '-0.02em' }}>
