@@ -187,9 +187,9 @@ const PAGE_GUIDES = {
     icon: 'Package',
     what: 'Les producteurs médaillés peuvent commander leurs médailles physiques depuis leur espace. Cette page centralise toutes les commandes, leur état de fabrication et d\'expédition.',
     elements: [
-      { label: 'Commandes en cours', desc: 'Statut fabrication — En attente, Transmis fournisseur, En fabrication, Expédié, Livré.' },
+      { label: 'Commandes en cours', desc: 'Statut fabrication — En attente, Transmis imprimeur, En fabrication, Expédié, Livré.' },
       { label: 'Quantités et références', desc: 'Nombre de médailles par type (Or, Argent, Bronze) et par cuvée.' },
-      { label: 'Transmission fournisseur', desc: 'Regroupement des commandes pour envoi au fabricant de médailles.' },
+      { label: 'Transmission imprimeur', desc: 'Regroupement des commandes pour envoi au fabricant de médailles.' },
     ],
   },
 
@@ -199,9 +199,9 @@ const PAGE_GUIDES = {
     icon: 'Package',
     what: 'Les producteurs médaillés peuvent commander leurs médailles physiques depuis leur espace. Cette page centralise toutes les commandes, leur état de fabrication et d\'expédition.',
     elements: [
-      { label: 'Commandes en cours', desc: 'Statut fabrication — En attente, Transmis fournisseur, En fabrication, Expédié, Livré.' },
+      { label: 'Commandes en cours', desc: 'Statut fabrication — En attente, Transmis imprimeur, En fabrication, Expédié, Livré.' },
       { label: 'Quantités et références', desc: 'Nombre de médailles par type (Or, Argent, Bronze) et par cuvée.' },
-      { label: 'Transmission fournisseur', desc: 'Regroupement des commandes pour envoi au fabricant de médailles.' },
+      { label: 'Transmission imprimeur', desc: 'Regroupement des commandes pour envoi au fabricant de médailles.' },
     ],
   },
 
@@ -294,7 +294,7 @@ const PAGE_GUIDES = {
     elements: [
       { label: 'Résultats par cuvée', desc: 'Liste des vins médaillés avec type de médaille (Or, Argent, Bronze).' },
       { label: 'Commander', desc: 'Formulaire de commande de médailles — quantité par type, calcul automatique du montant.' },
-      { label: 'Livraison', desc: 'Suivi de l\'expédition une fois la commande transmise au fournisseur.' },
+      { label: 'Livraison', desc: 'Suivi de l\'expédition une fois la commande transmise à l\'imprimeur.' },
     ],
   },
 

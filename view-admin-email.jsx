@@ -439,4 +439,224 @@ const FieldLabel = ({ children }) => (
   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--fg)', marginBottom: 7, letterSpacing: '0.01em' }}>{children}</div>
 );
 
-Object.assign(window, { EmailGroupModal });
+// ── HISTORIQUE DES E-MAILS ENVOYÉS (R119) ────────────────────────
+
+const EMAIL_LOG = [
+  { id:  1, date:'2026-06-30T10:45', to:{nom:'Jean Dupont',           email:'jean.dupont@domaine-trois-pierres.fr'},   objet:'Accusé de réception — Concours des Grands Vins de France 2026', declencheur:'Accusé de réception auto', contexte:'Producteur · INS-2026-1247', type:'auto',   statut:'envoye',
+    corps:`Bonjour Jean,\n\nNous avons bien reçu votre inscription au Concours des Grands Vins de France 2026 (réf. INS-2026-1247).\n\nVotre dossier est en cours de traitement. Vous recevrez une confirmation dès validation par notre équipe.\n\nCordialement,\nLe Comité des Salons et Concours de Mâcon` },
+  { id:  2, date:'2026-06-30T09:12', to:{nom:'Marie Bonnet',          email:'contact@chateau-bonnet.fr'},              objet:'Relance paiement — Concours des Grands Vins 2026 · INS-2026-1198', declencheur:'Relance paiement (J+7)', contexte:'Producteur · INS-2026-1198', type:'auto',   statut:'envoye',
+    corps:`Bonjour Marie,\n\nVotre dossier INS-2026-1198 a été validé mais le paiement n'a pas encore été reçu.\n\nMerci de procéder au règlement depuis votre espace : https://extranet.concours-macon.fr\n\nCordialement,\nLe Comité` },
+  { id:  3, date:'2026-06-29T16:22', to:{nom:'Pierre Martin',         email:'p.martin@vins-martin.com'},               objet:'Votre dossier INS-2026-1135 a été validé', declencheur:'Validation dossier', contexte:'Producteur · INS-2026-1135', type:'auto',   statut:'envoye',
+    corps:`Bonjour Pierre,\n\nNous avons le plaisir de vous informer que votre dossier INS-2026-1135 a été validé par notre jury de contrôle.\n\nVos échantillons sont attendus avant le 1er octobre 2026 à l'adresse de réception.\n\nCordialement,\nLe Comité des Salons et Concours de Mâcon` },
+  { id:  4, date:'2026-06-29T14:05', to:{nom:'Sophie Leclerc',        email:'sleclerc@domaine-leclerc.fr'},             objet:'Demande de compléments — INS-2026-1205', declencheur:'Message manuel', contexte:'Producteur · INS-2026-1205', type:'manuel', statut:'envoye',
+    corps:`Bonjour Sophie,\n\nVotre dossier INS-2026-1205 nécessite des compléments :\n- Certificat d'appellation manquant\n- Étiquette produit illisible\n\nMerci de les soumettre depuis votre espace dans les 7 jours.\n\nCordialement,\nSophie Lambert — Comité des Salons de Mâcon` },
+  { id:  5, date:'2026-06-29T11:30', to:{nom:'Thomas Girard',         email:'thomas@domaine-girard.fr'},                objet:'Confirmation paiement — INS-2026-1088', declencheur:'Confirmation paiement', contexte:'Producteur · INS-2026-1088', type:'auto',   statut:'envoye',
+    corps:`Bonjour Thomas,\n\nNous confirmons la réception de votre règlement de 340,00 € pour l'inscription INS-2026-1088.\n\nVotre dossier est désormais complet. Bonne chance pour le concours !\n\nCordialement,\nLe Comité` },
+  { id:  6, date:'2026-06-28T17:45', to:{nom:'Claire Morin',          email:'claire.morin@vinmorin.fr'},                objet:'Invitation dégustateur — Session Bourgogne 12 sept. 2026', declencheur:'Invitation jury', contexte:'Dégustateur · DEG-0089', type:'auto',   statut:'envoye',
+    corps:`Bonjour Claire,\n\nNous avons l'honneur de vous inviter à participer à la session de dégustation Bourgogne du 12 septembre 2026.\n\nMerci de confirmer votre disponibilité depuis votre espace dégustateur.\n\nCordialement,\nLe Comité` },
+  { id:  7, date:'2026-06-28T14:12', to:{nom:'François Blanc',        email:'f.blanc@maisondublanc.com'},               objet:'Votre inscription a été refusée — INS-2026-1102', declencheur:'Refus dossier', contexte:'Producteur · INS-2026-1102', type:'auto',   statut:'envoye',
+    corps:`Bonjour François,\n\nNous avons le regret de vous informer que votre dossier INS-2026-1102 n'a pas pu être retenu cette année.\n\nMotif : produit hors catégorie concours.\n\nVous pouvez déposer un recours sous 15 jours.\n\nCordialement,\nLe Comité` },
+  { id:  8, date:'2026-06-28T09:00', to:{nom:'(234 destinataires)',    email:''},                                        objet:'Rappel : date limite dépôt dossiers — 30 juin 2026', declencheur:'Campagne de rappel', contexte:'Masse · 234 producteurs', type:'masse',  statut:'envoye',
+    corps:`Bonjour,\n\nLa date limite de dépôt des dossiers pour le Concours des Grands Vins de France 2026 est fixée au 30 juin 2026.\n\nSi votre dossier est en statut «Brouillon», pensez à le soumettre dès maintenant.\n\nCordialement,\nLe Comité des Salons et Concours de Mâcon` },
+  { id:  9, date:'2026-06-27T16:50', to:{nom:'Isabelle Roy',          email:'i.roy@domaineleroyal.fr'},                 objet:'Accusé de réception — Concours des Grands Vins de France 2026', declencheur:'Accusé de réception auto', contexte:'Producteur · INS-2026-1301', type:'auto',   statut:'echec',
+    corps:`[Email non délivré — adresse invalide]\n\nBonjour Isabelle,\n\nNous avons bien reçu votre inscription...` },
+  { id: 10, date:'2026-06-27T15:30', to:{nom:'Marc Duval',            email:'marc@chateau-duval.fr'},                   objet:'Votre commande de médailles — CMD-2026-0412', declencheur:'Confirmation commande médailles', contexte:'Producteur · CMD-2026-0412', type:'auto',   statut:'envoye',
+    corps:`Bonjour Marc,\n\nVotre commande de médailles CMD-2026-0412 a été enregistrée :\n- 50 × Médaille d'Or\n- 30 × Médaille d'Argent\n\nExpédition prévue le 15 novembre 2026.\n\nCordialement,\nLe Comité` },
+  { id: 11, date:'2026-06-27T10:15', to:{nom:'Hélène Petit',          email:'helene@petitdomaine.fr'},                  objet:'Rappel dégustation — Session Mâconnais 8 juillet 2026', declencheur:'Rappel jury J-7', contexte:'Dégustateur · DEG-0142', type:'auto',   statut:'envoye',
+    corps:`Bonjour Hélène,\n\nRappel : vous êtes attendu(e) à la session de dégustation Mâconnais le 8 juillet 2026 à 9h00.\n\nLieu : Parc des Expositions de Mâcon — Salle B.\n\nCordialement,\nLe Comité` },
+  { id: 12, date:'2026-06-26T18:00', to:{nom:'Paul Renard',           email:'paul.renard@renardvins.fr'},               objet:'Confirmation inscription salon — EXP-2026-0042', declencheur:'Accusé de réception exposant', contexte:'Exposant · EXP-2026-0042', type:'auto',   statut:'envoye',
+    corps:`Bonjour Paul,\n\nVotre dossier d'inscription au Salon des Vins de Mâcon 2026 (réf. EXP-2026-0042) a bien été reçu.\n\nLe Comité étudiera votre demande et vous contactera sous 5 jours ouvrés.\n\nCordialement,\nLe Comité des Salons et Concours de Mâcon` },
+  { id: 13, date:'2026-06-26T14:45', to:{nom:'Nathalie Simon',        email:'nathalie@domainesimo.fr'},                 objet:'Relance paiement — Concours des Grands Vins 2026 · INS-2026-0988', declencheur:'Relance paiement (J+14)', contexte:'Producteur · INS-2026-0988', type:'auto',   statut:'en-attente',
+    corps:`Bonjour Nathalie,\n\nSeconde relance : votre règlement pour le dossier INS-2026-0988 n'a toujours pas été reçu.\n\nSans règlement sous 7 jours, votre dossier sera annulé.\n\nCordialement,\nLe Comité` },
+  { id: 14, date:'2026-06-25T11:00', to:{nom:'(412 destinataires)',   email:''},                                        objet:'Publication du palmarès 2025 — Consultez vos résultats', declencheur:'Campagne palmarès', contexte:'Masse · 412 producteurs', type:'masse',  statut:'envoye',
+    corps:`Bonjour,\n\nLe palmarès du Concours des Grands Vins de France 2025 est maintenant disponible.\n\nConsultez vos résultats depuis votre espace producteur.\n\nCordialement,\nLe Comité des Salons et Concours de Mâcon` },
+  { id: 15, date:'2026-06-25T09:30', to:{nom:'Antoine Bernard',       email:'a.bernard@bernard-viticulteur.fr'},        objet:'Votre dérogation impression a été approuvée', declencheur:'Approbation dérogation', contexte:'Producteur · DER-2026-0089', type:'auto',   statut:'envoye',
+    corps:`Bonjour Antoine,\n\nVotre demande de dérogation d'impression DER-2026-0089 a été approuvée.\n\nVous pouvez procéder à l'impression auprès de l'imprimeur de votre choix selon les spécifications jointes.\n\nCordialement,\nLe Comité` },
+];
+
+const STATUT_EMAIL = {
+  envoye:    { label: 'Envoyé',      bg: '#dcfce7', color: '#166534' },
+  echec:     { label: 'Échec',       bg: '#fee2e2', color: '#b91c1c' },
+  'en-attente': { label: 'En attente', bg: '#fef3c7', color: '#92400e' },
+};
+
+const TYPE_EMAIL = {
+  auto:   { label: 'Automatique', bg: '#eff6ff', color: '#1d4ed8' },
+  manuel: { label: 'Manuel',      bg: '#f5f3ff', color: '#7c3aed' },
+  masse:  { label: 'Masse',       bg: '#fff7ed', color: '#c2410c' },
+};
+
+const EmailLogModal = ({ email, onClose }) => {
+  React.useEffect(() => {
+    const h = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [onClose]);
+
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(15,23,42,0.45)' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ background:'var(--surface)', borderRadius:16, boxShadow:'0 24px 80px rgba(15,23,42,0.2)', width:'100%', maxWidth:640, maxHeight:'90vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        {/* Header */}
+        <div style={{ padding:'20px 24px 16px', borderBottom:'1px solid var(--border)', display:'flex', gap:12, alignItems:'flex-start' }}>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:14, fontWeight:600, marginBottom:6 }}>{email.objet}</div>
+            <div style={{ fontSize:12, color:'var(--fg-muted)', display:'flex', flexWrap:'wrap', gap:'8px 20px' }}>
+              <span><strong style={{ color:'var(--fg)' }}>De :</strong> noreply@concours-macon.fr</span>
+              <span><strong style={{ color:'var(--fg)' }}>À :</strong> {email.to.nom}{email.to.email ? ` <${email.to.email}>` : ''}</span>
+              <span><strong style={{ color:'var(--fg)' }}>Date :</strong> {email.date.replace('T', ' à ')}</span>
+            </div>
+          </div>
+          <button className="btn btn-icon btn-ghost btn-sm" onClick={onClose}><Icon.X size={16}/></button>
+        </div>
+        {/* Meta badges */}
+        <div style={{ padding:'10px 24px', borderBottom:'1px solid var(--border)', display:'flex', gap:8 }}>
+          <span style={{ fontSize:11.5, fontWeight:600, padding:'3px 10px', borderRadius:999, ...TYPE_EMAIL[email.type] }}>{TYPE_EMAIL[email.type].label}</span>
+          <span style={{ fontSize:11.5, fontWeight:600, padding:'3px 10px', borderRadius:999, ...STATUT_EMAIL[email.statut] }}>{STATUT_EMAIL[email.statut].label}</span>
+          <span style={{ fontSize:11.5, color:'var(--fg-muted)', padding:'3px 0', marginLeft:4 }}>{email.declencheur} · {email.contexte}</span>
+        </div>
+        {/* Corps */}
+        <div style={{ flex:1, overflowY:'auto', padding:'20px 24px' }}>
+          <div style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:10, padding:'18px 20px', fontFamily:'Georgia, serif', fontSize:14, lineHeight:1.7, color:'var(--fg)', whiteSpace:'pre-wrap' }}>
+            {email.corps}
+          </div>
+        </div>
+        <div style={{ padding:'14px 24px', borderTop:'1px solid var(--border)', display:'flex', justifyContent:'flex-end', gap:8 }}>
+          {email.statut === 'echec' && (
+            <button className="btn btn-outline btn-sm"><Icon.Refresh size={13}/> Renvoyer</button>
+          )}
+          <button className="btn btn-outline btn-sm" onClick={onClose}>Fermer</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AdminEmailLog = () => {
+  const [search, setSearch]         = React.useState('');
+  const [filterStatut, setFilterStatut] = React.useState('all');
+  const [filterType, setFilterType] = React.useState('all');
+  const [selected, setSelected]     = React.useState(null);
+
+  const filtered = EMAIL_LOG.filter(e => {
+    if (filterStatut !== 'all' && e.statut !== filterStatut) return false;
+    if (filterType   !== 'all' && e.type   !== filterType)   return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!e.to.nom.toLowerCase().includes(q) && !e.to.email.toLowerCase().includes(q) && !e.objet.toLowerCase().includes(q) && !e.declencheur.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  const counts = { total: EMAIL_LOG.length, envoye: EMAIL_LOG.filter(e => e.statut==='envoye').length, echec: EMAIL_LOG.filter(e => e.statut==='echec').length, 'en-attente': EMAIL_LOG.filter(e => e.statut==='en-attente').length };
+
+  return (
+    <div>
+      <PageHeader
+        title="E-mails envoyés"
+        sub={`${counts.total} messages · ${counts.envoye} envoyés · ${counts.echec} échec${counts.echec > 1 ? 's' : ''}`}
+        icon={<Icon.Mail size={22}/>}
+        breadcrumb={['Administration', 'E-mails envoyés']}
+      />
+
+      {/* KPI rapides */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginBottom:22 }}>
+        {[
+          { label:'Envoyés',       val: counts.envoye,          icon:<Icon.CheckCircle size={18}/>, bg:'#dcfce7', fg:'#166534' },
+          { label:'Échecs',        val: counts.echec,           icon:<Icon.XCircle size={18}/>,    bg:'#fee2e2', fg:'#b91c1c' },
+          { label:'En attente',    val: counts['en-attente'],   icon:<Icon.Clock size={18}/>,      bg:'#fef3c7', fg:'#92400e' },
+        ].map(k => (
+          <div key={k.label} className="card" style={{ padding:'16px 20px', display:'flex', alignItems:'center', gap:14 }}>
+            <div style={{ width:40, height:40, borderRadius:10, background:k.bg, color:k.fg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>{k.icon}</div>
+            <div>
+              <div className="tnum" style={{ fontSize:24, fontWeight:700, lineHeight:1 }}>{k.val}</div>
+              <div style={{ fontSize:12, color:'var(--fg-muted)', marginTop:3 }}>{k.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filtres */}
+      <div style={{ display:'flex', gap:10, marginBottom:16, flexWrap:'wrap' }}>
+        <div className="input-with-icon" style={{ flex:'1 1 220px', minWidth:200 }}>
+          <Icon.Search size={14} className="input-icon"/>
+          <input className="input" placeholder="Destinataire, objet, déclencheur…" value={search} onChange={e => setSearch(e.target.value)} style={{ paddingLeft:34 }}/>
+        </div>
+        <select className="input" style={{ flex:'0 0 160px' }} value={filterStatut} onChange={e => setFilterStatut(e.target.value)}>
+          <option value="all">Tous les statuts</option>
+          <option value="envoye">Envoyé</option>
+          <option value="echec">Échec</option>
+          <option value="en-attente">En attente</option>
+        </select>
+        <select className="input" style={{ flex:'0 0 160px' }} value={filterType} onChange={e => setFilterType(e.target.value)}>
+          <option value="all">Tous les types</option>
+          <option value="auto">Automatique</option>
+          <option value="manuel">Manuel</option>
+          <option value="masse">Masse</option>
+        </select>
+      </div>
+
+      {/* Table */}
+      <div className="card" style={{ padding:0, overflow:'hidden' }}>
+        <table className="table" style={{ width:'100%' }}>
+          <thead>
+            <tr>
+              <th style={{ width:130 }}>Date</th>
+              <th>Destinataire</th>
+              <th>Objet</th>
+              <th style={{ width:170 }}>Déclencheur</th>
+              <th style={{ width:110 }}>Type</th>
+              <th style={{ width:110 }}>Statut</th>
+              <th style={{ width:70 }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={7} style={{ textAlign:'center', padding:'40px 0', color:'var(--fg-muted)', fontSize:13 }}>
+                <Icon.Mail size={20} style={{ display:'block', margin:'0 auto 8px', opacity:.3 }}/>
+                Aucun e-mail ne correspond aux filtres
+              </td></tr>
+            ) : filtered.map(e => (
+              <tr key={e.id} style={{ cursor:'pointer' }} onClick={() => setSelected(e)}
+                onMouseEnter={ev => ev.currentTarget.style.background='var(--surface-2)'}
+                onMouseLeave={ev => ev.currentTarget.style.background=''}
+              >
+                <td className="tnum" style={{ fontSize:12, color:'var(--fg-muted)', whiteSpace:'nowrap' }}>{e.date.replace('T', ' ')}</td>
+                <td>
+                  <div style={{ fontSize:13, fontWeight:500 }}>{e.to.nom}</div>
+                  {e.to.email && <div style={{ fontSize:11.5, color:'var(--fg-muted)' }}>{e.to.email}</div>}
+                </td>
+                <td>
+                  <div style={{ fontSize:13, maxWidth:260, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{e.objet}</div>
+                  <div style={{ fontSize:11.5, color:'var(--fg-muted)' }}>{e.contexte}</div>
+                </td>
+                <td style={{ fontSize:12, color:'var(--fg-muted)' }}>{e.declencheur}</td>
+                <td>
+                  <span style={{ fontSize:11.5, fontWeight:600, padding:'3px 9px', borderRadius:999, ...TYPE_EMAIL[e.type] }}>{TYPE_EMAIL[e.type].label}</span>
+                </td>
+                <td>
+                  <span style={{ fontSize:11.5, fontWeight:600, padding:'3px 9px', borderRadius:999, ...STATUT_EMAIL[e.statut] }}>{STATUT_EMAIL[e.statut].label}</span>
+                </td>
+                <td>
+                  <button className="btn btn-ghost btn-sm" onClick={ev => { ev.stopPropagation(); setSelected(e); }} style={{ fontSize:12 }}>
+                    <Icon.Eye size={13}/> Voir
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {filtered.length > 0 && (
+          <div style={{ padding:'10px 18px', borderTop:'1px solid var(--border)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <span style={{ fontSize:12, color:'var(--fg-muted)' }}>{filtered.length} résultat{filtered.length > 1 ? 's' : ''}</span>
+            <span style={{ fontSize:12, color:'var(--fg-muted)' }}>Données des 30 derniers jours</span>
+          </div>
+        )}
+      </div>
+
+      {selected && <EmailLogModal email={selected} onClose={() => setSelected(null)}/>}
+    </div>
+  );
+};
+
+Object.assign(window, { EmailGroupModal, AdminEmailLog });

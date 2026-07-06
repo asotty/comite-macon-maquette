@@ -3,17 +3,22 @@
 // R01-R12 docs/08-developpement/retours-maquette.md
 
 // ── Constantes visuelles ──────────────────────────────────────────
-const EXPO_FG = '#166534';  // vert forêt principal
-const EXPO_BG = '#f0fdf4';  // fond vert très clair
+const EXPO_FG = '#166534';  // vert forêt principal (SDV)
+const EXPO_BG = '#f0fdf4';  // fond vert très clair (SDV)
+const SALON_THEMES = {
+  sdv: { fg: '#166534', bg: '#f0fdf4' },
+  mpg: { fg: '#2D1508', bg: '#F5E4C0' },
+};
 
 // ── Données de référence ──────────────────────────────────────────
 const SALONS_EXPO = [
   {
     id: 'sdv-2026', type: 'sdv',
     nom: 'Salon des Vins de Mâcon', edition: '2026',
-    dateDebut: '23 mai 2026', dateFin: '25 mai 2026',
+    dateDebut: '14 novembre 2026', dateFin: '16 novembre 2026',
+    dateDebutISO: '2026-11-14',
     lieu: 'Parc des Expositions · Mâcon',
-    inscriptionsOuvertes: true, dateCloture: '28 fév. 2026',
+    inscriptionsOuvertes: true, dateCloture: '30 sept. 2026',
   },
   {
     id: 'mpg-2026', type: 'mpg',
@@ -41,15 +46,39 @@ const PRESTATIONS_EXPO = {
     { id: 'premium',    nom: 'Offre premium (4×3m)',            desc: 'Stand 4×3m + angle 2 côtés + vitrine réfrigérée + 2 spots', prixHT: 895, obligatoire: false },
   ],
   mpg: [
-    { id: 'forfait',   nom: 'Forfait stand 3×3m (9 m²)',     desc: 'Cloisons, moquette, éclairage, 1 table',        prixHT: 760, obligatoire: true  },
-    { id: 'ml-sup',    nom: 'Mètre linéaire supplémentaire',  desc: 'Par ml au-delà du forfait',                     prixHT: 85,  obligatoire: false },
-    { id: 'angle1',    nom: 'Angle 1 côté',                   desc: null,                                             prixHT: 90,  obligatoire: false },
-    { id: 'eau',       nom: 'Arrivée eau + évacuation',        desc: 'Obligatoire pour les stands avec cuisson',       prixHT: 120, obligatoire: false },
-    { id: 'elec-3kw',  nom: 'Électricité 3 kW',               desc: null,                                             prixHT: 160, obligatoire: false },
-    { id: 'elec-6kw',  nom: 'Électricité 6 kW',               desc: null,                                             prixHT: 220, obligatoire: false },
-    { id: 'sol',       nom: 'Habillage sol (dalle PVC)',        desc: 'Au m²',                                         prixHT: 48,  obligatoire: false },
-    { id: 'invite',    nom: 'Pack 10 invitations supp.',       desc: 'Offert',                                         prixHT: 0,   obligatoire: false },
-    { id: 'badge-exp', nom: 'Badge exposant supplémentaire',   desc: null,                                             prixHT: 6,   obligatoire: false },
+    { id: 'forfait',   nom: 'Forfait stand 6m² (3×2m)',            desc: 'Cloisons, enseigne, frais dossier, assurance, catalogue, site web, 2 badges exposant, 2 badges parking, 50 invitations×2 pers., wifi, 2 kW, 1 rail de spots — livré sans mobilier', prixHT: 630, obligatoire: true  },
+    { id: 'ml-sup',    nom: 'Mètre linéaire supplémentaire',        desc: '105 € HT/m² au-delà du forfait',             prixHT: 105, obligatoire: false },
+    { id: 'angle1',    nom: 'Angle 1 côté',                         desc: null,                                          prixHT: 110, obligatoire: false },
+    { id: 'angle2',    nom: 'Angle 2 côtés',                        desc: null,                                          prixHT: 170, obligatoire: false },
+    { id: 'comptoir',  nom: 'Comptoir (L 2m × H 1m × P 0,5m)',     desc: null,                                          prixHT: 160, obligatoire: false },
+    { id: 'table',     nom: 'Table 1,8m × 0,6m',                    desc: null,                                          prixHT: 14,  obligatoire: false },
+    { id: 'badge-exp', nom: 'Badge exposant supplémentaire',         desc: null,                                          prixHT: 6,   obligatoire: false },
+    { id: 'badge-park',nom: 'Badge parking',                         desc: null,                                          prixHT: 6,   obligatoire: false },
+    { id: 'elec-3kw',  nom: 'Électricité monophasé 3 kW',           desc: null,                                          prixHT: 160, obligatoire: false },
+    { id: 'elec-18kw', nom: 'Électricité 18 kW (4 prises)',         desc: null,                                          prixHT: 300, obligatoire: false },
+    { id: 'elec-ext',  nom: 'Électricité extérieure (camion frigo)',  desc: null,                                          prixHT: 165, obligatoire: false },
+    { id: 'eau-org',   nom: 'Lave-mains autonome (fourni organisation)', desc: 'Obligatoire restauration/cuisson · normes sanitaires DDPP',  prixHT: 175, obligatoire: false },
+    { id: 'eau-exp',   nom: 'Lave-mains autonome (fourni exposant)', desc: 'Obligatoire restauration/cuisson · fourni et installé par vos soins', prixHT: 175, obligatoire: false },
+    { id: 'sol-org',   nom: 'Sol lavable lino 6m² (fourni organisation)', desc: 'Obligatoire restauration/cuisson · 3×2m',  prixHT: 80,  obligatoire: false },
+    { id: 'invite-sup',nom: 'Invitations supplémentaires (×10 cartes)', desc: 'Dégressif : 1 €/carte (0–500) · 0,50 € (500–1 000) · 0,25 € (>1 000)', prixHT: 10, obligatoire: false },
+  ],
+};
+
+const COMMUNICATION_EXPO = {
+  sdv: [
+    { id: 'aff-ext',  cat: 'Affichage', nom: 'Affichage extérieur',       desc: "Bandeau 2×1m à l'entrée du parc — visibilité maximale dès l'arrivée des visiteurs",    prixHT: 180, couleur: '#2563eb', visuelUrl: '' },
+    { id: 'aff-int',  cat: 'Affichage', nom: 'Panneau allée intérieure',  desc: 'Panneau A1 positionné dans les allées principales — vu par tous les visiteurs',       prixHT: 120, couleur: '#7c3aed', visuelUrl: '' },
+    { id: 'digital',  cat: 'Digital',   nom: 'Diffusion écran digital',   desc: 'Votre visuel sur les écrans LED du salon · 10 passages minimum par heure',             prixHT: 280, couleur: '#0891b2', visuelUrl: '' },
+    { id: 'prog',     cat: 'Print',     nom: 'Encart programme papier',   desc: 'Encart ½ page dans le programme officiel distribué à tous les visiteurs (tirage 5 000)', prixHT: 220, couleur: '#d97706', visuelUrl: '' },
+    { id: 'web',      cat: 'Digital',   nom: 'Bannière site web',         desc: "Bannière publicitaire sur le site du salon durant 1 mois avant l'événement",           prixHT: 150, couleur: '#059669', visuelUrl: '' },
+    { id: 'rs',       cat: 'Digital',   nom: 'Post réseaux sociaux',      desc: 'Publication dédiée à votre domaine sur les réseaux du Comité (Instagram, Facebook)',   prixHT: 90,  couleur: '#e11d48', visuelUrl: '' },
+  ],
+  mpg: [
+    { id: 'cat-qp',   cat: 'Print',     nom: 'Encart catalogue quart de page',   desc: 'Catalogue distribué à 11 000 ex. + remis à l\'entrée du salon · format 72,5×105mm', prixHT: 200, couleur: '#d97706', visuelUrl: '' },
+    { id: 'cat-dp',   cat: 'Print',     nom: 'Encart catalogue demi-page',       desc: 'Catalogue 11 000 ex. · format 145×105mm',                                            prixHT: 395, couleur: '#b45309', visuelUrl: '' },
+    { id: 'cat-pp',   cat: 'Print',     nom: 'Encart catalogue pleine page',     desc: 'Catalogue 11 000 ex. · format 145×210mm',                                            prixHT: 785, couleur: '#92400e', visuelUrl: '' },
+    { id: 'rs',       cat: 'Digital',   nom: 'Post réseaux sociaux',             desc: 'Facebook + Instagram "Salon des vins de Mâcon" · 3 posts max + fichier remis après', prixHT: 220, couleur: '#e11d48', visuelUrl: '' },
+    { id: 'digital',  cat: 'Digital',   nom: 'Affichage écran grand format',     desc: 'Entrée salon pendant 3 jours en rotation · 3 affichages maximum',                   prixHT: 800, couleur: '#0891b2', visuelUrl: '' },
   ],
 };
 
@@ -80,7 +109,8 @@ const INSCRIPTION_DEMO_EXPO = {
   totalTTC: 1219.20,
   acompteTTC: 487.68,
   soldeTTC: 731.52,
-  paiementStatut: 'acompte_recu',
+  soldeDateLimiteStr: '15 octobre 2026', // J-30 avant le salon (14 nov. 2026)
+  paiementStatut: 'bloque', // bloqué tant que statut !== 'validee'
   modePaiement: 'Virement bancaire',
   prestations: [
     { nom: 'Forfait stand 3×3m (9 m²)',   qte: 1, prixHT: 840 },
@@ -154,7 +184,9 @@ const ExposantDashboard = ({ onNavigate }) => {
       {/* Bannière salon */}
       <div style={{
         padding: '22px 28px',
-        background: 'linear-gradient(135deg, #14532d 0%, #166534 60%, #15803d 100%)',
+        background: salon.type === 'mpg'
+          ? 'linear-gradient(135deg, #451a03 0%, #78350f 60%, #2D1508 100%)'
+          : 'linear-gradient(135deg, #14532d 0%, #166534 60%, #15803d 100%)',
         borderRadius: 14,
         color: '#fff',
         marginBottom: 24,
@@ -162,8 +194,8 @@ const ExposantDashboard = ({ onNavigate }) => {
         flexWrap: 'wrap', gap: 16,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <div style={{ width: 52, height: 52, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Icon.Building size={24}/>
+          <div style={{ width: 60, height: 60, borderRadius: 12, background: '#fff', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 1px 6px rgba(0,0,0,0.2)' }}>
+            <img src={`logo-${salon.type}.png`} alt={salon.nom} style={{ width: 54, height: 54, objectFit: 'contain' }}/>
           </div>
           <div>
             <div style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.65)', marginBottom: 4 }}>Édition {salon.edition}</div>
@@ -186,6 +218,34 @@ const ExposantDashboard = ({ onNavigate }) => {
         </div>
       </div>
 
+      {/* ── Alerte deadline solde ─────────────────────────────── */}
+      {insc.paiementStatut !== 'solde_recu' && (() => {
+        const deadline = new Date(salon.dateDebutISO);
+        deadline.setDate(deadline.getDate() - 30);
+        const today    = new Date('2026-06-30');
+        const diffDays = Math.ceil((deadline - today) / 86400000);
+        const isPast   = diffDays < 0;
+        const isUrgent = !isPast && diffDays <= 14;
+        const isWarn   = !isPast && diffDays <= 30;
+        const bg     = isPast ? '#fee2e2' : isUrgent ? '#fff7ed' : isWarn ? '#fef9ec' : '#eff6ff';
+        const border = isPast ? '#fca5a5' : isUrgent ? '#fed7aa' : isWarn ? '#fde68a' : '#bfdbfe';
+        const fg     = isPast ? '#991b1b' : isUrgent ? '#c2410c' : isWarn ? '#78350f' : '#1e40af';
+        const IcnEl  = isPast || isUrgent ? Icon.AlertTriangle : isWarn ? Icon.Clock : Icon.Info;
+        return (
+          <div style={{ padding: '14px 18px', background: bg, border: `1px solid ${border}`, borderRadius: 10, marginBottom: 24, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <IcnEl size={16} style={{ color: fg, flexShrink: 0, marginTop: 1 }}/>
+            <div style={{ fontSize: 13, color: fg, lineHeight: 1.5, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0 6px' }}>
+              {isPast
+                ? <><strong>Solde en retard !</strong>&nbsp;Le délai de paiement est dépassé. Contactez le Comité au plus vite.</>
+                : <><strong>Règlement du solde :</strong>&nbsp;le solde de <strong>{eur(insc.soldeTTC)}</strong> doit être réglé au plus tard <strong>1 mois avant le salon</strong> — avant le <strong>{insc.soldeDateLimiteStr}</strong>.
+                    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '1px 9px', borderRadius: 999, background: fg, color: '#fff', fontSize: 11, fontWeight: 700 }}>J − {diffDays}</span>
+                  </>
+              }
+            </div>
+          </div>
+        );
+      })()}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
         {/* Surface */}
         <div className="card" style={{ padding: '20px 22px' }}>
@@ -204,11 +264,23 @@ const ExposantDashboard = ({ onNavigate }) => {
         {/* Acompte */}
         <div className="card" style={{ padding: '20px 22px' }}>
           <div style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Acompte 40 %</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <Icon.Check size={18} style={{ color: EXPO_FG }}/>
-            <span className="tnum" style={{ fontSize: 18, fontWeight: 600, color: EXPO_FG }}>Reçu</span>
-          </div>
-          <div style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>Solde : {eur(insc.soldeTTC)} restant</div>
+          {insc.paiementStatut === 'acompte_recu' ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                <Icon.Check size={18} style={{ color: EXPO_FG }}/>
+                <span className="tnum" style={{ fontSize: 18, fontWeight: 600, color: EXPO_FG }}>Reçu</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>Solde : {eur(insc.soldeTTC)} restant</div>
+            </>
+          ) : (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <Icon.Lock size={15} style={{ color: '#92400e' }}/>
+                <span className="tnum" style={{ fontSize: 16, fontWeight: 600, color: '#92400e' }}>{eur(insc.acompteTTC)}</span>
+              </div>
+              <div style={{ fontSize: 12, color: '#78350f', lineHeight: 1.4 }}>Disponible après validation du Comité</div>
+            </>
+          )}
         </div>
       </div>
 
@@ -246,19 +318,30 @@ const ExposantDashboard = ({ onNavigate }) => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Paiement */}
           <div className="card" style={{ padding: '18px 20px' }}>
-            <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 14 }}>Suivi du règlement</div>
+            <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 12 }}>Suivi du règlement</div>
+            {insc.paiementStatut === 'bloque' && (
+              <div style={{ padding: '9px 12px', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 8, marginBottom: 12, fontSize: 12, color: '#78350f', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                <Icon.Lock size={12} style={{ flexShrink: 0, marginTop: 1 }}/>
+                Le règlement sera possible dès validation de votre dossier par le Comité.
+              </div>
+            )}
             {[
-              { label: 'Acompte 40 %', montant: insc.acompteTTC, recu: true  },
-              { label: 'Solde 60 %',   montant: insc.soldeTTC,   recu: false },
+              { label: 'Acompte 40 %', montant: insc.acompteTTC, recu: insc.paiementStatut === 'acompte_recu' },
+              { label: 'Solde 60 %',   montant: insc.soldeTTC,   recu: insc.paiementStatut === 'solde_recu', deadline: insc.soldeDateLimiteStr },
             ].map((line, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderTop: i > 0 ? '1px solid var(--border)' : 'none' }}>
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderTop: i > 0 ? '1px solid var(--border)' : 'none', opacity: insc.paiementStatut === 'bloque' ? 0.45 : 1 }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 500 }}>{line.label}</div>
                   <div className="tnum" style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{eur(line.montant)}</div>
+                  {line.deadline && !line.recu && (
+                    <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 2 }}>Limite : {line.deadline}</div>
+                  )}
                 </div>
                 {line.recu
                   ? <span style={{ fontSize: 11.5, background: '#dcfce7', color: EXPO_FG, borderRadius: 999, padding: '3px 9px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Icon.Check size={10}/> Reçu</span>
-                  : <span style={{ fontSize: 11.5, background: 'var(--slate-100)', color: 'var(--fg-muted)', borderRadius: 999, padding: '3px 9px', fontWeight: 500 }}>À régler</span>
+                  : insc.paiementStatut === 'bloque'
+                    ? <span style={{ fontSize: 11.5, background: 'var(--slate-100)', color: 'var(--fg-subtle)', borderRadius: 999, padding: '3px 9px', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Icon.Lock size={9}/> Bloqué</span>
+                    : <span style={{ fontSize: 11.5, background: 'var(--slate-100)', color: 'var(--fg-muted)', borderRadius: 999, padding: '3px 9px', fontWeight: 500 }}>À régler</span>
                 }
               </div>
             ))}
@@ -282,12 +365,15 @@ const ExposantDashboard = ({ onNavigate }) => {
           </div>
         </div>
       </div>
+
+      <CrossMarketingBlock portal="exposant"/>
+
     </div>
   );
 };
 
 // ── WIZARD D'INSCRIPTION ──────────────────────────────────────────
-const WIZARD_STEPS = ['Salon', 'Coordonnées', 'Produits', 'Prestations', 'Récapitulatif'];
+const WIZARD_STEPS = ['Salon', 'Coordonnées', 'Responsable', 'Produits', 'Communication', 'Prestations', 'Récapitulatif'];
 
 const ExposantInscription = ({ onNavigate }) => {
   const [step, setStep]           = React.useState(0);
@@ -296,7 +382,8 @@ const ExposantInscription = ({ onNavigate }) => {
 
   // Données formulaire
   const [form, setForm] = React.useState({
-    raisonSociale: '', siret: '', adresse: '', codePostal: '', ville: '',
+    raisonSociale: '', siret: '', codeAPE: '', tvaIntra: '', nonAssujetti: false,
+    adresse: '', codePostal: '', ville: '', pays: 'France',
     tel: '', email: '', siteWeb: '',
     responsableNom: '', responsableTel: '', responsableEmail: '',
     facturationDiff: false,
@@ -304,7 +391,7 @@ const ExposantInscription = ({ onNavigate }) => {
     // SDV
     regionsSDV: [], appellations: '', modeBio: false, modeBiodyn: false, modeHVE: false, produitsHorsVins: '',
     // MPG
-    categoriesMPG: [], descGastro: '', descVins: '', descArts: '',
+    descGastro: '', typesDerivVin: [], descDerivVin: '',
     // Étape 3
     enseigne: '',
     // Étape 4
@@ -322,14 +409,25 @@ const ExposantInscription = ({ onNavigate }) => {
   const [prestations, setPrestations] = React.useState({});
   const setPrest = (id, qte) => setPrestations(prev => ({ ...prev, [id]: Math.max(0, qte) }));
 
+  const [commOptions, setCommOptions] = React.useState({});
+  const toggleComm = (id) => setCommOptions(prev => ({ ...prev, [id]: prev[id] ? 0 : 1 }));
+
+  // Couleurs dynamiques selon le salon sélectionné
+  const theme = SALON_THEMES[salon?.type] || SALON_THEMES.sdv;
+  const tfg = theme.fg;
+  const tbg = theme.bg;
+
   const handleChoixSalon = (s) => {
     setSalon(s);
     setPrestations(initPrestations(s.type));
+    setCommOptions({});
     setStep(1);
   };
 
   // Calcul total
-  const totalHT = salon ? (PRESTATIONS_EXPO[salon.type] || []).reduce((acc, p) => acc + p.prixHT * (prestations[p.id] || 0), 0) : 0;
+  const prestHT = salon ? (PRESTATIONS_EXPO[salon.type] || []).reduce((acc, p) => acc + p.prixHT * (prestations[p.id] || 0), 0) : 0;
+  const commHT  = salon ? (COMMUNICATION_EXPO[salon.type] || []).reduce((acc, c) => acc + c.prixHT * (commOptions[c.id] || 0), 0) : 0;
+  const totalHT = prestHT + commHT;
   const tva = totalHT * 0.2;
   const totalTTC = totalHT + tva;
   const acompteTTC = totalTTC * 0.4;
@@ -339,7 +437,7 @@ const ExposantInscription = ({ onNavigate }) => {
   if (confirmed) {
     return (
       <div style={{ maxWidth: 580, margin: '60px auto', textAlign: 'center' }} className="fade-in">
-        <div style={{ width: 72, height: 72, borderRadius: '50%', background: EXPO_BG, border: '4px solid #bbf7d0', color: EXPO_FG, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+        <div style={{ width: 72, height: 72, borderRadius: '50%', background: tbg, border: `4px solid ${tbg}`, color: tfg, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
           <Icon.Check size={32}/>
         </div>
         <h1 className="display" style={{ fontSize: 30, fontWeight: 500, margin: '0 0 10px', letterSpacing: '-0.025em' }}>Dossier soumis !</h1>
@@ -355,7 +453,7 @@ const ExposantInscription = ({ onNavigate }) => {
             { icon: <Icon.CreditCard size={14}/>, label: 'Règlement de l\'acompte', meta: `${eur(acompteTTC)} (40 % TTC)` },
           ].map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderTop: i > 0 ? '1px solid var(--border)' : 'none' }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: s.done ? EXPO_BG : 'var(--slate-100)', color: s.done ? EXPO_FG : 'var(--fg-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.icon}</div>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: s.done ? tbg : 'var(--slate-100)', color: s.done ? tfg : 'var(--fg-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.icon}</div>
               <div style={{ flex: 1, fontSize: 13, fontWeight: s.done ? 600 : 400 }}>{s.label}</div>
               <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{s.meta}</div>
             </div>
@@ -399,11 +497,11 @@ const ExposantInscription = ({ onNavigate }) => {
                   border: '2px solid var(--border)',
                   transition: 'all .15s',
                 }}
-                onMouseEnter={e => { if (s.inscriptionsOuvertes) e.currentTarget.style.borderColor = EXPO_FG; }}
+                onMouseEnter={e => { if (s.inscriptionsOuvertes) e.currentTarget.style.borderColor = SALON_THEMES[s.type].fg; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; }}
               >
-                <div style={{ width: 56, height: 56, borderRadius: 12, background: s.type === 'sdv' ? 'var(--burgundy-50)' : '#fffbeb', border: `1px solid ${s.type === 'sdv' ? 'var(--burgundy-200)' : '#fde68a'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {s.type === 'sdv' ? <Icon.Wine size={24} style={{ color: 'var(--burgundy-800)' }}/> : <Icon.Star size={24} style={{ color: '#92400e' }}/>}
+                <div style={{ width: 60, height: 60, borderRadius: 12, background: '#fff', border: '1px solid rgba(0,0,0,0.08)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+                  <img src={`logo-${s.type}.png`} alt={s.nom} style={{ width: 54, height: 54, objectFit: 'contain' }}/>
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 16, fontWeight: 600 }}>{s.nom} <span style={{ fontWeight: 400, color: 'var(--fg-muted)' }}>{s.edition}</span></div>
@@ -415,7 +513,7 @@ const ExposantInscription = ({ onNavigate }) => {
                   )}
                 </div>
                 {s.inscriptionsOuvertes
-                  ? <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: EXPO_FG, fontWeight: 600, fontSize: 14 }}>S'inscrire <Icon.ChevronRight size={16}/></div>
+                  ? <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: SALON_THEMES[s.type].fg, fontWeight: 600, fontSize: 14 }}>S'inscrire <Icon.ChevronRight size={16}/></div>
                   : <Icon.Lock size={18} style={{ color: 'var(--fg-subtle)' }}/>
                 }
               </div>
@@ -428,15 +526,39 @@ const ExposantInscription = ({ onNavigate }) => {
           <div className="card" style={{ padding: 28 }}>
             <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 22 }}>Coordonnées de l'entreprise</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 20px' }}>
+              {/* Identité légale */}
               {[
                 ['Raison sociale *', 'raisonSociale', 'text', 'span-2'],
                 ['SIRET *', 'siret', 'text', null],
+                ['Code APE', 'codeAPE', 'text', null],
+              ].map(([label, key, type, span]) => (
+                <div key={key} className="field" style={span === 'span-2' ? { gridColumn: 'span 2' } : {}}>
+                  <label className="field-label">{label}</label>
+                  <input className="input" type={type} value={form[key]} onChange={e => setF(key, e.target.value)} placeholder={label.replace(' *', '')}/>
+                </div>
+              ))}
+              {/* Checkbox non assujetti + TVA conditionnelle */}
+              <div style={{ gridColumn: 'span 2', margin: '2px 0' }}>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: 'var(--fg-muted)' }}>
+                  <input type="checkbox" checked={form.nonAssujetti} onChange={e => setF('nonAssujetti', e.target.checked)} style={{ accentColor: tfg, width: 15, height: 15 }}/>
+                  Personne physique ou non assujetti à la TVA — pas de N° TVA intracommunautaire
+                </label>
+              </div>
+              {!form.nonAssujetti && (
+                <div className="field" style={{ gridColumn: 'span 2' }}>
+                  <label className="field-label">N° TVA intracommunautaire</label>
+                  <input className="input" type="text" value={form.tvaIntra} onChange={e => setF('tvaIntra', e.target.value)} placeholder="FR12345678901"/>
+                </div>
+              )}
+              {/* Coordonnées + adresse */}
+              {[
                 ['Téléphone *', 'tel', 'tel', null],
                 ['E-mail *', 'email', 'email', null],
                 ['Site web', 'siteWeb', 'url', null],
                 ['Adresse *', 'adresse', 'text', 'span-2'],
                 ['Code postal *', 'codePostal', 'text', null],
                 ['Ville *', 'ville', 'text', null],
+                ['Pays *', 'pays', 'text', null],
               ].map(([label, key, type, span]) => (
                 <div key={key} className="field" style={span === 'span-2' ? { gridColumn: 'span 2' } : {}}>
                   <label className="field-label">{label}</label>
@@ -445,25 +567,9 @@ const ExposantInscription = ({ onNavigate }) => {
               ))}
             </div>
 
-            <div style={{ borderTop: '1px solid var(--border)', marginTop: 24, paddingTop: 24 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Responsable du stand</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 20px' }}>
-                {[
-                  ['Nom & prénom *', 'responsableNom', 'text', 'span-2'],
-                  ['Téléphone *', 'responsableTel', 'tel', null],
-                  ['E-mail *', 'responsableEmail', 'email', null],
-                ].map(([label, key, type, span]) => (
-                  <div key={key} className="field" style={span === 'span-2' ? { gridColumn: 'span 2' } : {}}>
-                    <label className="field-label">{label}</label>
-                    <input className="input" type={type} value={form[key]} onChange={e => setF(key, e.target.value)} placeholder={label.replace(' *', '')}/>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             <div style={{ borderTop: '1px solid var(--border)', marginTop: 24, paddingTop: 20 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 13.5 }}>
-                <input type="checkbox" checked={form.facturationDiff} onChange={e => setF('facturationDiff', e.target.checked)} style={{ accentColor: EXPO_FG }}/>
+                <input type="checkbox" checked={form.facturationDiff} onChange={e => setF('facturationDiff', e.target.checked)} style={{ accentColor: tfg }}/>
                 Adresse de facturation différente
               </label>
               {form.facturationDiff && (
@@ -485,8 +591,38 @@ const ExposantInscription = ({ onNavigate }) => {
           </div>
         )}
 
-        {/* ── Étape 2 : Désignation produits (adapté par salon) ── */}
-        {step === 2 && salon?.type === 'sdv' && (
+        {/* ── Étape 2 : Responsable du stand ── */}
+        {step === 2 && (
+          <div className="card" style={{ padding: 28 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Responsable du stand</div>
+            <div style={{ fontSize: 13, color: 'var(--fg-muted)', marginBottom: 22 }}>Personne à contacter sur place pendant le salon — peut être différente du contact principal de l'entreprise.</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 20px' }}>
+              {[
+                ['Nom & prénom *', 'responsableNom', 'text', 'span-2'],
+                ['Téléphone *', 'responsableTel', 'tel', null],
+                ['E-mail *', 'responsableEmail', 'email', null],
+              ].map(([label, key, type, span]) => (
+                <div key={key} className="field" style={span === 'span-2' ? { gridColumn: 'span 2' } : {}}>
+                  <label className="field-label">{label}</label>
+                  <input className="input" type={type} value={form[key]} onChange={e => setF(key, e.target.value)} placeholder={label.replace(' *', '')}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Étape 3 : Enseigne + Désignation produits (adapté par salon) ── */}
+        {step === 3 && salon && (
+          <div className="card" style={{ padding: 24, marginBottom: 4 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Enseigne du stand</div>
+            <div className="field">
+              <label className="field-label">Nom affiché sur le stand <span style={{ color: 'var(--fg-muted)', fontWeight: 400 }}>(30 caractères max. · en majuscules)</span></label>
+              <input className="input" maxLength={30} value={form.enseigne} onChange={e => setF('enseigne', e.target.value.toUpperCase())} placeholder="NOM AFFICHÉ SUR VOTRE STAND" style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}/>
+              <div style={{ fontSize: 11.5, color: form.enseigne.length >= 28 ? '#b45309' : 'var(--fg-muted)', marginTop: 4 }}>{form.enseigne.length}/30 · inscrit sur la signalétique, le site internet et le plan du salon</div>
+            </div>
+          </div>
+        )}
+        {step === 3 && salon?.type === 'sdv' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div className="card" style={{ padding: 24 }}>
               <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Régions viticoles présentées</div>
@@ -494,7 +630,7 @@ const ExposantInscription = ({ onNavigate }) => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px' }}>
                 {REGIONS_SDV.map(r => (
                   <label key={r} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13.5, padding: '4px 0' }}>
-                    <input type="checkbox" checked={form.regionsSDV.includes(r)} onChange={() => toggleArr('regionsSDV', r)} style={{ accentColor: EXPO_FG }}/>
+                    <input type="checkbox" checked={form.regionsSDV.includes(r)} onChange={() => toggleArr('regionsSDV', r)} style={{ accentColor: tfg }}/>
                     {r}
                   </label>
                 ))}
@@ -512,7 +648,7 @@ const ExposantInscription = ({ onNavigate }) => {
                   <div className="field-label" style={{ marginBottom: 8 }}>Mode de culture</div>
                   {[['modeBio', 'Agriculture Biologique'], ['modeBiodyn', 'Biodynamie'], ['modeHVE', 'Haute Valeur Environnementale (HVE)']].map(([key, label]) => (
                     <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13.5, marginBottom: 8 }}>
-                      <input type="checkbox" checked={form[key]} onChange={e => setF(key, e.target.checked)} style={{ accentColor: EXPO_FG }}/>
+                      <input type="checkbox" checked={form[key]} onChange={e => setF(key, e.target.checked)} style={{ accentColor: tfg }}/>
                       {label}
                     </label>
                   ))}
@@ -526,50 +662,126 @@ const ExposantInscription = ({ onNavigate }) => {
           </div>
         )}
 
-        {step === 2 && salon?.type === 'mpg' && (
+        {step === 3 && salon?.type === 'mpg' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Profil 1 — Gastronomie & Bières */}
             <div className="card" style={{ padding: 24 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Catégories de produits (R04)</div>
-              <div style={{ fontSize: 13, color: 'var(--fg-muted)', marginBottom: 16 }}>Cochez les catégories qui correspondent à votre offre.</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px' }}>
-                {CATEGORIES_MPG.map(c => (
-                  <label key={c} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13.5, padding: '4px 0' }}>
-                    <input type="checkbox" checked={form.categoriesMPG.includes(c)} onChange={() => toggleArr('categoriesMPG', c)} style={{ accentColor: EXPO_FG }}/>
-                    {c}
-                  </label>
-                ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <span style={{ fontSize: 18 }}>🧀</span>
+                <div style={{ fontSize: 15, fontWeight: 600 }}>Exposant Gastronomie & Bières</div>
+              </div>
+              <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 14, padding: '8px 12px', background: 'var(--slate-50)', borderRadius: 8, borderLeft: `3px solid ${tfg}` }}>
+                L'organisation se réserve le droit de faire retirer tous produits non déclarés au dossier.
+              </div>
+              <div className="field">
+                <label className="field-label">Détail des produits présentés <span style={{ color: 'var(--fg-muted)', fontWeight: 400 }}>(chocolat, foie gras, fromages, charcuteries…)</span></label>
+                <textarea className="input" rows={4} style={{ resize: 'vertical' }} value={form.descGastro} onChange={e => setF('descGastro', e.target.value)} placeholder="Décrivez précisément les produits qui seront présentés sur votre stand…"/>
               </div>
             </div>
+
+            {/* Profil 2 — Dérivés & Associés au Vin */}
             <div className="card" style={{ padding: 24 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Description des produits</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {[
-                  ['Gastronomie', 'descGastro'],
-                  ['Vins & Spiritueux', 'descVins'],
-                  ['Arts de la table', 'descArts'],
-                ].map(([label, key]) => (
-                  <div key={key} className="field">
-                    <label className="field-label">{label}</label>
-                    <textarea className="input" rows={2} style={{ resize: 'vertical' }} value={form[key]} onChange={e => setF(key, e.target.value)} placeholder={`Produits ${label.toLowerCase()} présentés sur le stand…`}/>
-                  </div>
-                ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <span style={{ fontSize: 18 }}>🍷</span>
+                <div style={{ fontSize: 15, fontWeight: 600 }}>Exposant Dérivés & Associés au Vin</div>
+              </div>
+              <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 14, padding: '8px 12px', background: 'var(--slate-50)', borderRadius: 8, borderLeft: `3px solid ${tfg}` }}>
+                L'organisation se réserve le droit de faire retirer tous produits non déclarés au dossier.
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <div className="field-label" style={{ marginBottom: 10 }}>Type(s) d'activité</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px' }}>
+                  {['Objet du vin', 'Rangement', 'Œnotourisme', 'Dégustation'].map(t => (
+                    <label key={t} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13.5, padding: '4px 0' }}>
+                      <input type="checkbox" checked={form.typesDerivVin.includes(t)} onChange={() => toggleArr('typesDerivVin', t)} style={{ accentColor: tfg }}/>
+                      {t}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="field">
+                <label className="field-label">Détail des produits présentés</label>
+                <textarea className="input" rows={4} style={{ resize: 'vertical' }} value={form.descDerivVin} onChange={e => setF('descDerivVin', e.target.value)} placeholder="Décrivez précisément les produits qui seront présentés sur votre stand…"/>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── Étape 3 : Stand & Prestations ── */}
-        {step === 3 && salon && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div className="card" style={{ padding: 24 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Enseigne du stand</div>
-              <div className="field">
-                <label className="field-label">Nom affiché sur le stand <span style={{ color: 'var(--fg-muted)', fontWeight: 400 }}>(30 caractères max.)</span></label>
-                <input className="input" maxLength={30} value={form.enseigne} onChange={e => setF('enseigne', e.target.value)} placeholder="Nom qui apparaîtra sur votre stand"/>
-                <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 4 }}>{form.enseigne.length}/30</div>
-              </div>
+        {/* ── Étape 4 : Communication ── */}
+        {step === 4 && salon && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ fontSize: 13, color: 'var(--fg-muted)', lineHeight: 1.5 }}>
+              Renforcez votre visibilité avec des supports de communication configurés par le Comité. Toutes les options sont facultatives.
             </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              {(COMMUNICATION_EXPO[salon.type] || []).map(c => {
+                const sel = !!(commOptions[c.id]);
+                return (
+                  <div key={c.id}
+                    onClick={() => toggleComm(c.id)}
+                    style={{
+                      border: `2px solid ${sel ? tfg : 'var(--border)'}`,
+                      borderRadius: 12, overflow: 'hidden',
+                      background: sel ? tbg : 'var(--surface)',
+                      transition: 'all .12s', cursor: 'pointer',
+                    }}>
+                    {/* Zone visuelle */}
+                    <div style={{
+                      height: 130, position: 'relative',
+                      background: c.visuelUrl
+                        ? `url(${c.visuelUrl}) center/cover no-repeat`
+                        : `linear-gradient(135deg, ${c.couleur}20 0%, ${c.couleur}40 100%)`,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      borderBottom: `1px solid ${sel ? EXPO_FG + '44' : 'var(--border)'}`,
+                    }}>
+                      {!c.visuelUrl && (
+                        <>
+                          <div style={{ width: 48, height: 48, borderRadius: '50%', background: c.couleur + '30', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                            <Icon.Layers size={22} style={{ color: c.couleur }}/>
+                          </div>
+                          <div style={{ fontSize: 10.5, fontWeight: 700, color: c.couleur, textTransform: 'uppercase', letterSpacing: '.08em', opacity: .8 }}>{c.cat}</div>
+                          <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 4, opacity: .7 }}>Visuel ajouté par l'admin</div>
+                        </>
+                      )}
+                      {sel && (
+                        <div style={{ position: 'absolute', top: 10, right: 10, width: 24, height: 24, borderRadius: '50%', background: EXPO_FG, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,.2)' }}>
+                          <Icon.Check size={13} style={{ color: '#fff' }}/>
+                        </div>
+                      )}
+                    </div>
+                    {/* Infos */}
+                    <div style={{ padding: '12px 14px' }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 4 }}>{c.nom}</div>
+                      <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 12, lineHeight: 1.5 }}>{c.desc}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span className="tnum" style={{ fontSize: 14, fontWeight: 700, color: sel ? EXPO_FG : 'var(--fg)' }}>
+                          {eur(c.prixHT)} <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--fg-muted)' }}>HT</span>
+                        </span>
+                        <span style={{
+                          fontSize: 12, fontWeight: 600, padding: '4px 11px', borderRadius: 6,
+                          background: sel ? EXPO_FG : 'var(--surface-2)',
+                          color: sel ? '#fff' : 'var(--fg-muted)',
+                          transition: 'all .12s',
+                        }}>
+                          {sel ? '✓ Sélectionné' : 'Sélectionner'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {commHT > 0 && (
+              <div style={{ textAlign: 'right', fontSize: 13, color: EXPO_FG, fontWeight: 600 }}>
+                Sous-total communication : {eur(commHT)} HT
+              </div>
+            )}
+          </div>
+        )}
 
+        {/* ── Étape 5 : Stand & Prestations ── */}
+        {step === 5 && salon && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div className="card" style={{ padding: 0 }}>
               <div style={{ padding: '16px 22px 12px', borderBottom: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 15, fontWeight: 600 }}>Catalogue des prestations</div>
@@ -616,9 +828,33 @@ const ExposantInscription = ({ onNavigate }) => {
           </div>
         )}
 
-        {/* ── Étape 4 : Récapitulatif + Paiement ── */}
-        {step === 4 && salon && (
+        {/* ── Étape 6 : Récapitulatif + Paiement ── */}
+        {step === 6 && salon && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Récap communication */}
+            {commHT > 0 && (
+              <div className="card" style={{ padding: 0 }}>
+                <div style={{ padding: '14px 22px 10px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Icon.Send size={14} style={{ color: 'var(--fg-muted)' }}/>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>Options de communication</div>
+                </div>
+                <table className="table" style={{ width: '100%' }}>
+                  <thead><tr><th>Support</th><th style={{ textAlign: 'right' }}>Prix HT</th></tr></thead>
+                  <tbody>
+                    {(COMMUNICATION_EXPO[salon.type] || []).filter(c => commOptions[c.id]).map((c, i) => (
+                      <tr key={i}>
+                        <td>
+                          <span style={{ fontSize: 11, padding: '1px 7px', borderRadius: 999, fontWeight: 600, marginRight: 8, background: c.couleur + '20', color: c.couleur }}>{c.cat}</span>
+                          {c.nom}
+                        </td>
+                        <td className="num tnum">{eur(c.prixHT)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             {/* Récap prestations */}
             <div className="card" style={{ padding: 0 }}>
               <div style={{ padding: '16px 22px 12px', borderBottom: '1px solid var(--border)' }}>
@@ -656,7 +892,7 @@ const ExposantInscription = ({ onNavigate }) => {
             <div className="card" style={{ padding: 24 }}>
               <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Mode de règlement</div>
               <div style={{ fontSize: 13, color: 'var(--fg-muted)', marginBottom: 16 }}>
-                Un acompte de <strong>40 % TTC ({eur(acompteTTC)})</strong> est exigible à la réservation. Le solde est réglé 30 jours avant le salon.
+                Un acompte de <strong>40 % TTC ({eur(acompteTTC)})</strong> vous sera demandé après validation de votre dossier par le Comité. Le solde est exigible 30 jours avant le salon.
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
                 {[
@@ -693,7 +929,7 @@ const ExposantInscription = ({ onNavigate }) => {
             <button onClick={() => setStep(step - 1)} className="btn btn-outline">
               <Icon.ChevronLeft size={14}/> Retour
             </button>
-            {step < 4 ? (
+            {step < 6 ? (
               <button onClick={() => setStep(step + 1)} className="btn btn-primary" style={{ background: EXPO_FG, borderColor: EXPO_FG }}>
                 Continuer <Icon.ChevronRight size={14}/>
               </button>
@@ -786,7 +1022,8 @@ const ExposantMonCompte = () => {
     { id: 'mdp',         label: 'Mot de passe' },
   ];
 
-  const [saved, setSaved] = React.useState(false);
+  const [saved, setSaved]   = React.useState(false);
+  const [noTva, setNoTva]   = React.useState(false);
   const saveFn = () => { setSaved(true); setTimeout(() => setSaved(false), 2200); };
 
   return (
@@ -813,13 +1050,37 @@ const ExposantMonCompte = () => {
       {tab === 'infos' && (
         <div className="card" style={{ padding: 24 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 20px' }}>
+            {/* Identité légale */}
             {[
               ['Raison sociale *', 'Domaine des Trois Pierres SARL', 'span-2'],
               ['SIRET *', '32194712300045', null],
+              ['Code APE', '0111Z', null],
               ['Forme juridique', 'SARL', null],
+            ].map(([label, val, span]) => (
+              <div key={label} className="field" style={span === 'span-2' ? { gridColumn: 'span 2' } : {}}>
+                <label className="field-label">{label}</label>
+                <input className="input" defaultValue={val}/>
+              </div>
+            ))}
+            {/* Checkbox non assujetti + TVA conditionnelle */}
+            <div style={{ gridColumn: 'span 2', margin: '2px 0' }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: 'var(--fg-muted)' }}>
+                <input type="checkbox" checked={noTva} onChange={e => setNoTva(e.target.checked)} style={{ accentColor: EXPO_FG, width: 15, height: 15 }}/>
+                Personne physique ou non assujetti à la TVA — pas de N° TVA intracommunautaire
+              </label>
+            </div>
+            {!noTva && (
+              <div className="field" style={{ gridColumn: 'span 2' }}>
+                <label className="field-label">N° TVA intracommunautaire</label>
+                <input className="input" defaultValue="FR32194712300"/>
+              </div>
+            )}
+            {/* Adresse */}
+            {[
               ['Adresse *', '14 Route des Vignes', 'span-2'],
               ['Code postal *', '71960', null],
               ['Ville *', 'Solutré-Pouilly', null],
+              ['Pays *', 'France', null],
               ['Téléphone *', '03 85 37 12 44', null],
               ['E-mail *', 'contact@domaine-3-pierres.fr', null],
               ['Site web', 'www.domaine-3-pierres.fr', null],

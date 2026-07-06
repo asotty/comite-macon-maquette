@@ -50,6 +50,12 @@ const EditionPicker = ({ editions, value, onChange }) => {
   );
 };
 
+const FOURNISSEURS_MEDAILLES_CMD = [
+  { id: 'lyon',     nom: 'Médailleur Lyon'     },
+  { id: 'bordeaux', nom: 'Médailleur Bordeaux' },
+  { id: 'paris',    nom: 'Arthus-Bertrand'     },
+];
+
 const COMMON_EDITIONS = [
   { id: '2026', label: 'Concours des Grands Vins de France 2026' },
   { id: '2025', label: 'Concours des Grands Vins de France 2025', archive: true },
@@ -63,27 +69,44 @@ const AdminCommandesMedailles = () => {
   const [tab, setTab] = React.useState('toutes');
   const [palmaresPublie, setPalmaresPublie] = React.useState(true);
   const [rowMenu, setRowMenu] = React.useState(null);
+  const [expandedRows, setExpandedRows] = React.useState({});
+  const toggleExpand = (ref) => setExpandedRows(prev => ({ ...prev, [ref]: !prev[ref] }));
+  const [fournisseurOverrides, setFournisseurOverrides] = React.useState({});
+  const getFournisseur = function(r) {
+    var oid = fournisseurOverrides[r[0]];
+    return oid
+      ? (FOURNISSEURS_MEDAILLES_CMD.find(function(f) { return f.id === oid; }) || FOURNISSEURS_MEDAILLES_CMD[0])
+      : (FOURNISSEURS_MEDAILLES_CMD.find(function(f) { return f.id === r[9]; }) || FOURNISSEURS_MEDAILLES_CMD[0]);
+  };
+  const setFournisseurForRow = function(rowRef, newId, autoId) {
+    setFournisseurOverrides(function(prev) {
+      var next = Object.assign({}, prev);
+      if (newId === autoId) { delete next[rowRef]; } else { next[rowRef] = newId; }
+      return next;
+    });
+  };
 
   const counts = { toutes: 312, a_expedier: 218, expediees: 81, livrees: 13 };
 
-  // Format: [ref, producteur, appell, or, argent, bronze, quota_droit, statut, stock_bouteilles]
+  // Format: [ref, producteur, appell, or, argent, bronze, quota_bareme, statut, stock_bouteilles, fournisseurId, editions]
   // or/argent/bronze : nombre de médailles à l'unité commandées par type
-  // quota_droit      : droit max en médailles (null = non confirmé)
+  // quota_bareme     : droit max en médailles calculé depuis le barème (null = non confirmé)
   // stock_bouteilles : volume déclaré du producteur (pour calcul seuil 3%)
+  // editions         : tableau des éditions couvertes par la commande
   // Alertes :
   //   • Petite commande → total médailles < 1 000
   //   • Dépassement 3% → total_médailles > stock_bouteilles × 0.03
   const ROWS = [
-    ['CMD-2026-0312', 'Domaine de la Chevalière',    'Pouilly-Fuissé',     3000,  2000,  1000,  8000,  'a-expedier', 180000],
-    ['CMD-2026-0311', 'Maison Joseph Drouhin',       'Beaune',             5000,  3000,  0,     10000, 'a-expedier', 320000],
-    ['CMD-2026-0310', 'Château de Pierreclos',       'Saint-Véran',        0,     0,     800,   3000,  'expedie',    12000 ], // ⚠ dépasse 3% : 800/12000 = 6.7%
-    ['CMD-2026-0309', 'Domaine Bouchard Père',       'Meursault',          2000,  4000,  0,     8000,  'expedie',    95000 ],
-    ['CMD-2026-0308', 'Domaine des 3 Pierres',       'Mâcon-Villages',     0,     3000,  2000,  null,  'livre',      14000 ], // ⚠ dépasse 3% : 5000/14000 = 35.7%
-    ['CMD-2026-0307', 'Cellier de Solutré',          'Pouilly-Fuissé',     0,     2000,  1000,  4000,  'a-expedier', 70000 ],
-    ['CMD-2026-0306', 'Vignobles Lacroix',           'Mercurey',           0,     500,   0,     2000,  'a-expedier', 5000  ], // ⚠ petite cde : 500 < 1000 + dépasse 3% : 500/5000 = 10%
-    ['CMD-2026-0305', 'Domaine Sainte-Anne',         'Saint-Véran',        250,   0,     0,     null,  'expedie',    8000  ], // ⚠ petite cde : 250 < 1000
-    ['CMD-2026-0304', 'Domaine Tabard',              'Brouilly',           0,     0,     2000,  2000,  'livre',      45000 ],
-    ['CMD-2026-0303', 'Vignerons de Buxy',           'Bourgogne Aligoté',  0,     0,     1200,  null,  'a-expedier', 30000 ],
+    ['CMD-2026-0312', 'Domaine de la Chevalière',    'Pouilly-Fuissé',     3000,  2000,  1000,  8000,  'a-expedier', 180000, 'lyon',     ['CGVF 2026', 'CGVF 2025']],
+    ['CMD-2026-0311', 'Maison Joseph Drouhin',       'Beaune',             5000,  3000,  0,     10000, 'a-expedier', 320000, 'lyon',     ['CGVF 2026']],
+    ['CMD-2026-0310', 'Château de Pierreclos',       'Saint-Véran',        0,     0,     800,   3000,  'expedie',    12000,  'lyon',     ['CGVF 2026']],
+    ['CMD-2026-0309', 'Domaine Bouchard Père',       'Meursault',          2000,  4000,  0,     8000,  'expedie',    95000,  'lyon',     ['CGVF 2026', 'CGVM 2025']],
+    ['CMD-2026-0308', 'Domaine des 3 Pierres',       'Mâcon-Villages',     0,     3000,  2000,  null,  'livre',      14000,  'lyon',     ['CGVF 2026']],
+    ['CMD-2026-0307', 'Cellier de Solutré',          'Pouilly-Fuissé',     0,     2000,  1000,  4000,  'a-expedier', 70000,  'lyon',     ['CGVF 2026', 'CGVM 2026']],
+    ['CMD-2026-0306', 'Vignobles Lacroix',           'Mercurey',           0,     500,   0,     2000,  'a-expedier', 5000,   'lyon',     ['CGVF 2026']],
+    ['CMD-2026-0305', 'Domaine Sainte-Anne',         'Saint-Véran',        250,   0,     0,     null,  'expedie',    8000,   'lyon',     ['CGVF 2026']],
+    ['CMD-2026-0304', 'Domaine Tabard',              'Brouilly',           0,     0,     2000,  2000,  'livre',      45000,  'lyon',     ['CGVF 2026']],
+    ['CMD-2026-0303', 'Vignerons de Buxy',           'Bourgogne Aligoté',  0,     0,     1200,  null,  'a-expedier', 30000,  'lyon',     ['CGVF 2026']],
   ];
 
   const filtered = ROWS.filter(r => {
@@ -151,6 +174,9 @@ const AdminCommandesMedailles = () => {
         }
         subtitle="312 commandes · 1 840 médailles commandées"
         actions={<>
+          <button className="btn btn-outline btn-sm" onClick={() => { if (window.__adminRoute) window.__adminRoute('param-bareme'); }} style={{ cursor: 'pointer' }}>
+            <Icon.Settings size={14}/> Configurer le barème
+          </button>
           <button className="btn btn-outline btn-sm"><Icon.Download size={14}/> Export</button>
         </>}
       />
@@ -215,13 +241,15 @@ const AdminCommandesMedailles = () => {
             <tr>
               <SortableTh sortKey="ref"        currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>N° Commande</SortableTh>
               <SortableTh sortKey="producteur" currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Producteur</SortableTh>
+              <th>Éditions</th>
               <th className="num" title="Lots de 1 000 médailles Or">Or</th>
               <th className="num" title="Lots de 1 000 médailles Argent">Argent</th>
               <th className="num" title="Lots de 1 000 médailles Bronze">Bronze</th>
               <SortableTh sortKey="qty"        currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort} align="right">Total</SortableTh>
-              <th className="num">Quota</th>
+              <th className="num" title="Quota calculé depuis le barème × classement">Quota barème</th>
               <th>Alertes</th>
               <SortableTh sortKey="statut"     currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Livraison</SortableTh>
+              <th>Imprimeur</th>
               <th style={{ width: 36 }}></th>
             </tr>
           </thead>
@@ -235,12 +263,47 @@ const AdminCommandesMedailles = () => {
               const stockBouteilles = r[8] || null;
               const alertStock = stockBouteilles !== null && totalPieces > stockBouteilles * 0.03;
               const pctStock = stockBouteilles ? ((totalPieces / stockBouteilles) * 100).toFixed(1) : null;
+              const editions = r[10] || ['CGVF 2026'];
+              const isMultiEdition = editions.length > 1;
+              const isExpanded = !!expandedRows[r[0]];
+              // Ventilation simulée par édition pour l'expand
+              const editionBreakdown = editions.map((ed, idx) => ({
+                label: ed,
+                or:     idx === 0 ? r[3] : Math.floor(r[3] * 0.4),
+                argent: idx === 0 ? r[4] : Math.floor(r[4] * 0.3),
+                bronze: idx === 0 ? r[5] : Math.floor(r[5] * 0.5),
+                quota:  r[6] ? Math.floor(r[6] / editions.length) : null,
+              }));
               return (
-              <tr key={i} style={{ background: (alertPetite || alertStock) ? 'rgba(254,242,242,0.4)' : undefined }}>
+              <React.Fragment key={i}>
+              <tr style={{ background: (alertPetite || alertStock) ? 'rgba(254,242,242,0.4)' : undefined }}>
                 <td style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)', fontSize: 12.5, color: 'var(--fg)', fontWeight: 500 }}>{r[0]}</td>
                 <td>
                   <div style={{ fontWeight: 500 }}>{r[1]}</div>
                   <div className="muted" style={{ fontSize: 11.5, marginTop: 1 }}>{r[2]}</div>
+                </td>
+                <td style={{ minWidth: 130 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{
+                      fontSize: 11.5, fontWeight: 600,
+                      padding: '2px 7px', borderRadius: 99,
+                      background: 'var(--burgundy-50)', color: 'var(--burgundy-800)',
+                      border: '1px solid var(--burgundy-200)',
+                      whiteSpace: 'nowrap',
+                    }}>{editions[0]}</span>
+                    {isMultiEdition && (
+                      <button onClick={() => toggleExpand(r[0])} style={{
+                        fontSize: 11, fontWeight: 700,
+                        padding: '2px 6px', borderRadius: 99,
+                        background: '#fef3c7', color: '#92400e',
+                        border: '1px solid #fde68a',
+                        cursor: 'pointer', whiteSpace: 'nowrap',
+                        fontFamily: 'inherit',
+                      }}>
+                        +{editions.length - 1} <Icon.ChevronDown size={10} style={{ verticalAlign: 'middle', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .15s' }}/>
+                      </button>
+                    )}
+                  </div>
                 </td>
                 <td className="num tnum">
                   {r[3] > 0 ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
@@ -285,6 +348,41 @@ const AdminCommandesMedailles = () => {
                   {!alertPetite && !alertStock && <span className="subtle" style={{ fontSize: 11.5 }}>—</span>}
                 </td>
                 <td><LivraisonBadge kind={r[7]}/></td>
+                <td onClick={function(e) { e.stopPropagation(); }} style={{ minWidth: 170 }}>
+                  {(function() {
+                    var fourn = getFournisseur(r);
+                    var isOverride = !!fournisseurOverrides[r[0]];
+                    var autoFourn = FOURNISSEURS_MEDAILLES_CMD.find(function(f) { return f.id === r[9]; }) || FOURNISSEURS_MEDAILLES_CMD[0];
+                    return (
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <select
+                            style={{ fontSize: 12, padding: '3px 7px', border: '1px solid var(--border)', borderRadius: 5, background: isOverride ? '#fef9ec' : 'var(--surface)', color: 'var(--fg)', cursor: 'pointer', fontFamily: 'inherit', maxWidth: 148 }}
+                            value={fournisseurOverrides[r[0]] || r[9]}
+                            onChange={function(e) { setFournisseurForRow(r[0], e.target.value, r[9]); }}
+                          >
+                            {FOURNISSEURS_MEDAILLES_CMD.map(function(f) {
+                              return <option key={f.id} value={f.id}>{f.nom}</option>;
+                            })}
+                          </select>
+                          {isOverride
+                            ? <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 999, background: '#fef3c7', color: '#92400e', fontWeight: 600, whiteSpace: 'nowrap' }}>Manuel</span>
+                            : <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 999, background: '#dcfce7', color: '#166534', fontWeight: 600, whiteSpace: 'nowrap' }}>Auto</span>
+                          }
+                        </div>
+                        {isOverride && (
+                          <div style={{ fontSize: 10.5, color: 'var(--fg-subtle)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            auto : {autoFourn.nom} ·
+                            <button
+                              onClick={function() { setFournisseurForRow(r[0], r[9], r[9]); }}
+                              style={{ fontSize: 10.5, color: 'var(--burgundy-800)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', fontFamily: 'inherit' }}
+                            >réinitialiser</button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </td>
                 <td onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
                   <button className="btn btn-icon btn-sm btn-ghost" onClick={() => setRowMenu(rowMenu === i ? null : i)}>
                     <Icon.MoreH size={13}/>
@@ -308,6 +406,40 @@ const AdminCommandesMedailles = () => {
                   )}
                 </td>
               </tr>
+              {/* Expand row — ventilation par édition */}
+              {isMultiEdition && isExpanded && (
+                <tr style={{ background: 'var(--slate-50)' }}>
+                  <td colSpan={12} style={{ padding: '0 20px 14px 20px' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '10px 0 8px', borderTop: '1px solid var(--border)' }}>
+                      Ventilation par édition
+                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+                      <thead>
+                        <tr style={{ color: 'var(--fg-muted)', fontSize: 11.5 }}>
+                          {['Édition', 'Or', 'Argent', 'Bronze', 'Total', 'Quota'].map((h, hi) => (
+                            <th key={hi} style={{ padding: '4px 10px', textAlign: hi > 0 ? 'right' : 'left', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {editionBreakdown.map((eb, ei) => (
+                          <tr key={ei} style={{ borderBottom: ei < editionBreakdown.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                            <td style={{ padding: '6px 10px' }}>
+                              <span style={{ fontWeight: 600, padding: '2px 7px', borderRadius: 99, background: 'var(--burgundy-50)', color: 'var(--burgundy-800)', border: '1px solid var(--burgundy-200)', fontSize: 11.5 }}>{eb.label}</span>
+                            </td>
+                            <td className="tnum" style={{ padding: '6px 10px', textAlign: 'right', color: eb.or > 0 ? 'var(--fg)' : 'var(--fg-subtle)' }}>{eb.or > 0 ? eb.or : '—'}</td>
+                            <td className="tnum" style={{ padding: '6px 10px', textAlign: 'right', color: eb.argent > 0 ? 'var(--fg)' : 'var(--fg-subtle)' }}>{eb.argent > 0 ? eb.argent : '—'}</td>
+                            <td className="tnum" style={{ padding: '6px 10px', textAlign: 'right', color: eb.bronze > 0 ? 'var(--fg)' : 'var(--fg-subtle)' }}>{eb.bronze > 0 ? eb.bronze : '—'}</td>
+                            <td className="tnum" style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>{(eb.or + eb.argent + eb.bronze).toLocaleString('fr-FR')}</td>
+                            <td className="tnum" style={{ padding: '6px 10px', textAlign: 'right', color: 'var(--fg-muted)' }}>{eb.quota != null ? eb.quota.toLocaleString('fr-FR') : <span style={{ fontStyle: 'italic' }}>—</span>}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              )}
+              </React.Fragment>
               );
             })}
           </tbody>
@@ -409,7 +541,7 @@ const AdminStocks = () => {
   const HISTORY = [
     ['15/05/2026', 'Commande producteur',     -24, -18, -6,  'CMD-2026-0312 · Domaine de la Chevalière'],
     ['14/05/2026', 'Commande producteur',     -12, -24, 0,   'CMD-2026-0311 · Maison Joseph Drouhin'],
-    ['12/05/2026', 'Livraison fournisseur',   +500, +500, +200, 'BL-2026-008 · Médailleur Lyon'],
+    ['12/05/2026', 'Livraison imprimeur',   +500, +500, +200, 'BL-2026-008 · Médailleur Lyon'],
     ['10/05/2026', 'Correction manuelle',     0,   -3,   0,   'Médailles défectueuses retirées du stock — Sophie L.'],
     ['08/05/2026', 'Commande producteur',     -18, -12, -8,  'CMD-2026-0298 · Vignobles Lacroix'],
     ['01/05/2026', 'Stock initial 2026',      +6000, +5000, +3000, 'Stock d\'ouverture — édition 2026'],
@@ -567,7 +699,7 @@ const Delta = ({ n }) => {
 const MouvementTypeBadge = ({ type }) => {
   const map = {
     'Commande producteur':   { icon: <Icon.Package size={11}/>, bg: 'var(--slate-100)', fg: 'var(--slate-700)' },
-    'Livraison fournisseur': { icon: <Icon.Download size={11}/>, bg: '#dcfce7',          fg: '#166534' },
+    'Livraison imprimeur': { icon: <Icon.Download size={11}/>, bg: '#dcfce7',          fg: '#166534' },
     'Correction manuelle':   { icon: <Icon.Edit size={11}/>,    bg: '#fef3c7',          fg: '#a16207' },
     'Stock initial 2026':    { icon: <Icon.Sparkles size={11}/>,bg: 'var(--burgundy-50)',fg: 'var(--burgundy-800)' },
   };
@@ -710,11 +842,11 @@ const AdminTransmissions = () => {
   return (
     <div data-screen-label="admin-transmissions">
       <PageHeader
-        breadcrumb={['Administration', 'Commandes', 'Transmissions fournisseurs']}
-        title="Transmissions fournisseurs"
+        breadcrumb={['Administration', 'Commandes', 'Transmissions imprimeurs']}
+        title="Transmissions imprimeurs"
         subtitle={`${SUPPLIERS.length} médailleurs partenaires · ${TOTAL_A_TRANSMETTRE} médailles à transmettre`}
         actions={<>
-          <button className="btn btn-outline btn-sm"><Icon.Settings size={13}/> Gérer les fournisseurs</button>
+          <button className="btn btn-outline btn-sm"><Icon.Settings size={13}/> Gérer les imprimeurs</button>
           <button className="btn btn-outline btn-sm"><Icon.Download size={14}/> Export historique</button>
         </>}
       />
@@ -733,7 +865,7 @@ const AdminTransmissions = () => {
               À transmettre
             </span>
             <span style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>
-              — un export par fournisseur
+              — un export par imprimeur
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
@@ -836,7 +968,7 @@ const AdminTransmissions = () => {
             <tr>
               <SortableTh sortKey="date"    currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Date</SortableTh>
               <SortableTh sortKey="admin"   currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Admin</SortableTh>
-              <SortableTh sortKey="sup"     currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Fournisseur</SortableTh>
+              <SortableTh sortKey="sup"     currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Imprimeur</SortableTh>
               <th className="num">Or</th>
               <th className="num">Argent</th>
               <th className="num">Bronze</th>
@@ -1029,7 +1161,7 @@ const NewTransmissionModal = ({ supplier, onCancel, onConfirm }) => {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
-              { id: 'csv-fournisseur', label: `Format CSV — ${supplier.name}`, sub: 'Format impératif du fournisseur',          recommended: true },
+              { id: 'csv-fournisseur', label: `Format CSV — ${supplier.name}`, sub: 'Format impératif de l\'imprimeur',          recommended: true },
               { id: 'xlsx',            label: 'Excel (XLSX)',                  sub: 'Copie pour archivage interne uniquement' },
             ].map(f => (
               <label key={f.id} style={{

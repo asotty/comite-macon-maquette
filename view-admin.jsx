@@ -1266,17 +1266,16 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
   const isFrance = concours === 'France';
   const brand = getConcoursBrand(concours);
 
-  // Stepper phases — phase courante = "Inscriptions terminées" (index 1)
-  const phases = ['Inscriptions en cours', 'Inscriptions terminés', 'Contrôle J-14', 'Dégustation', 'Palmarès'];
-  const currentPhase = 1;
-
-  // Stats Concours
+  // Stats Concours — [valeur, libellé, tendance?]
   const concoursStats = isFrance
-    // R20 — small KPIs alignés sur les 4 nouveaux statuts
-    ? { delta: '+12 %', large: [['847','Inscrits'],['241','Validés'],['198','Payés'],['2148','Échantillons']], small: [['167','En att. paiement'],['47','À vérifier'],['240','Payés']] }
-    : { delta: '+48 %', large: [['312','Inscrits'],['80','Validés'],['65','Payés'],['612','Échantillons']], small: [['55','En att. paiement'],['22','À vérifier'],['65','Payés']] };
+    ? { delta: '+12 %',
+        large: [['847','Inscrits','+12 %'], ['241','Validés'], ['198','Payés'], ['2 148','Échantillons','+18 %']],
+        small: [['167','En att. paiement'], ['47','À vérifier'], ['240','Dossiers traités','+9 %']] }
+    : { delta: '+48 %',
+        large: [['312','Inscrits','+48 %'], ['80','Validés'], ['65','Payés'], ['612','Échantillons','+31 %']],
+        small: [['55','En att. paiement'], ['22','À vérifier'], ['65','Dossiers traités','+15 %']] };
 
-  // Contrôle des échantillons (gauge)
+  // Contrôle des échantillons
   const ctrl = isFrance
     ? { pct: 68, num: 1460, total: 2148, valides: 1214, manuel: 198, rejet: 48, nonTraite: 244 }
     : { pct: 42, num: 257,  total: 612,  valides: 198,  manuel: 38,  rejet: 12, nonTraite: 95 };
@@ -1310,17 +1309,6 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
     { r: 'Suisse',                    p: 18,  e: 27,  v: '78%', c: 4,  rej: 1 },
   ];
 
-  // Échéances
-  const echeances = isFrance ? [
-    { mois: 'mai',  jour: '12', t: 'Clôture inscriptions France', sub: 'dans 7 jours' },
-    { mois: 'mai',  jour: '24', t: 'Dégustation Concours des Grands Vins de France', sub: 'dans 19 jours' },
-    { mois: 'juin', jour: '02', t: 'Publication palmarès',         sub: 'dans 28 jours' },
-  ] : [
-    { mois: 'juin', jour: '14', t: 'Clôture inscriptions Monde',  sub: 'dans 40 jours' },
-    { mois: 'juin', jour: '20', t: 'Dégustation Concours des Grands Vins du Monde',  sub: 'dans 46 jours' },
-    { mois: 'juin', jour: '28', t: 'Publication palmarès Monde',  sub: 'dans 54 jours' },
-  ];
-
   return (
     <div>
       <PageHeader
@@ -1334,48 +1322,33 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
         </>}
       />
 
-      {/* Phase actuelle — stepper */}
-      <div className="card" style={{ padding: '20px 24px 28px', marginBottom: 16 }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-muted)', marginBottom: 16 }}>Phase actuelle</div>
-        <div style={{ position: 'relative', padding: '8px 8px 0' }}>
-          {/* Background line */}
-          <div style={{ position: 'absolute', left: 8, right: 8, top: 18, height: 4, background: 'var(--slate-200)', borderRadius: 999 }}/>
-          {/* Progress line */}
-          <div style={{ position: 'absolute', left: 8, top: 18, height: 4, background: brand.color, borderRadius: 999,
-            width: `calc((100% - 16px) * ${currentPhase} / ${phases.length - 1})` }}/>
-          {/* Steps */}
-          <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between' }}>
-            {phases.map((p, i) => {
-              const done    = i <= currentPhase;
-              const isFirst = i === 0;
-              const isLast  = i === phases.length - 1;
-              return (
-                <div key={p} style={{
-                  display: 'flex', flexDirection: 'column', alignItems: isFirst ? 'flex-start' : isLast ? 'flex-end' : 'center',
-                  flex: isFirst || isLast ? '0 0 auto' : '0 0 auto',
-                }}>
-                  <div style={{
-                    width: 20, height: 20, borderRadius: '50%',
-                    background: done ? brand.color : 'var(--slate-300)',
-                    border: '4px solid var(--bg-app, #fff)',
-                    boxShadow: done ? `0 0 0 2px ${brand.color}` : 'none',
-                    position: 'relative', zIndex: 1,
-                  }}/>
-                  <div style={{
-                    fontSize: 13, fontWeight: done ? 600 : 500, marginTop: 10,
-                    color: done ? brand.color : 'var(--fg-muted)',
-                    whiteSpace: 'nowrap',
-                  }}>{p}</div>
-                </div>
-              );
-            })}
-          </div>
+      {/* Ligne 1 — Action requise (anciennement Phase actuelle) */}
+      <div style={{
+        background: isFrance ? 'var(--burgundy-900)' : '#003840', borderRadius: 12, padding: 24, color: '#fff',
+        position: 'relative', overflow: 'hidden', marginBottom: 16,
+      }}>
+        <svg style={{ position: 'absolute', right: -28, bottom: -28, opacity: 0.07 }} width="180" height="180" viewBox="0 0 24 24" fill="#fff">
+          <circle cx="12" cy="9" r="6"/>
+        </svg>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--gold-300)', marginBottom: 16, position: 'relative' }}>Action requise</div>
+        <div className="display" style={{
+          fontSize: 22, fontWeight: 600, lineHeight: 1.3,
+          color: '#f7f7f7', position: 'relative', letterSpacing: '-0.01em',
+        }}>
+          Lancer le contrôle automatique des {ctrl.nonTraite} dossiers restants
+        </div>
+        <div style={{ fontSize: 13, opacity: 0.78, marginTop: 10, position: 'relative' }}>
+          Extraction OCR + croisement DREV/analyses ~ 18 min
+        </div>
+        <div style={{ marginTop: 20, position: 'relative' }}>
+          <button className="btn btn-sm" style={{ background: '#f5f5f3', color: isFrance ? 'var(--burgundy-900)' : '#003840', fontWeight: 600, border: 'none' }}>
+            <Icon.Sparkles size={13}/> Lancer le contrôle
+          </button>
         </div>
       </div>
 
-      {/* Ligne 2 — Contrôle (1/3) + Stats consolidées (2/3) */}
+      {/* Ligne 2 — Contrôle des échantillons (440px) + Stats consolidées (1fr) */}
       <div style={{ display: 'grid', gridTemplateColumns: '440px 1fr', gap: 16, marginBottom: 16, alignItems: 'stretch' }}>
-        {/* Contrôle des échantillons */}
         <div className="card" style={{ padding: 22, display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--fg)', marginBottom: 18 }}>Contrôle des échantillons</div>
           <div style={{ marginBottom: 18 }}>
@@ -1398,7 +1371,6 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
           </button>
         </div>
 
-        {/* Concours stats consolidées (4 KPI + 3 secondaires) */}
         <div className="card" style={{ padding: 22 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-muted)' }}>Concours {concours}</div>
@@ -1412,24 +1384,21 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
               {concoursStats.delta}
             </span>
           </div>
-
-          {/* 4 KPI principaux — boîtes grises */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 12 }}>
-            {concoursStats.large.map(([v, l]) => (
-              <ConcoursStatBox key={l} value={v} label={l}/>
+            {concoursStats.large.map(([v, l, t]) => (
+              <ConcoursStatBox key={l} value={v} label={l} trend={t}/>
             ))}
           </div>
-          {/* 3 KPI secondaires */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-            {concoursStats.small.map(([v, l]) => (
-              <ConcoursStatBox key={l} value={v} label={l}/>
+            {concoursStats.small.map(([v, l, t]) => (
+              <ConcoursStatBox key={l} value={v} label={l} trend={t}/>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Ligne 3 — Dossiers à traiter + Échéances */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 440px', gap: 16, marginBottom: 16, alignItems: 'flex-start' }}>
+      {/* Ligne 3 — Dossiers à traiter */}
+      <div style={{ marginBottom: 16 }}>
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '18px 22px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
@@ -1467,28 +1436,6 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
           </table>
         </div>
 
-        {/* Colonne droite : Prochaines échéances */}
-        <div className="card" style={{ padding: 0 }}>
-            <div style={{ padding: '18px 22px 10px', fontSize: 16, fontWeight: 700 }}>Prochaines échéances</div>
-            <div style={{ padding: '0 22px 18px' }}>
-              {echeances.map((e, i) => (
-                <div key={i} style={{
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  padding: '14px 0',
-                  borderTop: i > 0 ? '1px solid var(--border)' : 'none',
-                }}>
-                  <div style={{ width: 44, textAlign: 'center', flexShrink: 0, padding: '4px 0' }}>
-                    <div className="display" style={{ fontSize: 11, fontWeight: 600, color: 'var(--burgundy-800)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{e.mois}</div>
-                    <div className="display" style={{ fontSize: 22, fontWeight: 600, lineHeight: 1, color: 'var(--fg)', marginTop: 2 }}>{e.jour}</div>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 500 }}>{e.t}</div>
-                    <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>{e.sub}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-        </div>
       </div>
 
       {/* Ligne 4 — Répartition par région (pleine largeur) */}
@@ -1520,8 +1467,8 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
         </table>
       </div>
 
-      {/* Ligne 5 — Activité + Action requise */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      {/* Ligne 5 — Activité récente */}
+      <div>
         <div className="card" style={{ padding: 0 }}>
           <div style={{ padding: '18px 22px 8px', fontSize: 16, fontWeight: 700 }}>Activité récente</div>
           <div style={{ padding: '0 22px 18px' }}>
@@ -1553,29 +1500,6 @@ const AdminConcoursDashboard = ({ concours = 'France' }) => {
           </div>
         </div>
 
-        <div style={{
-          background: isFrance ? 'var(--burgundy-900)' : '#003840', borderRadius: 12, padding: 24, color: '#fff',
-          position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column',
-        }}>
-          <svg style={{ position: 'absolute', right: -28, bottom: -28, opacity: 0.07 }} width="180" height="180" viewBox="0 0 24 24" fill="#fff">
-            <circle cx="12" cy="9" r="6"/>
-          </svg>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--gold-300)', marginBottom: 16, position: 'relative' }}>Action requise</div>
-          <div className="display" style={{
-            fontSize: 22, fontWeight: 600, lineHeight: 1.3,
-            color: '#f7f7f7', position: 'relative', letterSpacing: '-0.01em',
-          }}>
-            Lancer le contrôle automatique des {ctrl.nonTraite} dossiers restants
-          </div>
-          <div style={{ fontSize: 13, opacity: 0.78, marginTop: 10, position: 'relative' }}>
-            Extraction OCR + croisement DREV/analyses ~ 18 min
-          </div>
-          <div style={{ marginTop: 'auto', paddingTop: 20, position: 'relative' }}>
-            <button className="btn btn-sm" style={{ background: '#f5f5f3', color: isFrance ? 'var(--burgundy-900)' : '#003840', fontWeight: 600, border: 'none' }}>
-              <Icon.Sparkles size={13}/> Lancer le contrôle
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -1590,13 +1514,19 @@ const CtrlLine = ({ label, value }) => (
 );
 
 // Boîte KPI grise des stats Concours
-const ConcoursStatBox = ({ value, label }) => (
-  <div style={{
-    background: 'var(--slate-50)',
-    borderRadius: 10,
-    padding: '14px 16px',
-  }}>
-    <div className="display tnum" style={{ fontSize: 26, fontWeight: 700, color: 'var(--fg)', letterSpacing: '-0.02em', lineHeight: 1 }}>{value}</div>
+const ConcoursStatBox = ({ value, label, trend }) => (
+  <div style={{ background: 'var(--slate-50)', borderRadius: 10, padding: '14px 16px' }}>
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+      <div className="display tnum" style={{ fontSize: 26, fontWeight: 700, color: 'var(--fg)', letterSpacing: '-0.02em', lineHeight: 1 }}>{value}</div>
+      {trend && (
+        <span style={{
+          fontSize: 11, fontWeight: 700, color: '#166534',
+          background: 'var(--success-bg, #f0fdf4)',
+          padding: '2px 7px', borderRadius: 999,
+          display: 'inline-flex', alignItems: 'center', gap: 3,
+        }}>↑ {trend}</span>
+      )}
+    </div>
     <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 8, fontWeight: 500 }}>{label}</div>
   </div>
 );

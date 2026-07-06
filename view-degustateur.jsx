@@ -78,23 +78,7 @@ const DegustateurDashboard = ({ onNavigate }) => {
               {/* En-tête : logo + nom */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
                 {/* Logo concours — CGVF ou CGVM */}
-                {c.id === 'monde' ? (
-                  <div style={{
-                    width: 44, height: 44, borderRadius: 8, flexShrink: 0,
-                    background: '#e6eff0', border: '1px solid rgba(0,77,87,0.15)',
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <img src="logo-comite-vin-monde.png" alt="CGVM" style={{ width: 30, height: 30, objectFit: 'contain' }}/>
-                  </div>
-                ) : (
-                  <div style={{
-                    width: 44, height: 44, borderRadius: 8, flexShrink: 0,
-                    background: 'var(--burgundy-50)', border: '1px solid var(--burgundy-200)',
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <img src="logo-medaille.webp" alt="CGVF" style={{ width: 30, height: 30, objectFit: 'contain' }}/>
-                  </div>
-                )}
+                <ConcoursLogo concours={c.id === 'monde' ? 'monde' : 'france'} size={44}/>
                 <div style={{ fontSize: 13.5, fontWeight: 600, lineHeight: 1.3 }}>{c.nom}</div>
               </div>
 
@@ -267,6 +251,9 @@ const DegustateurDashboard = ({ onNavigate }) => {
           </div>
         </div>
       </div>
+
+      <CrossMarketingBlock portal="degustateur"/>
+
     </div>
   );
 };

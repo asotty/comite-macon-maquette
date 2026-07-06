@@ -116,15 +116,15 @@
                 <td className="num tnum">{r.ech}</td>
                 <td className="num tnum" style={{ fontWeight: 500 }}>{r.montant} €</td>
                 <td><StatusBadge status={r.status}/></td>
-                <td style={{ textAlign: 'right', width: 80, paddingRight: 8 }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }} onClick={(e) => e.stopPropagation()}>
+                <td style={{ textAlign: 'right', width: 180, paddingRight: 8 }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} onClick={(e) => e.stopPropagation()}>
+                    <button className="btn btn-outline btn-sm" onClick={() => setDuplicating(r)} style={{ fontWeight: 500 }}>
+                      <Icon.Copy size={13}/> Dupliquer
+                    </button>
                     <RowMenu items={[
-                      { label: 'Voir le dossier', icon: <Icon.Eye size={13}/>, onClick: () => handleRow(r) },
-                      { label: 'Dupliquer',       icon: <Icon.Copy size={13}/>, onClick: () => setDuplicating(r) },
-                      'divider',
+                      { label: 'Voir le dossier',       icon: <Icon.Eye size={13}/>,      onClick: () => handleRow(r) },
                       { label: 'Télécharger la facture', icon: <Icon.Download size={13}/>, onClick: () => {} },
                     ]}/>
-                    <Icon.ChevronRight size={14} style={{ color: 'var(--fg-subtle)' }}/>
                   </div>
                 </td>
               </tr>
@@ -168,7 +168,10 @@
 const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
   const daysToClose = 12; // Clôture J-12 → bordeaux car < 15
   const closeUrgent = daysToClose < 15;
-  const hasUrgentAction = true; // Toggle pour démontrer le bandeau
+  const hasUrgentAction = false; // true = bandeau paiement en attente
+  const notYetRegistered = true;  // true = bandeau pas encore inscrit
+  // Prochain concours ouvert aux inscriptions (france ou monde)
+  const nextConcours = CONCOURS_BRAND.france;
 
   return (
     <div>
@@ -184,6 +187,38 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
           </span>
         </div>
       </div>
+
+      {/* Bandeau pas encore inscrit */}
+      {notYetRegistered && !hasUrgentAction && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 20,
+          background: nextConcours.colorLight,
+          border: `1.5px solid ${nextConcours.colorBorder || nextConcours.color + '33'}`,
+          borderRadius: 14,
+          padding: '20px 28px',
+          marginBottom: 28,
+        }}>
+          <ConcoursLogo concours={nextConcours} size={52}/>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: nextConcours.color, marginBottom: 4 }}>
+              Vous n'êtes pas encore inscrit — {nextConcours.nom} 2026
+            </div>
+            <div style={{ fontSize: 13.5, color: nextConcours.color, opacity: 0.75 }}>
+              Les inscriptions sont ouvertes. Démarrez un nouveau dossier ou dupliquez votre dossier 2025.
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+            <button className="btn btn-outline btn-sm" onClick={() => onNavigate('p-inscription')}
+              style={{ borderColor: nextConcours.color + '55', color: nextConcours.color, whiteSpace: 'nowrap' }}>
+              <Icon.Copy size={13}/> Dupliquer le dossier 2025
+            </button>
+            <button className="btn btn-primary" onClick={() => onNavigate('p-inscription')}
+              style={{ background: nextConcours.color, whiteSpace: 'nowrap' }}>
+              <Icon.Plus size={15}/> Nouvelle inscription
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Bandeau paiement en attente */}
       {hasUrgentAction && (
@@ -319,63 +354,8 @@ const ProducteurDashboard = ({ kpiVariant, showKpiIcons, onNavigate }) => {
         </div>
       </div>
 
-      {/* Mes inscriptions en cours */}
-      <section style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 600, margin: 0, color: 'var(--fg)', letterSpacing: '-0.01em' }}>
-              Mes inscriptions en cours
-            </h2>
-            <button onClick={() => onNavigate('p-inscriptions')} style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 12.5, color: 'var(--burgundy-800)', fontWeight: 500,
-              fontFamily: 'inherit', padding: 0,
-            }}>
-              Voir tout →
-            </button>
-          </div>
-          <button className="btn btn-primary btn-sm" onClick={() => onNavigate('p-inscription')}>
-            <Icon.Plus size={13}/> Nouvelle inscription
-          </button>
-        </div>
+      <CrossMarketingBlock portal="producteur"/>
 
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Concours</th>
-                <th>Dossier</th>
-                <th className="num">Échantillons</th>
-                <th className="num">Montant</th>
-                <th>Statut</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { concours: 'Concours des Grands Vins de France', dossier: 'INS-2026-0184', ech: 8, montant: '480 €', status: 'valide' },
-                { concours: 'Concours des Grands Vins du Monde',  dossier: 'INS-2026-0021', ech: 3, montant: '180 €', status: 'brouillon' },
-              ].map((r, i) => (
-                <tr key={i} style={{ cursor: 'pointer' }} onClick={() => onNavigate(r.status === 'brouillon' ? 'p-inscription' : 'p-inscriptions')}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <ConcoursLogo concours={r.concours} size={28}/>
-                      <span style={{ fontWeight: 500 }}>{r.concours}</span>
-                    </div>
-                  </td>
-                  <td className="tnum muted">{r.dossier}</td>
-                  <td className="num tnum">{r.ech}</td>
-                  <td className="num tnum" style={{ fontWeight: 500 }}>{r.montant}</td>
-                  <td><StatusBadge status={r.status}/></td>
-                  <td style={{ textAlign: 'right', width: 32 }}>
-                    <Icon.ChevronRight size={14} style={{ color: 'var(--fg-subtle)' }}/>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
     </div>
   );
 };
@@ -623,8 +603,8 @@ const ProducteurInscriptionDetail = ({ inscription, onBack, onDuplicate }) => {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {onDuplicate && (
-            <button onClick={onDuplicate} className="btn btn-outline btn-sm">
-              <Icon.Copy size={13}/> Dupliquer
+            <button onClick={onDuplicate} className="btn btn-primary" style={{ background: 'var(--burgundy-800)', fontSize: 14 }}>
+              <Icon.Copy size={15}/> Dupliquer ce dossier
             </button>
           )}
           <span className={statusLabel.cls} style={{ fontSize: 13, padding: '4px 12px' }}>
@@ -1125,16 +1105,16 @@ const InscriptionConfirmation = ({ nbVins, payMethod = 'carte', onExit, onViewDo
 // Utilisées par SuggestionHistorique pour pré-remplir / importer dans le wizard
 const PREV_INS = {
   '2025': {
-    concours: 'France 2025',
+    concours: 'Concours des Grands Vins de France 2025',
     vins: [
-      { name: 'Les Crays Vieilles Vignes', appell: 'Pouilly-Fuissé',  mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: 'Cuvée Tradition',            appell: 'Mâcon-Villages', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: 'Saint-Véran Le Haut',        appell: 'Saint-Véran',    mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: 'Clos des Trois Pierres',     appell: 'Mâcon-Villages', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: 'Réserve du Domaine',         appell: 'Pouilly-Fuissé', mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: 'Cuvée Marie-Anne',           appell: 'Mâcon-Villages', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: "L'Authentique Rouge",        appell: 'Mâcon-Rouge',    mil: 2022, vol: '750 ml', cep: 'Gamay 100%' },
-      { name: 'Monopole Les Rochettes',     appell: 'Pouilly-Fuissé', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%' },
+      { name: 'Les Crays Vieilles Vignes', appell: 'Pouilly-Fuissé',  mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L25-0101-A' },
+      { name: 'Cuvée Tradition',            appell: 'Mâcon-Villages', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L25-0102-A' },
+      { name: 'Saint-Véran Le Haut',        appell: 'Saint-Véran',    mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L25-0103-B' },
+      { name: 'Clos des Trois Pierres',     appell: 'Mâcon-Villages', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L25-0104-A' },
+      { name: 'Réserve du Domaine',         appell: 'Pouilly-Fuissé', mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L25-0105-B' },
+      { name: 'Cuvée Marie-Anne',           appell: 'Mâcon-Villages', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L25-0106-A' },
+      { name: "L'Authentique Rouge",        appell: 'Mâcon-Rouge',    mil: 2022, vol: '750 ml', cep: 'Gamay 100%',      lot: 'L25-0107-C' },
+      { name: 'Monopole Les Rochettes',     appell: 'Pouilly-Fuissé', mil: 2023, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L25-0108-A' },
     ],
     docs: [
       { name: "Rapports d'analyses œnologiques", soumis: 8, reutilisable: false, note: 'Nouveaux rapports requis chaque année' },
@@ -1143,14 +1123,14 @@ const PREV_INS = {
     ],
   },
   '2024': {
-    concours: 'France 2024',
+    concours: 'Concours des Grands Vins de France 2024',
     vins: [
-      { name: 'Les Crays Vieilles Vignes', appell: 'Pouilly-Fuissé',  mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: 'Cuvée Tradition',            appell: 'Mâcon-Villages', mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: 'Saint-Véran Le Haut',        appell: 'Saint-Véran',    mil: 2021, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: 'Réserve du Domaine',         appell: 'Pouilly-Fuissé', mil: 2021, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: 'Cuvée Marie-Anne',           appell: 'Mâcon-Villages', mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%' },
-      { name: "L'Authentique Rouge",        appell: 'Mâcon-Rouge',    mil: 2021, vol: '750 ml', cep: 'Gamay 100%' },
+      { name: 'Les Crays Vieilles Vignes', appell: 'Pouilly-Fuissé',  mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L24-0088-A' },
+      { name: 'Cuvée Tradition',            appell: 'Mâcon-Villages', mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L24-0089-A' },
+      { name: 'Saint-Véran Le Haut',        appell: 'Saint-Véran',    mil: 2021, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L24-0090-B' },
+      { name: 'Réserve du Domaine',         appell: 'Pouilly-Fuissé', mil: 2021, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L24-0091-B' },
+      { name: 'Cuvée Marie-Anne',           appell: 'Mâcon-Villages', mil: 2022, vol: '750 ml', cep: 'Chardonnay 100%', lot: 'L24-0092-A' },
+      { name: "L'Authentique Rouge",        appell: 'Mâcon-Rouge',    mil: 2021, vol: '750 ml', cep: 'Gamay 100%',      lot: 'L24-0093-C' },
     ],
     docs: [
       { name: "Rapports d'analyses œnologiques", soumis: 6, reutilisable: false, note: 'Nouveaux rapports requis chaque année' },
@@ -1164,6 +1144,7 @@ const PREV_INS = {
 // Props : step (1-4), year/setYear (sélecteur), currentVins (liste actuelle), onImportVins, onDismiss
 const SuggestionHistorique = ({ step, year, setYear, currentVins, onImportVins, onDismiss }) => {
   const [expanded, setExpanded] = React.useState(step === 2);
+  const [addedSet, setAddedSet] = React.useState(new Set());
   const data = PREV_INS[year] || PREV_INS['2025'];
 
   // Étape 4 (récapitulatif) : aucune suggestion pertinente
@@ -1233,26 +1214,51 @@ const SuggestionHistorique = ({ step, year, setYear, currentVins, onImportVins, 
           {step === 2 && (
             <div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
-                {data.vins.map((v, i) => (
-                  <div key={i} style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '7px 10px',
-                    background: 'var(--surface)', borderRadius: 7,
-                    border: '1px solid var(--border)',
-                  }}>
-                    <div style={{
-                      width: 22, height: 22, borderRadius: 5,
-                      background: 'var(--burgundy-100)', color: 'var(--burgundy-800)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10.5, fontWeight: 600,
-                    }}>#{i + 1}</div>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: 13, fontWeight: 500 }}>{v.name}</span>
-                      <span style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginLeft: 8 }}>{v.appell} · {v.mil}</span>
+                {data.vins.map((v, i) => {
+                  const added = addedSet.has(i);
+                  return (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '7px 10px',
+                      background: added ? 'var(--burgundy-50)' : 'var(--surface)',
+                      borderRadius: 7,
+                      border: `1px solid ${added ? 'var(--burgundy-200)' : 'var(--border)'}`,
+                    }}>
+                      <div style={{
+                        width: 22, height: 22, borderRadius: 5,
+                        background: 'var(--burgundy-100)', color: 'var(--burgundy-800)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 10.5, fontWeight: 600,
+                      }}>#{i + 1}</div>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{v.appell}</span>
+                        <span style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginLeft: 8 }}>{v.name} · {v.mil}</span>
+                      </div>
+                      <span style={{ fontSize: 11.5, color: 'var(--fg-muted)', fontVariantNumeric: 'tabular-nums', marginRight: 4 }}>{v.lot}</span>
+                      {added ? (
+                        <div style={{
+                          width: 26, height: 26, borderRadius: 6, flexShrink: 0,
+                          background: 'var(--burgundy-800)', color: '#fff',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <Icon.Check size={13}/>
+                        </div>
+                      ) : (
+                        <button
+                          className="btn btn-icon btn-sm"
+                          title="Ajouter ce vin"
+                          style={{ width: 26, height: 26, borderRadius: 6, flexShrink: 0, border: '1px solid var(--burgundy-300)', color: 'var(--burgundy-800)' }}
+                          onClick={() => {
+                            onImportVins([...currentVins, v]);
+                            setAddedSet(prev => new Set([...prev, i]));
+                          }}
+                        >
+                          <Icon.Plus size={13}/>
+                        </button>
+                      )}
                     </div>
-                    <span style={{ fontSize: 11.5, color: 'var(--fg-muted)' }}>{v.cep}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 <button className="btn btn-outline btn-sm" onClick={() => onImportVins([...currentVins, ...data.vins])}>
@@ -1350,7 +1356,7 @@ const ProducteurInscription = ({ onExit }) => {
         </button>
 
         <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--burgundy-800)', fontWeight: 600 }}>Inscription concours</div>
-        <h2 className="display" style={{ fontSize: 24, fontWeight: 500, marginTop: 8, letterSpacing: '-0.02em', lineHeight: 1.2 }}>France 2026</h2>
+        <h2 className="display" style={{ fontSize: 18, fontWeight: 500, marginTop: 8, letterSpacing: '-0.02em', lineHeight: 1.2 }}>Concours des Grands Vins de France 2026</h2>
         <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 4 }}>Domaine des 3 Pierres</div>
 
         <div style={{ marginTop: 32 }}>
@@ -2965,29 +2971,51 @@ const ProducteurCommandes = ({ onNavigate }) => {
     window.__commandeFocusWine = null;
     return f;
   }, []);
-  const [submitted, setSubmitted] = React.useState(null); // détail de la commande envoyée
+  const [submitted, setSubmitted] = React.useState(null);
 
-  // Vins médaillés disponibles à la commande + quota basé sur volumes déclarés
+  // ── Données multi-éditions ─────────────────────────────────────────
+  const BAREME_MOCK = { or: 500, argent: 300, bronze: 150, mention: 100 };
+  const MARGE = 1.03;
+
   const medailles = [
-    // — Concours des Grands Vins de France —
-    { id: 'vv24',    name: 'Vieilles Vignes 2024', appell: 'Mâcon-Villages', edition: '2026', concours: 'france', medal: 'or',     quota: 500,  used: 420 },
-    { id: 'cp23',    name: 'Cuvée Prestige 2023',  appell: 'Pouilly-Fuissé', edition: '2025', concours: 'france', medal: 'or',     quota: 1200, used: 350 },
-    { id: 'lh23',    name: 'Les Hauts 2023',       appell: 'Saint-Véran',    edition: '2025', concours: 'france', medal: 'argent', quota: 800,  used: 800 },
-    { id: 't22',     name: 'Tradition 2022',       appell: 'Mâcon-Villages', edition: '2024', concours: 'france', medal: 'bronze', quota: 600,  used: 540 },
-    // — Concours des Grands Vins du Monde —
-    { id: 'vv24m',   name: 'Vieilles Vignes 2024', appell: 'Mâcon-Villages', edition: '2026', concours: 'monde',  medal: 'or',     quota: 300,  used: 180 },
-    { id: 'cp23m',   name: 'Cuvée Prestige 2023',  appell: 'Pouilly-Fuissé', edition: '2025', concours: 'monde',  medal: 'argent', quota: 500,  used: 120 },
+    // CGVF 2026
+    { id:'vv24',  name:'Vieilles Vignes 2024', appell:'Mâcon-Villages', editionId:'cgvf-2026', editionLabel:'Concours des Grands Vins de France 2026', concours:'france', medal:'or',     rang:'or',     quota:Math.ceil(BAREME_MOCK.or*MARGE),    used:0   },
+    { id:'cp25',  name:'Cuvée Prestige 2025',  appell:'Pouilly-Fuissé', editionId:'cgvf-2026', editionLabel:'Concours des Grands Vins de France 2026', concours:'france', medal:'argent', rang:'argent', quota:Math.ceil(BAREME_MOCK.argent*MARGE), used:120 },
+    // CGVF 2025
+    { id:'cp23',  name:'Cuvée Prestige 2023',  appell:'Pouilly-Fuissé', editionId:'cgvf-2025', editionLabel:'Concours des Grands Vins de France 2025', concours:'france', medal:'or',     rang:'or',     quota:Math.ceil(480*MARGE),               used:350 },
+    { id:'lh23',  name:'Les Hauts 2023',       appell:'Saint-Véran',    editionId:'cgvf-2025', editionLabel:'Concours des Grands Vins de France 2025', concours:'france', medal:'argent', rang:'argent', quota:Math.ceil(280*MARGE),               used:280 },
+    // CGVF 2024
+    { id:'t22',   name:'Tradition 2022',       appell:'Mâcon-Villages', editionId:'cgvf-2024', editionLabel:'Concours des Grands Vins de France 2024', concours:'france', medal:'bronze', rang:'bronze', quota:Math.ceil(140*MARGE),               used:100 },
+    // CGVM 2026
+    { id:'vv24m', name:'Vieilles Vignes 2024', appell:'Mâcon-Villages', editionId:'cgvm-2026', editionLabel:'Concours des Grands Vins du Monde 2026',  concours:'monde',  medal:'or',     rang:'or',     quota:Math.ceil(400*MARGE),               used:0   },
+    // CGVM 2025
+    { id:'cp23m', name:'Cuvée Prestige 2023',  appell:'Pouilly-Fuissé', editionId:'cgvm-2025', editionLabel:'Concours des Grands Vins du Monde 2025',  concours:'monde',  medal:'argent', rang:'argent', quota:Math.ceil(250*MARGE),               used:120 },
   ];
 
-  const [concourTab, setConcourTab] = React.useState('france');
-  const medaillesTab = medailles.filter(m => m.concours === concourTab);
+  // Ordre d'affichage des éditions
+  const EDITION_ORDER = ['cgvf-2026', 'cgvf-2025', 'cgvf-2024', 'cgvm-2026', 'cgvm-2025'];
 
-  // État panier : { wineId: { medailles, plaques_metal, chevalets_plexi } }
+  // Éditions présentes dans les données (dans l'ordre)
+  const editionIds = EDITION_ORDER.filter(eid => medailles.some(m => m.editionId === eid));
+
+  // Info par édition
+  const editionInfo = Object.fromEntries(
+    medailles.map(m => [m.editionId, { label: m.editionLabel, concours: m.concours }])
+  );
+
+  // Onglets France / Monde
+  const [concoursTab, setConcoursTab] = React.useState('france');
+  const tabEditionIds = editionIds.filter(eid => editionInfo[eid]?.concours === concoursTab);
+
+  // Accordéons — cgvf-2026 et cgvm-2026 ouverts par défaut
+  const [openEditions, setOpenEditions] = React.useState({ 'cgvf-2026': true, 'cgvm-2026': true });
+  const toggleEdition = (eid) => setOpenEditions(prev => ({ ...prev, [eid]: !prev[eid] }));
+
+  // Panier global toutes éditions : { wineId: { medailles, plaques_metal, chevalets_plexi } }
   const [cart, setCart] = React.useState(() =>
     medailles.reduce((acc, m) => { acc[m.id] = { medailles: 0, plaques_metal: 0, chevalets_plexi: 0 }; return acc; }, {})
   );
 
-  // Seules les médailles déduisent du quota déclaré (comptées à l'unité)
   const unitsOrdered = (wineId) => (cart[wineId].medailles || 0);
   const remainingAfter = (wine) => wine.quota - wine.used - unitsOrdered(wine.id);
 
@@ -2996,20 +3024,27 @@ const ProducteurCommandes = ({ onNavigate }) => {
     setCart(c => ({ ...c, [wineId]: { ...c[wineId], [key]: v } }));
   };
 
-  // Totaux panier — filtrés sur l'onglet actif
-  // unitsOrdered ne compte que les médailles pour la jauge quota
-  // cartLines inclut tout vin ayant au moins un produit sélectionné
-  const cartLines = medaillesTab
+  // CartLines — toutes éditions confondues
+  const cartLines = medailles
     .map(m => {
       const qty = cart[m.id];
       const hasAny = PRODUCT_KEYS.some(k => (qty[k] || 0) > 0);
       return { wine: m, qty, units: unitsOrdered(m.id), hasAny };
     })
     .filter(l => l.hasAny);
+
   const totalItems = cartLines.reduce((s, l) => s + PRODUCT_KEYS.filter(k => (l.qty[k] || 0) > 0).length, 0);
-  const totalUnits = cartLines.reduce((s, l) => s + l.units, 0); // total médailles uniquement (pour l'affichage quota)
+  const totalUnits = cartLines.reduce((s, l) => s + l.units, 0);
   const totalPrice = cartLines.reduce((s, l) => s + PRODUCT_KEYS.reduce((ps, k) => ps + (l.qty[k] || 0) * PRICE_PER[k], 0), 0);
-  const hasOverflow = medaillesTab.some(m => remainingAfter(m) < 0);
+  const hasOverflow = medailles.some(m => remainingAfter(m) < 0);
+
+  // Ventilation par édition pour le cart
+  const cartByEdition = editionIds.map(eid => {
+    const medCount = cartLines
+      .filter(l => l.wine.editionId === eid)
+      .reduce((s, l) => s + (l.qty.medailles || 0), 0);
+    return { eid, label: editionInfo[eid]?.label || eid, count: medCount };
+  }).filter(e => e.count > 0);
 
   const handleSubmit = () => {
     const ref = 'CMD-2026-' + Math.floor(100000 + Math.random() * 900000);
@@ -3030,111 +3065,117 @@ const ProducteurCommandes = ({ onNavigate }) => {
     <div>
       <PageHeader
         title="Commander des médailles"
-        subtitle="Sélectionnez vos quantités — quota basé sur vos volumes déclarés"
+        subtitle="Sélectionnez vos quantités par édition · quota calculé depuis le barème"
       />
 
-      {/* Sélecteur de concours — cards visuellement distinctes */}
-      {(() => {
-        const TABS = [
-          {
-            k: 'france',
-            brand: CONCOURS_BRAND.france,
-            sub: 'Médailles France · Édition 2026',
-            nbVins: medailles.filter(m => m.concours === 'france').length,
-          },
-          {
-            k: 'monde',
-            brand: CONCOURS_BRAND.monde,
-            sub: 'Médailles Monde · Édition 2026',
-            nbVins: medailles.filter(m => m.concours === 'monde').length,
-          },
-        ];
-        return (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
-            {TABS.map(t => {
-              const active = concourTab === t.k;
-              const b = t.brand;
-              return (
-                <button
-                  key={t.k}
-                  onClick={() => setConcourTab(t.k)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 16,
-                    padding: '16px 20px',
-                    border: '2px solid ' + (active ? b.colorBorder.replace('0.15', '0.5') : 'var(--border)'),
-                    borderRadius: 14,
-                    background: active
-                      ? `linear-gradient(135deg, ${b.colorLight} 0%, color-mix(in srgb, ${b.colorLight} 60%, white) 100%)`
-                      : 'var(--surface)',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    textAlign: 'left',
-                    transition: 'all .15s',
-                    boxShadow: active ? `0 0 0 3px ${b.colorBorder}` : 'none',
-                    opacity: active ? 1 : 0.65,
-                  }}
-                >
-                  {/* Logo + icône check */}
-                  <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <ConcoursLogo concours={t.k} size={52}/>
-                    {active && (
-                      <div style={{
-                        position: 'absolute', bottom: -4, right: -4,
-                        width: 18, height: 18, borderRadius: '50%',
-                        background: b.color, color: '#fff',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        border: '2px solid var(--surface)',
-                      }}>
-                        <Icon.Check size={10}/>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Texte */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontSize: 14, fontWeight: active ? 700 : 500,
-                      color: active ? b.color : 'var(--fg-muted)',
-                      letterSpacing: '-0.01em', lineHeight: 1.3,
-                    }}>
-                      {b.nom}
-                    </div>
-                    <div style={{ fontSize: 12, color: active ? b.color : 'var(--fg-subtle)', marginTop: 3, opacity: active ? 0.75 : 1 }}>
-                      {t.sub}
-                    </div>
-                    <div style={{
-                      marginTop: 8,
-                      display: 'inline-flex', alignItems: 'center', gap: 4,
-                      fontSize: 11.5, fontWeight: 600,
-                      padding: '2px 8px', borderRadius: 99,
-                      background: active ? b.colorBorder : 'var(--surface-2)',
-                      color: active ? b.color : 'var(--fg-muted)',
-                      border: '1px solid ' + (active ? b.colorBorder : 'var(--border)'),
-                    }}>
-                      <Icon.Grape size={11}/> {t.nbVins} cuvée{t.nbVins > 1 ? 's' : ''} médaillée{t.nbVins > 1 ? 's' : ''}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        );
-      })()}
+      {/* Onglets France / Monde */}
+      <div style={{ display: 'flex', gap: 0, marginBottom: 20, borderBottom: '2px solid var(--border)' }}>
+        {[
+          { id: 'france', label: 'Concours de France', logo: <ConcoursLogo concours="france" size={20}/>, activeColor: 'var(--burgundy-800)', activeBg: 'var(--burgundy-50)' },
+          { id: 'monde',  label: 'Concours du Monde',  logo: <ConcoursLogo concours="monde"  size={20}/>, activeColor: '#004D57', activeBg: '#e6eff0' },
+        ].map(t => {
+          const isActive = concoursTab === t.id;
+          const cartCount = cartLines.filter(l => l.wine.concours === t.id).reduce((s, l) => s + l.units, 0);
+          return (
+            <button
+              key={t.id}
+              onClick={() => setConcoursTab(t.id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '10px 20px',
+                background: isActive ? t.activeBg : 'transparent',
+                border: 'none', borderBottom: isActive ? '2px solid ' + t.activeColor : '2px solid transparent',
+                marginBottom: -2,
+                color: isActive ? t.activeColor : 'var(--fg-muted)',
+                fontWeight: isActive ? 700 : 500,
+                fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
+                transition: 'all .12s',
+              }}
+            >
+              {t.logo}
+              {t.label}
+              {cartCount > 0 && (
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: t.activeColor, color: '#fff', marginLeft: 4 }}>
+                  {cartCount.toLocaleString('fr-FR')}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, alignItems: 'flex-start' }}>
-        {/* Gauche — vins médaillés */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {medaillesTab.map(m => (
-            <WineOrderBlock
-              key={m.id}
-              wine={m}
-              counts={cart[m.id]}
-              unitsOrdered={unitsOrdered(m.id)}
-              remaining={remainingAfter(m)}
-              onChange={(k, v) => setCount(m.id, k, v)}
-              initialOpen={focusWine === m.id}
-            />
-          ))}
+        {/* Gauche — accordéons par édition */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {tabEditionIds.map(eid => {
+            const vins = medailles.filter(m => m.editionId === eid);
+            const info = editionInfo[eid] || {};
+            const isOpen = !!openEditions[eid];
+            const isArchive = eid !== 'cgvf-2026' && eid !== 'cgvm-2026';
+            const concoursLabel = info.concours === 'monde' ? 'Monde' : 'France';
+            const concoursColor = info.concours === 'monde'
+              ? { bg: '#eff6ff', fg: '#1d4ed8', border: '#bfdbfe' }
+              : { bg: 'var(--burgundy-50)', fg: 'var(--burgundy-800)', border: 'var(--burgundy-200)' };
+
+            // Quota restant total pour cette édition
+            const totalQuotaRestant = vins.reduce((s, m) => s + Math.max(0, remainingAfter(m)), 0);
+            const nbVins = vins.length;
+
+            return (
+              <div key={eid} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                {/* Header accordéon */}
+                <button
+                  onClick={() => toggleEdition(eid)}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                    padding: '14px 20px',
+                    background: isOpen ? 'var(--slate-50)' : 'var(--surface)',
+                    border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+                    borderBottom: isOpen ? '1px solid var(--border)' : 'none',
+                    transition: 'background .12s',
+                  }}
+                >
+                  <ConcoursLogo concours={info.concours || 'france'} size={40}/>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>{info.label || eid}</span>
+                      <span style={{
+                        fontSize: 11, fontWeight: 700,
+                        padding: '1px 7px', borderRadius: 99,
+                        background: concoursColor.bg, color: concoursColor.fg, border: '1px solid ' + concoursColor.border,
+                      }}>{concoursLabel}</span>
+                      {isArchive && <span style={{ fontSize: 10.5, padding: '1px 6px', borderRadius: 4, background: 'var(--slate-100)', color: 'var(--fg-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Archive</span>}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 3, display: 'flex', gap: 10 }}>
+                      <span>{nbVins} cuvée{nbVins > 1 ? 's' : ''} médaillée{nbVins > 1 ? 's' : ''}</span>
+                      <span>·</span>
+                      <span className="tnum">{totalQuotaRestant.toLocaleString('fr-FR')} quota restant</span>
+                    </div>
+                  </div>
+                  <span style={{ color: 'var(--fg-muted)', display: 'inline-flex', transition: 'transform .15s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
+                    <Icon.ChevronDown size={16}/>
+                  </span>
+                </button>
+
+                {/* Corps accordéon */}
+                {isOpen && (
+                  <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {vins.map(m => (
+                      <WineOrderBlock
+                        key={m.id}
+                        wine={m}
+                        counts={cart[m.id]}
+                        unitsOrdered={unitsOrdered(m.id)}
+                        remaining={remainingAfter(m)}
+                        onChange={(k, v) => setCount(m.id, k, v)}
+                        initialOpen={focusWine === m.id}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Droite — panier sticky */}
@@ -3147,6 +3188,7 @@ const ProducteurCommandes = ({ onNavigate }) => {
             disabled={cartLines.length === 0 || hasOverflow}
             hasOverflow={hasOverflow}
             onSubmit={handleSubmit}
+            cartByEdition={cartByEdition}
           />
         </aside>
       </div>
@@ -3250,7 +3292,7 @@ const WineOrderBlock = ({ wine, counts, unitsOrdered, remaining, onChange, initi
         {/* Identité vin */}
         <div style={{ flex: '0 1 280px', minWidth: 0 }}>
           <div style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{wine.name}</div>
-          <div style={{ fontSize: 12, color: 'var(--fg-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{wine.appell} · Édition {wine.edition}</div>
+          <div style={{ fontSize: 12, color: 'var(--fg-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{wine.appell}</div>
         </div>
 
         {/* Jauge inline (mini) */}
@@ -3427,7 +3469,7 @@ const Stepper = ({ value, onChange, disabled, max }) => (
   </div>
 );
 
-const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, hasOverflow, onSubmit }) => {
+const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, hasOverflow, onSubmit, cartByEdition }) => {
   const [fdpTiming, setFdpTiming] = React.useState('standard');
   // Imprimeur = médailles / Comité = plaques métal + chevalets plexi
   const priceImprimeur  = lines.reduce((s, l) => s + (l.qty.medailles || 0) * PRICE_PER.medailles, 0);
@@ -3452,6 +3494,36 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
         Mis à jour en temps réel
       </div>
     </div>
+
+    {/* Ventilation par édition — affiché seulement si panier non vide */}
+    {cartByEdition && cartByEdition.length > 0 && (
+      <div style={{ padding: '10px 22px 0', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+          Médailles par édition
+        </div>
+        {cartByEdition.map((e, i) => (
+          <div key={e.eid} style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+            paddingBottom: i < cartByEdition.length - 1 ? 4 : 8,
+            borderBottom: i === cartByEdition.length - 1 ? '1px solid var(--border)' : 'none',
+            marginBottom: i === cartByEdition.length - 1 ? 8 : 0,
+          }}>
+            <span style={{ fontSize: 12, color: 'var(--fg-muted)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {e.label.replace('Concours des Grands Vins de ', 'CGV ').replace('Concours des Grands Vins du ', 'CGV ')}
+            </span>
+            <span className="tnum" style={{ fontSize: 12, fontWeight: 600, color: 'var(--fg)', whiteSpace: 'nowrap' }}>
+              {e.count.toLocaleString('fr-FR')} méd.
+            </span>
+          </div>
+        ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingBottom: 10 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--fg)' }}>Total médailles</span>
+          <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: 'var(--burgundy-800)' }}>
+            {cartByEdition.reduce((s, e) => s + e.count, 0).toLocaleString('fr-FR')}
+          </span>
+        </div>
+      </div>
+    )}
 
     <div style={{ padding: '14px 22px' }}>
       {lines.length === 0 ? (
@@ -3556,7 +3628,7 @@ const CommandeCart = ({ lines, totalItems, totalUnits, totalPrice, disabled, has
           <div style={{ fontSize: 11, color: 'var(--fg-subtle)', marginTop: 2 }} className="tnum">{totalUnits.toLocaleString('fr-FR')} médailles</div>
         </div>
         <div className="tnum display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--burgundy-800)', letterSpacing: '-0.02em' }}>
-          {(totalPrice || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} <span style={{ fontSize: 16 }}>€</span>
+          {((totalPrice || 0) + (fdpPrice || 0)).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} <span style={{ fontSize: 16 }}>€</span>
         </div>
       </div>
     </div>

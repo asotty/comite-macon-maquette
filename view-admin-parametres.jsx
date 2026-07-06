@@ -587,19 +587,15 @@ const REGIONS = [
 ];
 
 const AdminParamAppellations = () => {
-  const [openRegion, setOpenRegion] = React.useState(REGIONS[0].id);
-  const [appellationModal, setAppellationModal] = React.useState(false);
-  const [editingAppellation, setEditingAppellation] = React.useState(null);
   const [regionModal, setRegionModal] = React.useState(false);
-
-  const region = REGIONS.find(r => r.id === openRegion);
+  const [editingRegion, setEditingRegion] = React.useState(null);
 
   return (
     <div data-screen-label="admin-param-appellations">
       <PageHeader
-        breadcrumb={['Administration', 'Paramètres', 'Appellations & régions']}
-        title="Appellations & régions"
-        subtitle="Référentiel viticole utilisé dans les formulaires d'inscription"
+        breadcrumb={['Administration', 'Paramètres', 'Régions']}
+        title="Régions"
+        subtitle="Régions viticoles disponibles dans les formulaires d'inscription"
         actions={<>
           <button className="btn btn-primary btn-sm" onClick={() => setRegionModal(true)} style={{ background: 'var(--burgundy-800)' }}>
             <Icon.Plus size={14}/> Ajouter une région
@@ -607,111 +603,48 @@ const AdminParamAppellations = () => {
         </>}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20 }}>
-        {/* Regions list */}
-        <div className="card" style={{ padding: 0, overflow: 'hidden', alignSelf: 'flex-start' }}>
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--slate-50)' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--fg-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Régions</div>
-          </div>
-          <div>
-            {REGIONS.map((r, i) => {
-              const active = openRegion === r.id;
-              return (
-                <button key={r.id} onClick={() => setOpenRegion(r.id)} style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '12px 16px', border: 'none',
-                  borderTop: i > 0 ? '1px solid var(--border)' : 'none',
-                  background: active ? 'var(--burgundy-50)' : 'transparent',
-                  borderLeft: active ? '3px solid var(--burgundy-800)' : '3px solid transparent',
-                  textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
-                }}>
-                  <Icon.Map size={14} style={{ color: active ? 'var(--burgundy-800)' : 'var(--fg-muted)', flexShrink: 0 }}/>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: active ? 600 : 500, color: active ? 'var(--burgundy-800)' : 'var(--fg)' }}>{r.nom}</div>
-                    <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 1 }} className="tnum">Département {r.dept}</div>
-                  </div>
-                  <span style={{
-                    fontSize: 11, padding: '0 7px', borderRadius: 999,
-                    background: active ? 'var(--burgundy-800)' : 'var(--slate-100)',
-                    color: active ? '#fff' : 'var(--fg-muted)', fontWeight: 600,
-                  }} className="tnum">{r.count}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Appellations of selected region */}
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '14px 22px', borderBottom: '1px solid var(--border)', background: 'var(--slate-50)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--fg-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Appellations de</div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg)', marginTop: 2 }}>{region.nom}</div>
-            </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button className="btn btn-outline btn-sm"><Icon.Edit size={13}/> Renommer</button>
-              <button className="btn btn-outline btn-sm" style={{ color: '#991b1b', borderColor: '#fecaca' }}>
-                <Icon.Trash size={13}/> Supprimer région
-              </button>
-              <button className="btn btn-primary btn-sm" onClick={() => setAppellationModal(true)} style={{ background: 'var(--burgundy-800)' }}>
-                <Icon.Plus size={13}/> Ajouter appellation
-              </button>
-            </div>
-          </div>
-          <div className="table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Appellation</th>
-                  <th>Type</th>
-                  <th>Millésimes autorisés</th>
-                  <th style={{ width: 80 }}></th>
+      <div className="card" style={{ padding: 0 }}>
+        <div className="table-wrap" style={{ border: 'none', borderRadius: 0 }}>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Région</th>
+                <th>Département</th>
+                <th style={{ textAlign: 'right' }}>Producteurs rattachés</th>
+                <th style={{ width: 80 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {REGIONS.map(r => (
+                <tr key={r.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Icon.Map size={14} style={{ color: 'var(--fg-muted)', flexShrink: 0 }}/>
+                      <span style={{ fontWeight: 500 }}>{r.nom}</span>
+                    </div>
+                  </td>
+                  <td className="tnum" style={{ color: 'var(--fg-muted)' }}>{r.dept}</td>
+                  <td className="tnum" style={{ textAlign: 'right' }}>{r.count}</td>
+                  <td>
+                    <div style={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                      <button className="btn btn-icon btn-sm btn-ghost" title="Modifier" onClick={() => setEditingRegion(r)}><Icon.Edit size={13}/></button>
+                      <button className="btn btn-icon btn-sm btn-ghost" title="Supprimer" style={{ color: '#991b1b' }}><Icon.Trash size={13}/></button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {region.appellations.map((a, i) => (
-                  <tr key={i}>
-                    <td style={{ fontWeight: 500 }}>{a.nom}</td>
-                    <td>
-                      <span style={{
-                        fontSize: 11, padding: '2px 8px', borderRadius: 4,
-                        background: 'var(--burgundy-50)', color: 'var(--burgundy-800)',
-                        fontWeight: 600, letterSpacing: '0.04em',
-                      }}>{a.type}</span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                        {a.mill.map(m => (
-                          <span key={m} className="tnum" style={{
-                            fontSize: 11, padding: '2px 7px', borderRadius: 4,
-                            background: 'var(--slate-100)', color: 'var(--fg)',
-                            fontWeight: 500,
-                          }}>{m}</span>
-                        ))}
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                        <button className="btn btn-icon btn-sm btn-ghost" title="Modifier" onClick={() => setEditingAppellation(a)}><Icon.Edit size={13}/></button>
-                        <button className="btn btn-icon btn-sm btn-ghost" title="Supprimer"><Icon.Trash size={13}/></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {appellationModal && <AppellationModal region={region} onCancel={() => setAppellationModal(false)} onConfirm={() => setAppellationModal(false)}/>}
-      {editingAppellation && <AppellationModal region={region} editing={editingAppellation} onCancel={() => setEditingAppellation(null)} onConfirm={() => setEditingAppellation(null)}/>}
       {regionModal && <RegionModal onCancel={() => setRegionModal(false)} onConfirm={() => setRegionModal(false)}/>}
+      {editingRegion && <RegionModal editing={editingRegion} onCancel={() => setEditingRegion(null)} onConfirm={() => setEditingRegion(null)}/>}
     </div>
   );
 };
 
-const RegionModal = ({ onCancel, onConfirm }) => {
+const RegionModal = ({ editing, onCancel, onConfirm }) => {
   React.useEffect(() => {
     const k = (e) => e.key === 'Escape' && onCancel();
     window.addEventListener('keydown', k);
@@ -721,144 +654,18 @@ const RegionModal = ({ onCancel, onConfirm }) => {
     <div onClick={onCancel} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div onClick={e => e.stopPropagation()} className="card" style={{ width: 440, padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '22px 26px 14px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
-          <h2 className="display" style={{ fontSize: 19, fontWeight: 500, margin: 0 }}>Ajouter une région</h2>
+          <h2 className="display" style={{ fontSize: 19, fontWeight: 500, margin: 0 }}>{editing ? 'Modifier la région' : 'Ajouter une région'}</h2>
           <button onClick={onCancel} className="btn btn-icon btn-sm btn-ghost"><Icon.X size={14}/></button>
         </div>
         <div style={{ padding: '18px 26px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Nom</span>
-            <input className="input" placeholder="Ex. Chablisien"/></label>
+            <input className="input" placeholder="Ex. Chablisien" defaultValue={editing?.nom || ''}/></label>
           <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Département</span>
-            <input className="input tnum" placeholder="89"/></label>
+            <input className="input tnum" placeholder="89" defaultValue={editing?.dept || ''}/></label>
         </div>
         <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 8, borderTop: '1px solid var(--border)', background: 'var(--slate-50)' }}>
           <button className="btn btn-outline" onClick={onCancel}>Annuler</button>
           <button className="btn btn-primary" onClick={onConfirm} style={{ background: 'var(--burgundy-800)' }}>
-            <Icon.Check size={13}/> Créer
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const AppellationModal = ({ region, editing, onCancel, onConfirm }) => {
-  React.useEffect(() => {
-    const k = (e) => e.key === 'Escape' && onCancel();
-    window.addEventListener('keydown', k);
-    return () => window.removeEventListener('keydown', k);
-  }, [onCancel]);
-
-  const [nom, setNom]       = React.useState(editing?.nom || '');
-  const [type, setType]     = React.useState(editing?.type || 'AOC');
-  const [mills, setMills]   = React.useState(editing?.mill ? [...editing.mill].sort((a, b) => b - a) : []);
-  const [newMill, setNewMill] = React.useState('');
-
-  const addMill = () => {
-    const n = parseInt(newMill, 10);
-    if (!n || n < 1900 || n > 2100) return;
-    if (mills.includes(n)) return;
-    setMills(ms => [...ms, n].sort((a, b) => b - a));
-    setNewMill('');
-  };
-  const removeMill = (n) => setMills(ms => ms.filter(m => m !== n));
-
-  const canSave = nom.trim().length > 0;
-
-  return (
-    <div onClick={onCancel} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div onClick={e => e.stopPropagation()} className="card" style={{ width: 520, padding: 0, overflow: 'hidden', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '22px 26px 14px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)', marginBottom: 6 }}>Région : {region.nom}</div>
-            <h2 className="display" style={{ fontSize: 19, fontWeight: 500, margin: 0 }}>
-              {editing ? `Modifier ${editing.nom}` : 'Ajouter une appellation'}
-            </h2>
-          </div>
-          <button onClick={onCancel} className="btn btn-icon btn-sm btn-ghost"><Icon.X size={14}/></button>
-        </div>
-
-        <div style={{ padding: '18px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <label className="field">
-            <span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Nom de l'appellation <span style={{ color: '#dc2626' }}>*</span></span>
-            <input className="input" placeholder="Ex. Pouilly-Loché" value={nom} onChange={e => setNom(e.target.value)}/>
-          </label>
-
-          <label className="field">
-            <span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Type</span>
-            <select className="input" value={type} onChange={e => setType(e.target.value)}>
-              <option>AOC</option>
-              <option>AOP</option>
-              <option>IGP</option>
-              <option>Vin de France</option>
-            </select>
-          </label>
-
-          <div>
-            <span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>
-              Millésimes autorisés <span style={{ color: 'var(--fg-subtle)', fontWeight: 400 }}>({mills.length})</span>
-            </span>
-            <div style={{
-              minHeight: 60,
-              padding: '10px 12px',
-              border: '1px solid var(--border)', borderRadius: 8,
-              background: 'var(--slate-50)',
-              display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'flex-start',
-            }}>
-              {mills.length === 0 && (
-                <span style={{ fontSize: 12, color: 'var(--fg-subtle)', fontStyle: 'italic', padding: '4px 2px' }}>Aucun millésime — ajoutez-en ci-dessous.</span>
-              )}
-              {mills.map(m => (
-                <span key={m} style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  padding: '3px 4px 3px 9px', borderRadius: 6,
-                  background: 'var(--surface)', border: '1px solid var(--border)',
-                  fontSize: 12.5, fontWeight: 500, color: 'var(--fg)',
-                  fontVariantNumeric: 'tabular-nums',
-                }}>
-                  {m}
-                  <button
-                    onClick={() => removeMill(m)}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: 18, height: 18, padding: 0,
-                      border: 'none', background: 'transparent',
-                      color: 'var(--fg-muted)', cursor: 'pointer', borderRadius: 4,
-                    }}
-                    title="Retirer"
-                    onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.color = '#991b1b'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--fg-muted)'; }}
-                  >
-                    <Icon.X size={11}/>
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-              <input
-                type="number"
-                className="input tnum"
-                placeholder="Année (ex. 2024)"
-                value={newMill}
-                onChange={e => setNewMill(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addMill())}
-                style={{ maxWidth: 200 }}
-              />
-              <button className="btn btn-outline btn-sm" onClick={addMill} disabled={!newMill}>
-                <Icon.Plus size={13}/> Ajouter
-              </button>
-            </div>
-            <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 6 }}>Appuyer sur Entrée pour ajouter rapidement.</div>
-          </div>
-        </div>
-
-        <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 8, borderTop: '1px solid var(--border)', background: 'var(--slate-50)' }}>
-          <button className="btn btn-outline" onClick={onCancel}>Annuler</button>
-          <button
-            className="btn btn-primary"
-            onClick={onConfirm}
-            disabled={!canSave}
-            style={{ background: 'var(--burgundy-800)', opacity: canSave ? 1 : 0.45 }}
-          >
             <Icon.Check size={13}/> {editing ? 'Enregistrer' : 'Créer'}
           </button>
         </div>
@@ -932,12 +739,12 @@ const AdminParamFournisseurs = () => {
   return (
     <div data-screen-label="admin-param-fournisseurs">
       <PageHeader
-        breadcrumb={['Administration', 'Paramètres', 'Fournisseurs médailles']}
-        title="Fournisseurs médailles"
+        breadcrumb={['Administration', 'Paramètres', 'Imprimeurs']}
+        title="Imprimeurs"
         subtitle="Médailleurs partenaires · Format d'export et délais de production"
         actions={<>
           <button className="btn btn-primary btn-sm" onClick={() => setAddModal(true)} style={{ background: 'var(--burgundy-800)' }}>
-            <Icon.Plus size={14}/> Ajouter un fournisseur
+            <Icon.Plus size={14}/> Ajouter un imprimeur
           </button>
         </>}
       />
@@ -946,7 +753,7 @@ const AdminParamFournisseurs = () => {
         <table className="table">
           <thead>
             <tr>
-              <SortableTh sortKey="nom"         currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Fournisseur</SortableTh>
+              <SortableTh sortKey="nom"         currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Imprimeur</SortableTh>
               <SortableTh sortKey="contact"     currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Contact</SortableTh>
               <SortableTh sortKey="formatId"    currentKey={paged.sortKey} currentDir={paged.sortDir} onSort={paged.onSort}>Format d'export</SortableTh>
               <th>Médailles gérées</th>
@@ -1091,7 +898,7 @@ const FournisseurModal = ({ editing, onCancel, onConfirm }) => {
       <div onClick={e => e.stopPropagation()} className="card" style={{ width: 660, padding: 0, overflow: 'hidden', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '22px 26px 14px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
           <h2 className="display" style={{ fontSize: 19, fontWeight: 500, margin: 0 }}>
-            {editing ? `Modifier ${editing.nom}` : 'Ajouter un fournisseur'}
+            {editing ? `Modifier ${editing.nom}` : 'Ajouter un imprimeur'}
           </h2>
           <button onClick={onCancel} className="btn btn-icon btn-sm btn-ghost"><Icon.X size={14}/></button>
         </div>
@@ -1101,7 +908,7 @@ const FournisseurModal = ({ editing, onCancel, onConfirm }) => {
           <div>
             <FournisseurModalSectionTitle>Informations générales</FournisseurModalSectionTitle>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Nom du fournisseur</span>
+              <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Nom de l'imprimeur</span>
                 <input className="input" defaultValue={editing?.nom || ''}/></label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <label className="field"><span style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: 'var(--slate-700)', marginBottom: 6 }}>Contact</span>
@@ -1151,7 +958,7 @@ const FournisseurModal = ({ editing, onCancel, onConfirm }) => {
             <FournisseurModalSectionTitle>Zones géographiques desservies</FournisseurModalSectionTitle>
             <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
               <Icon.Globe size={11}/>
-              Les producteurs de ces régions seront automatiquement rattachés à ce fournisseur.
+              Les producteurs de ces régions seront automatiquement rattachés à cet imprimeur.
               {zones.length > 0 && <span style={{ marginLeft: 4, fontWeight: 600, color: 'var(--burgundy-800)' }}>{zones.length} région(s) sélectionnée(s)</span>}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -1612,7 +1419,7 @@ const AdminParamEmails = () => {
 
 const EmailTemplateEditor = ({ template, onBack }) => {
   const isDraft = template.status === 'brouillon';
-  const [objet, setObjet] = React.useState(isDraft ? '' : `Confirmation de votre inscription au concours France 2026`);
+  const [objet, setObjet] = React.useState(isDraft ? '' : `Confirmation de votre inscription au Concours des Grands Vins de France 2026`);
   const [corps, setCorps] = React.useState(isDraft ? '' : `Bonjour {prenom},\n\nNous avons bien reçu votre dossier d'inscription n° {numero_dossier} au Concours des Grands Vins de France 2026.\n\nVotre dossier comporte {nb_echantillons} échantillon(s) pour un montant total de {montant} €.\n\nVotre paiement sera traité dans les prochains jours. Vous recevrez un email de confirmation dès validation.\n\nCordialement,\nLe Comité des Vins de Mâcon`);
 
   const renderPreview = (text) => text
@@ -2270,6 +2077,194 @@ const InviteAdminModal = ({ onCancel, onConfirm }) => {
   );
 };
 
+// ─── Page — Notifications par utilisateur ────────────────────────
+
+const NOTIF_CATEGORIES = [
+  { id: 'inscriptions', label: 'Inscriptions', icon: 'FileText', items: [
+    { id: 'ins_soumise',  label: 'Nouvelle inscription soumise',       desc: "Dès qu'un producteur soumet un dossier d'inscription" },
+    { id: 'ins_validee',  label: 'Inscription validée automatiquement', desc: 'Confirmation de validation automatique par le système' },
+    { id: 'ins_refusee',  label: 'Inscription refusée',                desc: 'Dossier non conforme après contrôle — action requise' },
+  ]},
+  { id: 'paiements', label: 'Paiements', icon: 'Euro', items: [
+    { id: 'pay_cb',       label: 'Paiement CB reçu',                   desc: 'Transaction Paybox confirmée en temps réel' },
+    { id: 'pay_virement', label: 'Virement reçu à confirmer',          desc: 'Virement déclaré par le producteur, en attente de validation manuelle' },
+    { id: 'pay_retard',   label: 'Virement en retard (> 8 jours)',     desc: 'Aucun paiement reçu 8 jours après la soumission du dossier' },
+    { id: 'pay_cheque',   label: 'Chèque à encaisser',                 desc: 'Chèque déclaré mais non encore traité' },
+  ]},
+  { id: 'derogations', label: 'Dérogations', icon: 'ShieldCheck', items: [
+    { id: 'dero_nouvelle', label: 'Nouvelle demande de dérogation',    desc: 'Producteur ayant coché la case dérogation impression' },
+    { id: 'dero_traitee',  label: 'Dérogation traitée par un collègue', desc: 'Un autre administrateur a statué sur une dérogation' },
+  ]},
+  { id: 'degustateurs', label: 'Dégustateurs', icon: 'Users', items: [
+    { id: 'deg_inscrit',  label: 'Nouveau dégustateur inscrit',        desc: "Création d'un compte dégustateur sur la plateforme" },
+    { id: 'deg_dispo',    label: 'Disponibilités confirmées',          desc: 'Un dégustateur a validé ses disponibilités pour un concours' },
+  ]},
+  { id: 'salons', label: 'Salons & exposants', icon: 'Building', items: [
+    { id: 'sal_inscrit',  label: 'Nouvelle inscription exposant',       desc: 'Un exposant a soumis son inscription à un salon' },
+    { id: 'sal_paiement', label: 'Paiement exposant reçu',             desc: "Paiement d'inscription au salon confirmé" },
+  ]},
+  { id: 'systeme', label: 'Système', icon: 'Settings', items: [
+    { id: 'sys_api',      label: 'Erreur API (Paybox, Sage…)',         desc: 'Échec de connexion à un service tiers — intervention requise' },
+    { id: 'sys_backup',   label: 'Sauvegarde échouée',                 desc: 'Alerte infrastructure automatique' },
+  ]},
+];
+
+const ALL_NOTIF_IDS = NOTIF_CATEGORIES.flatMap(c => c.items.map(i => i.id));
+const ALL_ON  = Object.fromEntries(ALL_NOTIF_IDS.map(id => [id, true]));
+const ALL_OFF = Object.fromEntries(ALL_NOTIF_IDS.map(id => [id, false]));
+
+const NOTIF_DEFAULTS = {
+  sophie:   { ins_soumise: true,  ins_validee: false, ins_refusee: true,  pay_cb: true,  pay_virement: true,  pay_retard: true,  pay_cheque: false, dero_nouvelle: true,  dero_traitee: false, deg_inscrit: false, deg_dispo: false, sal_inscrit: true,  sal_paiement: false, sys_api: true,  sys_backup: true  },
+  marc:     { ins_soumise: true,  ins_validee: false, ins_refusee: false, pay_cb: false, pay_virement: true,  pay_retard: true,  pay_cheque: true,  dero_nouvelle: true,  dero_traitee: true,  deg_inscrit: false, deg_dispo: false, sal_inscrit: true,  sal_paiement: true,  sys_api: false, sys_backup: false },
+  claire:   { ins_soumise: true,  ins_validee: true,  ins_refusee: true,  pay_cb: true,  pay_virement: false, pay_retard: false, pay_cheque: false, dero_nouvelle: false, dero_traitee: false, deg_inscrit: true,  deg_dispo: true,  sal_inscrit: false, sal_paiement: false, sys_api: false, sys_backup: false },
+  pierre:   { ins_soumise: false, ins_validee: false, ins_refusee: false, pay_cb: false, pay_virement: false, pay_retard: false, pay_cheque: false, dero_nouvelle: false, dero_traitee: false, deg_inscrit: false, deg_dispo: false, sal_inscrit: false, sal_paiement: false, sys_api: false, sys_backup: false },
+  isabelle: { ins_soumise: true,  ins_validee: false, ins_refusee: true,  pay_cb: true,  pay_virement: true,  pay_retard: false, pay_cheque: false, dero_nouvelle: true,  dero_traitee: false, deg_inscrit: false, deg_dispo: false, sal_inscrit: false, sal_paiement: false, sys_api: false, sys_backup: false },
+};
+
+const ADMINS_NOTIF = [
+  { id: 'sophie',   prenom: 'Sophie',   nom: 'Lambert',  role: 'super-admin', avatar: 'SL' },
+  { id: 'marc',     prenom: 'Marc',     nom: 'Dubois',   role: 'admin',       avatar: 'MD' },
+  { id: 'claire',   prenom: 'Claire',   nom: 'Mercier',  role: 'admin',       avatar: 'CM' },
+  { id: 'pierre',   prenom: 'Pierre',   nom: 'Gauthier', role: 'lecteur',     avatar: 'PG' },
+  { id: 'isabelle', prenom: 'Isabelle', nom: 'Petit',    role: 'admin',       avatar: 'IP' },
+];
+
+const NotifToggle = ({ checked, onChange }) => (
+  <button
+    onClick={() => onChange(!checked)}
+    style={{
+      width: 38, height: 22, borderRadius: 999, padding: 0, border: 'none',
+      background: checked ? 'var(--burgundy-800)' : 'var(--slate-200)',
+      cursor: 'pointer', position: 'relative', flexShrink: 0,
+      transition: 'background .18s',
+    }}
+  >
+    <span style={{
+      position: 'absolute', top: 3, left: checked ? 19 : 3,
+      width: 16, height: 16, borderRadius: 999, background: '#fff',
+      boxShadow: '0 1px 3px rgba(0,0,0,.2)',
+      transition: 'left .18s',
+    }}/>
+  </button>
+);
+
+const AdminParamNotifications = () => {
+  const [selectedId, setSelectedId] = React.useState('sophie');
+  const [prefs, setPrefs] = React.useState(NOTIF_DEFAULTS);
+  const [dirty, setDirty] = React.useState({});
+
+  const user = ADMINS_NOTIF.find(a => a.id === selectedId);
+  const userPrefs = prefs[selectedId] || {};
+  const countOn = Object.values(userPrefs).filter(Boolean).length;
+
+  const toggle = (notifId) => {
+    setPrefs(p => ({ ...p, [selectedId]: { ...p[selectedId], [notifId]: !p[selectedId][notifId] } }));
+    setDirty(d => ({ ...d, [selectedId]: true }));
+  };
+
+  const setAll = (val) => {
+    setPrefs(p => ({ ...p, [selectedId]: { ...p[selectedId], ...Object.fromEntries(ALL_NOTIF_IDS.map(id => [id, val])) } }));
+    setDirty(d => ({ ...d, [selectedId]: true }));
+  };
+
+  const save = () => setDirty(d => ({ ...d, [selectedId]: false }));
+
+  const catIconMap = { FileText: <Icon.FileText size={14}/>, Euro: <Icon.Euro size={14}/>, ShieldCheck: <Icon.ShieldCheck size={14}/>, Users: <Icon.Users size={14}/>, Building: <Icon.Building size={14}/>, Settings: <Icon.Settings size={14}/> };
+
+  return (
+    <div data-screen-label="admin-param-notifs">
+      <PageHeader
+        breadcrumb={['Administration', 'Paramètres', 'Notifications']}
+        title="Notifications"
+        subtitle="Configurez les alertes e-mail et in-app de chaque administrateur"
+        icon={<Icon.Bell size={22}/>}
+      />
+
+      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 20, alignItems: 'start' }}>
+        {/* Colonne utilisateurs */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--fg-muted)', letterSpacing: '0.07em', textTransform: 'uppercase', padding: '0 4px', marginBottom: 4 }}>Administrateurs</div>
+          {ADMINS_NOTIF.map(a => {
+            const n = Object.values(prefs[a.id] || {}).filter(Boolean).length;
+            const isSelected = a.id === selectedId;
+            return (
+              <button key={a.id} onClick={() => setSelectedId(a.id)} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '10px 12px', borderRadius: 9, border: `1px solid ${isSelected ? 'var(--burgundy-800)' : 'var(--border)'}`,
+                background: isSelected ? 'var(--burgundy-50)' : 'var(--surface)',
+                cursor: 'pointer', textAlign: 'left', width: '100%',
+                transition: 'all .12s',
+              }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 999, flexShrink: 0,
+                  background: isSelected ? 'var(--burgundy-800)' : 'var(--slate-100)',
+                  color: isSelected ? '#fff' : 'var(--fg-muted)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700,
+                }}>{a.avatar}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: isSelected ? 'var(--burgundy-800)' : 'var(--fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.prenom} {a.nom}</div>
+                  <div style={{ fontSize: 11, color: 'var(--fg-muted)' }}>{n} alerte{n > 1 ? 's' : ''} activée{n > 1 ? 's' : ''}</div>
+                </div>
+                {dirty[a.id] && <span style={{ width: 7, height: 7, borderRadius: 999, background: '#f59e0b', flexShrink: 0 }}/>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Panneau préférences */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* En-tête utilisateur */}
+          <div className="card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 999, background: 'var(--burgundy-800)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>{user.avatar}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 16, fontWeight: 600 }}>{user.prenom} {user.nom}</div>
+              <div style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>{ROLES[user.role]?.label} · {countOn} alerte{countOn > 1 ? 's' : ''} activée{countOn > 1 ? 's' : ''} sur {ALL_NOTIF_IDS.length}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-outline btn-sm" onClick={() => setAll(true)}>Tout activer</button>
+              <button className="btn btn-outline btn-sm" onClick={() => setAll(false)}>Tout désactiver</button>
+              {dirty[selectedId] && (
+                <button className="btn btn-primary btn-sm" onClick={save}>
+                  <Icon.Check size={13}/> Enregistrer
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Catégories */}
+          {NOTIF_CATEGORIES.map(cat => {
+            const catCount = cat.items.filter(i => userPrefs[i.id]).length;
+            return (
+              <div key={cat.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ color: 'var(--burgundy-800)' }}>{catIconMap[cat.icon]}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>{cat.label}</span>
+                  <span style={{ fontSize: 12, color: 'var(--fg-muted)', marginLeft: 'auto' }}>{catCount} / {cat.items.length} activée{catCount > 1 ? 's' : ''}</span>
+                </div>
+                <div style={{ padding: '4px 0' }}>
+                  {cat.items.map((item, i) => (
+                    <div key={item.id} style={{
+                      display: 'flex', alignItems: 'center', gap: 14, padding: '12px 20px',
+                      borderBottom: i < cat.items.length - 1 ? '1px solid var(--border)' : 'none',
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 500 }}>{item.label}</div>
+                        <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2 }}>{item.desc}</div>
+                      </div>
+                      <NotifToggle checked={!!userPrefs[item.id]} onChange={() => toggle(item.id)}/>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Page N — Configuration des paiements ────────────────────────
 
 const AdminParamPaiements = () => {
@@ -2404,6 +2399,135 @@ const PARAM_REPAS_INIT = {
   'salon-vins-2025':      [{ id: 'r1', label: 'Déjeuner exposant',      prix: 30 }, { id: 'r2', label: 'Déjeuner accompagnateur', prix: 26 }],
 };
 
+const RAPPELS_PAIEMENT_INIT = {
+  'salon-vins-2026': [
+    { id: 'r1', actif: true,  cible: 'acompte', jAvant: 7,  label: 'Premier rappel acompte',    modele: 'rappel-acompte-j7'   },
+    { id: 'r2', actif: true,  cible: 'solde',   jAvant: 60, label: 'Alerte solde à venir',       modele: 'rappel-solde-j60'    },
+    { id: 'r3', actif: true,  cible: 'solde',   jAvant: 30, label: 'Rappel date limite solde',   modele: 'rappel-solde-j30'    },
+    { id: 'r4', actif: true,  cible: 'solde',   jAvant: 14, label: 'Relance urgente solde',      modele: 'rappel-solde-j14'    },
+    { id: 'r5', actif: false, cible: 'solde',   jAvant: 0,  label: 'Alerte solde en retard',     modele: 'alerte-solde-retard' },
+  ],
+  'marche-plaisirs-2026': [
+    { id: 'r1', actif: true,  cible: 'solde',   jAvant: 30, label: 'Alerte solde à venir',       modele: 'rappel-solde-j30'    },
+    { id: 'r2', actif: true,  cible: 'solde',   jAvant: 7,  label: 'Dernier rappel solde',       modele: 'rappel-solde-j7'     },
+  ],
+  'salon-vins-2025': [],
+};
+
+const COMMUNICATION_EXPO_INIT = {
+  'salon-vins-2026': [
+    { id: 'aff-ext', actif: true,  cat: 'Affichage', nom: 'Affichage extérieur',       desc: "Bandeau 2×1m à l'entrée du parc — visibilité maximale",      prixHT: 180, couleur: '#2563eb', visuelUrl: '' },
+    { id: 'aff-int', actif: true,  cat: 'Affichage', nom: 'Panneau allée intérieure',  desc: 'Panneau A1 dans les allées principales du salon',              prixHT: 120, couleur: '#7c3aed', visuelUrl: '' },
+    { id: 'digital', actif: true,  cat: 'Digital',   nom: 'Diffusion écran digital',   desc: 'Votre visuel sur les écrans LED · 10 passages/heure',           prixHT: 280, couleur: '#0891b2', visuelUrl: '' },
+    { id: 'prog',    actif: true,  cat: 'Print',     nom: 'Encart programme papier',   desc: 'Encart ½ page · programme officiel (tirage 5 000 ex.)',         prixHT: 220, couleur: '#d97706', visuelUrl: '' },
+    { id: 'web',     actif: true,  cat: 'Digital',   nom: 'Bannière site web',         desc: "Bannière sur le site du salon · 1 mois avant l'événement",     prixHT: 150, couleur: '#059669', visuelUrl: '' },
+    { id: 'rs',      actif: false, cat: 'Digital',   nom: 'Post réseaux sociaux',      desc: 'Publication dédiée sur les réseaux du Comité',                 prixHT: 90,  couleur: '#e11d48', visuelUrl: '' },
+  ],
+  'marche-plaisirs-2026': [
+    { id: 'aff-ext', actif: true,  cat: 'Affichage', nom: 'Affichage extérieur',       desc: "Bandeau à l'entrée du Marché des Plaisirs Gourmands",          prixHT: 150, couleur: '#2563eb', visuelUrl: '' },
+    { id: 'digital', actif: true,  cat: 'Digital',   nom: 'Écran digital entrée',      desc: "Votre visuel sur l'écran principal à l'entrée du marché",      prixHT: 200, couleur: '#0891b2', visuelUrl: '' },
+    { id: 'prog',    actif: true,  cat: 'Print',     nom: 'Programme papier',          desc: 'Encart dans le programme officiel du Marché des Plaisirs',     prixHT: 180, couleur: '#d97706', visuelUrl: '' },
+    { id: 'rs',      actif: true,  cat: 'Digital',   nom: 'Post réseaux sociaux',      desc: 'Publication dédiée sur les réseaux du Comité',                 prixHT: 90,  couleur: '#e11d48', visuelUrl: '' },
+  ],
+  'salon-vins-2025': [],
+};
+
+const CommOptionCard = ({ opt, onUpdate }) => {
+  const [showUrl, setShowUrl] = React.useState(false);
+  return (
+    <div style={{ border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', opacity: opt.actif ? 1 : 0.5, transition: 'opacity .15s' }}>
+      {/* Zone visuelle */}
+      <div style={{
+        height: 130, position: 'relative',
+        background: opt.visuelUrl
+          ? `url(${opt.visuelUrl}) center/cover no-repeat`
+          : `linear-gradient(135deg, ${opt.couleur}18 0%, ${opt.couleur}38 100%)`,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        borderBottom: '1px solid var(--border)',
+      }}>
+        {!opt.visuelUrl && (
+          <div style={{ textAlign: 'center' }}>
+            <Icon.Layers size={30} style={{ color: opt.couleur, opacity: .45, display: 'block', margin: '0 auto 6px' }}/>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: opt.couleur, textTransform: 'uppercase', letterSpacing: '.07em', opacity: .65 }}>{opt.cat}</span>
+          </div>
+        )}
+        <label style={{ position: 'absolute', top: 8, left: 8, display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,.88)', borderRadius: 6, padding: '3px 8px', cursor: 'pointer', fontSize: 12, fontWeight: 500, boxShadow: '0 1px 3px rgba(0,0,0,.1)' }}>
+          <input type="checkbox" checked={opt.actif} onChange={e => onUpdate(opt.id, { actif: e.target.checked })} style={{ width: 13, height: 13, accentColor: 'var(--burgundy-800)' }}/>
+          Actif
+        </label>
+        <button
+          onClick={() => setShowUrl(v => !v)}
+          className="btn btn-sm btn-outline"
+          style={{ position: 'absolute', bottom: 8, right: 8, fontSize: 11.5, padding: '3px 9px', background: 'rgba(255,255,255,.88)' }}
+        >
+          <Icon.Layers size={11}/> {opt.visuelUrl ? 'Changer' : 'Ajouter visuel'}
+        </button>
+      </div>
+      {showUrl && (
+        <div style={{ padding: '8px 12px', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+          <input className="input" value={opt.visuelUrl} onChange={e => onUpdate(opt.id, { visuelUrl: e.target.value })} placeholder="URL de l'image (https://…jpg, png, webp)" style={{ fontSize: 12 }}/>
+          <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 4 }}>Dans la version finale, ce champ sera remplacé par un bouton d'upload.</div>
+        </div>
+      )}
+      {/* Champs éditables */}
+      <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <input className="input" value={opt.nom} onChange={e => onUpdate(opt.id, { nom: e.target.value })} placeholder="Nom de l'option" style={{ fontWeight: 600, fontSize: 13 }}/>
+        <textarea className="input" rows={2} value={opt.desc} onChange={e => onUpdate(opt.id, { desc: e.target.value })} placeholder="Description…" style={{ fontSize: 12, resize: 'none', lineHeight: 1.4 }}/>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <input type="number" min={0} className="input tnum" value={opt.prixHT} onChange={e => onUpdate(opt.id, { prixHT: parseFloat(e.target.value) || 0 })} style={{ paddingRight: 40 }}/>
+            <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--fg-muted)', fontSize: 13, pointerEvents: 'none' }}>€ HT</span>
+          </div>
+          <span style={{ fontSize: 11, padding: '3px 9px', borderRadius: 999, fontWeight: 600, background: opt.couleur + '22', color: opt.couleur, whiteSpace: 'nowrap' }}>{opt.cat}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const RappelRow = ({ rappel: r, onUpdate }) => (
+  <div style={{
+    display: 'flex', alignItems: 'center', gap: 12,
+    padding: '11px 14px',
+    background: r.actif ? 'var(--surface)' : 'var(--surface-2)',
+    border: '1px solid var(--border)',
+    borderRadius: 8,
+    opacity: r.actif ? 1 : 0.6,
+    transition: 'opacity .15s',
+  }}>
+    <input
+      type="checkbox"
+      checked={r.actif}
+      onChange={e => onUpdate(r.id, { actif: e.target.checked })}
+      style={{ width: 16, height: 16, accentColor: 'var(--burgundy-800)', flexShrink: 0, cursor: 'pointer' }}
+    />
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ fontSize: 13.5, fontWeight: 500 }}>{r.label}</div>
+      <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 1 }}>
+        Modèle : <span style={{ fontFamily: 'monospace', fontSize: 11.5, background: 'var(--surface-2)', padding: '1px 5px', borderRadius: 3 }}>{r.modele}</span>
+      </div>
+    </div>
+    <span style={{
+      fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, flexShrink: 0,
+      background: r.cible === 'solde' ? '#ede9fe' : '#dbeafe',
+      color: r.cible === 'solde' ? '#6d28d9' : '#1d4ed8',
+    }}>
+      {r.cible === 'solde' ? 'Solde' : 'Acompte'}
+    </span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+      <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>J −</span>
+      <input
+        type="number" min={0} max={365}
+        className="input tnum"
+        value={r.jAvant}
+        onChange={e => onUpdate(r.id, { jAvant: parseInt(e.target.value, 10) || 0 })}
+        style={{ width: 60, textAlign: 'center' }}
+      />
+      <span style={{ fontSize: 12, color: 'var(--fg-muted)', whiteSpace: 'nowrap' }}>avant salon</span>
+    </div>
+  </div>
+);
+
 const AdminParamSalons = () => {
   const [salon, setSalon]   = React.useState('salon-vins-2026');
   const [dirty, setDirty]   = React.useState(false);
@@ -2424,6 +2548,14 @@ const AdminParamSalons = () => {
   const updateOption = (id, patch) => { setOptions(o => ({ ...o, [salon]: o[salon].map(x => x.id === id ? { ...x, ...patch } : x) })); markDirty(); };
   const updateRepas  = (id, patch) => { setRepas(r   => ({ ...r, [salon]: r[salon].map(x => x.id === id ? { ...x, ...patch } : x) }));  markDirty(); };
   const updateDates  = (patch)     => { setDates(d   => ({ ...d, [salon]: { ...d[salon], ...patch } })); markDirty(); };
+
+  const [rappels, setRappels] = React.useState(RAPPELS_PAIEMENT_INIT);
+  const salonRappels = rappels[salon] || [];
+  const updateRappel = (id, patch) => { setRappels(r => ({ ...r, [salon]: (r[salon] || []).map(x => x.id === id ? { ...x, ...patch } : x) })); markDirty(); };
+
+  const [comm, setComm] = React.useState(COMMUNICATION_EXPO_INIT);
+  const salonComm = comm[salon] || [];
+  const updateComm = (id, patch) => { setComm(c => ({ ...c, [salon]: (c[salon] || []).map(x => x.id === id ? { ...x, ...patch } : x) })); markDirty(); };
 
   // Ligne réutilisable pour un article (stand ou option) avec toggle + champs
   const ArticleRow = ({ item, onUpdate, showSurface = false, showQty = false }) => (
@@ -2694,6 +2826,61 @@ const AdminParamSalons = () => {
           ))}
         </ParamCard>
 
+        {/* ─── Rappels de paiement automatiques ─────────────────── */}
+        <ParamCard
+          title="Rappels de paiement automatiques"
+          icon={<Icon.Bell size={14}/>}
+          sub="E-mails envoyés automatiquement aux exposants selon l'échéance de leur règlement"
+          actions={
+            <button className="btn btn-outline btn-sm" onClick={markDirty}>
+              <Icon.Plus size={13}/> Ajouter un rappel
+            </button>
+          }
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {salonRappels.map(r => (
+              <RappelRow key={r.id} rappel={r} onUpdate={updateRappel}/>
+            ))}
+            {salonRappels.length === 0 && (
+              <div style={{ fontSize: 13, color: 'var(--fg-muted)', textAlign: 'center', padding: '16px 0' }}>
+                Aucun rappel configuré pour ce salon.
+              </div>
+            )}
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Icon.Info size={12} style={{ flexShrink: 0 }}/>
+            Les délais sont calculés à partir de la date de début du salon. J − 0 = le jour même du salon.
+          </div>
+        </ParamCard>
+
+        {/* ─── Options de communication ─────────────────────────── */}
+        <ParamCard
+          title="Options de communication"
+          icon={<Icon.Send size={14}/>}
+          sub="Supports de communication proposés aux exposants lors de leur inscription — prix et visuels configurables"
+          actions={
+            <button className="btn btn-outline btn-sm" onClick={markDirty}>
+              <Icon.Plus size={13}/> Ajouter une option
+            </button>
+          }
+        >
+          {salonComm.length === 0 ? (
+            <div style={{ fontSize: 13, color: 'var(--fg-muted)', textAlign: 'center', padding: '20px 0' }}>
+              Aucune option de communication pour ce salon.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              {salonComm.map(opt => (
+                <CommOptionCard key={opt.id} opt={opt} onUpdate={updateComm}/>
+              ))}
+            </div>
+          )}
+          <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Icon.Info size={12} style={{ flexShrink: 0 }}/>
+            Les options désactivées ne sont pas affichées aux exposants lors de l'inscription.
+          </div>
+        </ParamCard>
+
       </div>
 
       {/* Barre de sauvegarde persistante */}
@@ -2722,6 +2909,426 @@ const AdminParamSalons = () => {
   );
 };
 
+// ─── Mon compte (admin) ───────────────────────────────────────────
+
+const MY_NOTIF_DEFAULTS = {
+  ins_soumise: true, ins_validee: false, ins_refusee: true,
+  pay_cb: true, pay_virement: true, pay_retard: true, pay_cheque: false,
+  dero_nouvelle: true, dero_traitee: false,
+  deg_inscrit: false, deg_dispo: false,
+  sal_inscrit: true, sal_paiement: false,
+  sys_api: true, sys_backup: true,
+};
+
+const AdminMonCompte = () => {
+  const [tab, setTab] = React.useState('profil');
+  const [notifs, setNotifs] = React.useState(MY_NOTIF_DEFAULTS);
+  const [dirtyNotifs, setDirtyNotifs] = React.useState(false);
+  const [savedNotifs, setSavedNotifs] = React.useState(false);
+
+  const toggleNotif = (id) => {
+    setNotifs(n => ({ ...n, [id]: !n[id] }));
+    setDirtyNotifs(true);
+    setSavedNotifs(false);
+  };
+  const setAllNotifs = (val) => {
+    setNotifs(Object.fromEntries(Object.keys(MY_NOTIF_DEFAULTS).map(k => [k, val])));
+    setDirtyNotifs(true);
+    setSavedNotifs(false);
+  };
+  const saveNotifs = () => { setDirtyNotifs(false); setSavedNotifs(true); };
+
+  const countOn = Object.values(notifs).filter(Boolean).length;
+  const total   = Object.keys(notifs).length;
+
+  const catIconMap = { FileText: <Icon.FileText size={14}/>, Euro: <Icon.Euro size={14}/>, ShieldCheck: <Icon.ShieldCheck size={14}/>, Users: <Icon.Users size={14}/>, Building: <Icon.Building size={14}/>, Settings: <Icon.Settings size={14}/> };
+
+  const tabs = [
+    { id: 'profil',        label: 'Profil' },
+    { id: 'notifications', label: 'Notifications', badge: countOn },
+    { id: 'securite',      label: 'Sécurité' },
+  ];
+
+  return (
+    <div data-screen-label="admin-compte">
+      <PageHeader
+        breadcrumb={['Administration', 'Mon compte']}
+        title="Mon compte"
+        subtitle="Sophie Lambert · Administratrice"
+        icon={<Icon.User size={22}/>}
+      />
+
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: 2, borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)} style={{
+            padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: 13.5, fontWeight: tab === t.id ? 600 : 400,
+            color: tab === t.id ? 'var(--burgundy-800)' : 'var(--fg-muted)',
+            borderBottom: `2px solid ${tab === t.id ? 'var(--burgundy-800)' : 'transparent'}`,
+            marginBottom: -1, transition: 'all .1s',
+            display: 'flex', alignItems: 'center', gap: 7,
+          }}>
+            {t.label}
+            {t.id === 'notifications' && (
+              <span style={{ minWidth: 18, height: 18, borderRadius: 999, background: tab === t.id ? 'var(--burgundy-800)' : 'var(--border)', color: tab === t.id ? '#fff' : 'var(--fg-muted)', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 5px' }}>{countOn}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Onglet Profil */}
+      {tab === 'profil' && (
+        <div style={{ maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="card" style={{ padding: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>Informations personnelles</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="field"><label className="field-label">Prénom</label><input className="input" defaultValue="Sophie"/></div>
+                <div className="field"><label className="field-label">Nom</label><input className="input" defaultValue="Lambert"/></div>
+              </div>
+              <div className="field"><label className="field-label">Adresse e-mail</label><input className="input" type="email" defaultValue="sophie@vins-macon.fr"/></div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button className="btn btn-primary btn-sm" style={{ background: 'var(--burgundy-800)' }}><Icon.Check size={13}/> Enregistrer</button>
+              </div>
+            </div>
+          </div>
+          <div className="card" style={{ padding: 20 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 4 }}>Rôle</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+              <span style={{ padding: '3px 10px', borderRadius: 4, background: 'var(--burgundy-50)', color: 'var(--burgundy-800)', fontSize: 12, fontWeight: 600 }}>Super admin</span>
+              <span style={{ fontSize: 12.5, color: 'var(--fg-muted)' }}>Tous droits, gestion utilisateurs incluse</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Onglet Notifications */}
+      {tab === 'notifications' && (
+        <div style={{ maxWidth: 680, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* En-tête */}
+          <div className="card" style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13.5, fontWeight: 600 }}>Mes alertes e-mail</div>
+              <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginTop: 2 }}>{countOn} alerte{countOn > 1 ? 's' : ''} activée{countOn > 1 ? 's' : ''} sur {total}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button className="btn btn-outline btn-sm" onClick={() => setAllNotifs(true)}>Tout activer</button>
+              <button className="btn btn-outline btn-sm" onClick={() => setAllNotifs(false)}>Tout désactiver</button>
+              {dirtyNotifs && (
+                <button className="btn btn-primary btn-sm" onClick={saveNotifs} style={{ background: 'var(--burgundy-800)' }}>
+                  <Icon.Check size={13}/> Enregistrer
+                </button>
+              )}
+              {savedNotifs && !dirtyNotifs && (
+                <span style={{ fontSize: 12.5, color: '#166534', display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <Icon.Check size={13}/> Sauvegardé
+                </span>
+              )}
+            </div>
+          </div>
+
+          {NOTIF_CATEGORIES.map(cat => {
+            const catCount = cat.items.filter(i => notifs[i.id]).length;
+            return (
+              <div key={cat.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ padding: '11px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ color: 'var(--burgundy-800)' }}>{catIconMap[cat.icon]}</span>
+                  <span style={{ fontSize: 13.5, fontWeight: 600 }}>{cat.label}</span>
+                  <span style={{ fontSize: 12, color: 'var(--fg-muted)', marginLeft: 'auto' }}>{catCount} / {cat.items.length}</span>
+                </div>
+                <div style={{ padding: '4px 0' }}>
+                  {cat.items.map((item, i) => (
+                    <div key={item.id} style={{
+                      display: 'flex', alignItems: 'center', gap: 14, padding: '11px 20px',
+                      borderBottom: i < cat.items.length - 1 ? '1px solid var(--border)' : 'none',
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 500 }}>{item.label}</div>
+                        <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2 }}>{item.desc}</div>
+                      </div>
+                      <NotifToggle checked={!!notifs[item.id]} onChange={() => toggleNotif(item.id)}/>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Onglet Sécurité */}
+      {tab === 'securite' && (
+        <div style={{ maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="card" style={{ padding: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>Changer le mot de passe</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div className="field"><label className="field-label">Mot de passe actuel</label><input className="input" type="password" placeholder="••••••••"/></div>
+              <div className="field"><label className="field-label">Nouveau mot de passe</label><input className="input" type="password" placeholder="••••••••"/></div>
+              <div className="field"><label className="field-label">Confirmer le nouveau mot de passe</label><input className="input" type="password" placeholder="••••••••"/></div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button className="btn btn-primary btn-sm" style={{ background: 'var(--burgundy-800)' }}><Icon.Check size={13}/> Changer le mot de passe</button>
+              </div>
+            </div>
+          </div>
+          <div className="card" style={{ padding: 20 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Sessions actives</div>
+            <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 14 }}>Appareil actuel et dernières connexions</div>
+            {[
+              { device: 'MacBook Pro · Chrome 125', ip: '89.234.12.45', date: "Aujourd'hui à 14h32", current: true },
+              { device: 'iPhone 15 · Safari',       ip: '89.234.12.45', date: 'Hier à 09h15',        current: false },
+            ].map((s, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i === 0 ? '1px solid var(--border)' : 'none' }}>
+                <Icon.Globe size={16} style={{ color: 'var(--fg-muted)', flexShrink: 0 }}/>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>{s.device}</div>
+                  <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{s.ip} · {s.date}</div>
+                </div>
+                {s.current
+                  ? <span style={{ fontSize: 11.5, fontWeight: 600, padding: '2px 8px', borderRadius: 4, background: '#dcfce7', color: '#166534' }}>Session actuelle</span>
+                  : <button className="btn btn-outline btn-sm" style={{ color: '#dc2626', borderColor: '#fecaca', fontSize: 12 }}>Révoquer</button>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Barème commandes médailles ───────────────────────────────────
+
+const BAREME_EDITIONS = [
+  { id: 'france-2026', label: 'Concours des Grands Vins de France 2026' },
+  { id: 'monde-2026',  label: 'Concours des Grands Vins du Monde 2026' },
+  { id: 'france-2025', label: 'Concours des Grands Vins de France 2025', archive: true },
+];
+
+const BAREME_DEFAULTS = {
+  'france-2026': { or: 500, argent: 300, bronze: 150, mention: 100 },
+  'monde-2026':  { or: 400, argent: 250, bronze: 120, mention: 80  },
+  'france-2025': { or: 480, argent: 280, bronze: 140, mention: 90  },
+};
+
+const RANGS_BAREME = [
+  { key: 'or',      label: 'Or',              dotColor: '#d4a017',  bgColor: '#fef9ec', fgColor: '#92400e' },
+  { key: 'argent',  label: 'Argent',           dotColor: '#94a3b8',  bgColor: '#f1f5f9', fgColor: '#475569' },
+  { key: 'bronze',  label: 'Bronze',           dotColor: '#c2410c',  bgColor: '#fef3c7', fgColor: '#a16207' },
+  { key: 'mention', label: 'Mention spéciale', dotColor: '#6b7280',  bgColor: '#f9fafb', fgColor: '#374151' },
+];
+
+const AdminParamBareme = () => {
+  const [editionId, setEditionId]   = React.useState('france-2026');
+  const [marge, setMarge]           = React.useState(3);
+  const [baremes, setBaremes]       = React.useState(JSON.parse(JSON.stringify(BAREME_DEFAULTS)));
+  const [dirty, setDirty]           = React.useState(false);
+  const [copySource, setCopySource] = React.useState('france-2025');
+  const [saved, setSaved]           = React.useState(false);
+
+  const markDirty = () => setDirty(true);
+
+  const currentBareme = baremes[editionId] || { or: 0, argent: 0, bronze: 0, mention: 0 };
+
+  const withMarge = (v) => Math.ceil(v * (1 + marge / 100));
+
+  const updateQuota = (rang, val) => {
+    const n = Math.max(0, parseInt(val, 10) || 0);
+    setBaremes(b => ({ ...b, [editionId]: { ...b[editionId], [rang]: n } }));
+    markDirty();
+  };
+
+  const handleCopy = () => {
+    const src = baremes[copySource];
+    if (!src) return;
+    setBaremes(b => ({ ...b, [editionId]: { ...src } }));
+    markDirty();
+  };
+
+  const handleSave = () => {
+    setDirty(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  // SalonPicker custom inline pour ce composant (reprend le style EditionPicker local)
+  const EditionPickerBareme = ({ value, onChange }) => {
+    const [open, setOpen] = React.useState(false);
+    const current = BAREME_EDITIONS.find(e => e.id === value);
+    return (
+      <div style={{ position: 'relative' }}>
+        <button onClick={() => setOpen(o => !o)} style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '6px 12px', fontSize: 14, fontWeight: 500,
+          border: '1px solid var(--border)', borderRadius: 8,
+          background: 'var(--surface)', color: 'var(--fg)',
+          cursor: 'pointer', fontFamily: 'inherit',
+        }}>
+          {current.label}
+          {current.archive && <span style={{ fontSize: 10.5, padding: '1px 6px', background: 'var(--slate-100)', color: 'var(--fg-muted)', borderRadius: 4, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Archive</span>}
+          <Icon.ChevronDown size={13} style={{ color: 'var(--fg-muted)' }}/>
+        </button>
+        {open && (
+          <>
+            <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 50 }}/>
+            <div style={{
+              position: 'absolute', top: 'calc(100% + 4px)', left: 0,
+              background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8,
+              boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+              minWidth: 340, zIndex: 60, overflow: 'hidden',
+            }}>
+              {BAREME_EDITIONS.map(e => (
+                <button key={e.id} onClick={() => { onChange(e.id); setOpen(false); }} style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '10px 14px', border: 'none',
+                  background: e.id === value ? 'var(--burgundy-50)' : 'transparent',
+                  textAlign: 'left', cursor: 'pointer', fontSize: 13,
+                  color: e.id === value ? 'var(--burgundy-800)' : 'var(--fg)',
+                  fontWeight: e.id === value ? 600 : 500, fontFamily: 'inherit',
+                }}>
+                  <span style={{ flex: 1 }}>{e.label}</span>
+                  {e.archive && <span style={{ fontSize: 10.5, color: 'var(--fg-muted)', fontWeight: 500 }}>archive</span>}
+                  {e.id === value && <Icon.Check size={13}/>}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div data-screen-label="admin-param-bareme">
+      <PageHeader
+        breadcrumb={['Administration', 'Paramètres', 'Barème commandes médailles']}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <span>Barème commandes médailles</span>
+            <EditionPickerBareme value={editionId} onChange={setEditionId}/>
+          </div>
+        }
+        subtitle="Quotas maximaux par rang de médaille — sert de base au calcul de la quantité commandable"
+        actions={dirty && (
+          <button className="btn btn-primary btn-sm" onClick={handleSave}
+            style={{ background: 'var(--burgundy-800)' }}>
+            {saved ? <><Icon.Check size={13}/> Enregistré</> : <><Icon.Save size={13}/> Enregistrer</>}
+          </button>
+        )}
+      />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 860 }}>
+
+        {/* Règle de calcul */}
+        <ParamCard title="Règle de calcul" icon={<Icon.Info size={14}/>} sub="Comment le quota commandable est calculé à partir du barème">
+          <ParamRow
+            label="Marge autorisée"
+            hint="Pourcentage ajouté au-dessus du barème de base pour absorber la casse et les erreurs de tri."
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input
+                type="number" min={0} max={20} value={marge}
+                className="input tnum"
+                onChange={e => { setMarge(Math.max(0, Math.min(20, parseInt(e.target.value) || 0))); markDirty(); }}
+                style={{ width: 80, textAlign: 'center' }}
+              />
+              <span style={{ fontSize: 13.5, color: 'var(--fg-muted)' }}>%</span>
+              <span style={{ fontSize: 12, color: 'var(--fg-muted)', marginLeft: 8 }}>
+                Exemple : barème Or {currentBareme.or} → quota commandable{' '}
+                <strong style={{ color: 'var(--burgundy-800)', fontVariantNumeric: 'tabular-nums' }}>{withMarge(currentBareme.or)}</strong> médailles
+              </span>
+            </div>
+          </ParamRow>
+          <ParamRow
+            label="Formule"
+            hint="Arrondi à l'entier supérieur (⌈ ⌉) pour éviter les demi-médailles."
+          >
+            <div style={{
+              fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)',
+              fontSize: 13, background: 'var(--slate-50)', border: '1px solid var(--border)',
+              borderRadius: 8, padding: '10px 14px', color: 'var(--fg)', lineHeight: 1.6,
+            }}>
+              quota_max = ⌈ barème[rang] × {marge > 0 ? (1 + marge / 100).toFixed(2) : '1.00'} ⌉ <span style={{ color: 'var(--fg-muted)' }}>par vin médaillé et par édition</span>
+            </div>
+          </ParamRow>
+        </ParamCard>
+
+        {/* Quotas par rang */}
+        <ParamCard title="Quotas par rang" icon={<Icon.Medal size={14}/>} sub="Quotas de base pour l'édition sélectionnée — éditables par concours/année">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  {['Rang', 'Quota de base', 'Avec marge (' + marge + ' %)', ''].map((h, i) => (
+                    <th key={i} style={{ padding: '8px 14px', textAlign: i > 0 ? 'right' : 'left', fontSize: 11.5, fontWeight: 600, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {RANGS_BAREME.map(rang => {
+                  const base = currentBareme[rang.key] || 0;
+                  const avecMarge = withMarge(base);
+                  return (
+                    <tr key={rang.key} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '10px 14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ width: 10, height: 10, borderRadius: 999, background: rang.dotColor, flexShrink: 0 }}/>
+                          <span style={{
+                            fontSize: 12.5, fontWeight: 600,
+                            padding: '2px 9px', borderRadius: 99,
+                            background: rang.bgColor, color: rang.fgColor,
+                          }}>{rang.label}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                        <input
+                          type="number" min={0} value={base}
+                          className="input tnum"
+                          onChange={e => updateQuota(rang.key, e.target.value)}
+                          style={{ width: 100, textAlign: 'center' }}
+                        />
+                      </td>
+                      <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                        <span className="tnum" style={{ fontSize: 14, fontWeight: 700, color: 'var(--burgundy-800)' }}>
+                          {avecMarge.toLocaleString('fr-FR')}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px 14px', textAlign: 'right', fontSize: 11.5, color: 'var(--fg-muted)' }}>
+                        {avecMarge > base && <>+ {(avecMarge - base)} médailles</>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </ParamCard>
+
+        {/* Réutiliser un barème */}
+        <ParamCard title="Réutiliser un barème" icon={<Icon.Copy size={14}/>} sub="Copier les quotas de base d'une édition passée vers l'édition sélectionnée">
+          <ParamRow label="Copier depuis" hint="Les quotas de base seront remplacés. La marge ne change pas.">
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              <select
+                className="input"
+                value={copySource}
+                onChange={e => setCopySource(e.target.value)}
+                style={{ minWidth: 300 }}
+              >
+                {BAREME_EDITIONS.filter(e => e.id !== editionId).map(e => (
+                  <option key={e.id} value={e.id}>{e.label}{e.archive ? ' (archive)' : ''}</option>
+                ))}
+              </select>
+              <button className="btn btn-outline btn-sm" onClick={handleCopy}>
+                <Icon.Copy size={13}/> Copier vers {BAREME_EDITIONS.find(e => e.id === editionId)?.label || editionId}
+              </button>
+            </div>
+          </ParamRow>
+        </ParamCard>
+
+      </div>
+    </div>
+  );
+};
+
 Object.assign(window, {
   AdminParamConcours,
   AdminParamDerogations,
@@ -2730,6 +3337,9 @@ Object.assign(window, {
   AdminParamEmails,
   AdminParamAPI,
   AdminParamUtilisateurs,
+  AdminParamNotifications,
   AdminParamPaiements,
   AdminParamSalons,
+  AdminMonCompte,
+  AdminParamBareme,
 });

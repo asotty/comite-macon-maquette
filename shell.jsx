@@ -21,13 +21,22 @@ const navAdmin = [
   { id: 'commandes', label: 'Commandes médailles', icon: <Icon.Package size={16}/>, group: 'Logistique', children: [
     { id: 'cmd-liste', label: 'Commandes producteurs' },
     { id: 'cmd-stocks', label: 'Stocks' },
-    { id: 'cmd-fournisseurs', label: 'Transmissions fournisseurs' },
+    { id: 'cmd-fournisseurs', label: 'Transmissions imprimeurs' },
     { id: 'cmd-derogations', label: 'Dérogations impression', badge: 2 },
   ]},
-  { id: 'salons', label: 'Salons & exposants', icon: <Icon.Building size={16}/>, group: 'Logistique', children: [
-    { id: 'salons-events', label: 'Événements' },
-    { id: 'salons-vins',   label: 'Salon des Vins' },
-    { id: 'salons-marche', label: 'Marché des Plaisirs Gourmands' },
+  { id: 'salon-vins', label: 'Salon des Vins', icon: <Icon.Wine size={16}/>, group: 'Salons', children: [
+    { id: 'sdv-dashboard',   label: 'Tableau de bord' },
+    { id: 'sdv-exposants',   label: 'Exposants' },
+    { id: 'sdv-inscriptions',label: 'Inscriptions' },
+    { id: 'sdv-reglement',   label: 'Règlement & codes promo' },
+    { id: 'sdv-comms',       label: 'Communications' },
+  ]},
+  { id: 'salon-marche', label: 'Marché des Plaisirs Gourmands', icon: <Icon.ShoppingCart size={16}/>, group: 'Salons', children: [
+    { id: 'mpg-dashboard',   label: 'Tableau de bord' },
+    { id: 'mpg-exposants',   label: 'Exposants' },
+    { id: 'mpg-inscriptions',label: 'Inscriptions' },
+    { id: 'mpg-reglement',   label: 'Règlement & codes promo' },
+    { id: 'mpg-comms',       label: 'Communications' },
   ]},
   { id: 'producteurs', label: 'Producteurs', icon: <Icon.Wine size={16}/>, group: 'Utilisateurs' },
   { id: 'degustateurs', label: 'Dégustateurs', icon: <Icon.Users size={16}/>, group: 'Utilisateurs', children: [
@@ -42,16 +51,20 @@ const navAdmin = [
     { id: 'fin-factures', label: 'Factures' },
     { id: 'fin-exports', label: 'Exports comptables (Sage)' },
   ]},
+  { id: 'emails-envoyes', label: 'E-mails envoyés', icon: <Icon.Mail size={16}/>, group: 'Gestion', route: 'emails-envoyes' },
+  { id: 'mini-evenements', label: 'Mini-événements', icon: <Icon.Calendar size={16}/>, group: 'Marketing', route: 'mini-evenements' },
+  { id: 'marketing', label: 'Marketing', icon: <Icon.Sparkles size={16}/>, group: 'Marketing' },
   { id: 'parametres', label: 'Paramètres', icon: <Icon.Settings size={16}/>, group: 'Gestion', children: [
     { id: 'param-concours', label: 'Configuration concours' },
     { id: 'param-salons', label: 'Configuration salons' },
-    { id: 'param-appellations', label: 'Appellations & régions' },
+    { id: 'param-appellations', label: 'Régions' },
     { id: 'param-derogations', label: 'Dérogations impression' },
-    { id: 'param-fournisseurs', label: 'Fournisseurs médailles' },
+    { id: 'param-fournisseurs', label: 'Imprimeurs' },
     { id: 'param-emails', label: 'Templates emails' },
     { id: 'param-api', label: 'Configuration API' },
     { id: 'param-utilisateurs', label: 'Utilisateurs & droits' },
     { id: 'param-paiements', label: 'Configuration paiements' },
+    { id: 'param-bareme', label: 'Barème commandes médailles' },
   ]},
 ];
 
@@ -230,9 +243,10 @@ const TopNavShell = ({ nav, user, route, onNavigate, onLogout, homeRoute: homeRo
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-app)', display: 'flex', flexDirection: 'column' }}>
       <header style={{
-        height: 64,
+        height: 96,
         background: '#ffffff',
         borderBottom: '1px solid var(--border)',
+        boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
         display: 'flex',
         alignItems: 'center',
         padding: '0 32px',
@@ -254,11 +268,12 @@ const TopNavShell = ({ nav, user, route, onNavigate, onLogout, homeRoute: homeRo
             const isActive = item.id === active;
             return (
               <button key={item.id} onClick={() => onNavigate(item.route)} style={{
-                position: 'relative',
-                height: 64,
-                padding: '0 16px',
-                background: 'transparent',
-                border: 'none',
+                height: 36,
+                padding: '0 14px',
+                background: isActive ? 'var(--burgundy-50)' : 'transparent',
+                border: '1px solid',
+                borderColor: isActive ? 'var(--burgundy-200)' : 'transparent',
+                borderRadius: 8,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 fontSize: 14,
@@ -268,11 +283,11 @@ const TopNavShell = ({ nav, user, route, onNavigate, onLogout, homeRoute: homeRo
                 alignItems: 'center',
                 gap: 8,
                 letterSpacing: '-0.005em',
-                transition: 'color .12s',
+                transition: 'background .12s, border-color .12s, color .12s',
                 whiteSpace: 'nowrap',
               }}
-              onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = 'var(--burgundy-800)'; }}
-              onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = 'var(--slate-700)'; }}
+              onMouseEnter={e => { if (!isActive) { e.currentTarget.style.color = 'var(--burgundy-800)'; e.currentTarget.style.background = 'var(--burgundy-50)'; e.currentTarget.style.borderColor = 'var(--burgundy-100)'; } }}
+              onMouseLeave={e => { if (!isActive) { e.currentTarget.style.color = 'var(--slate-700)'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; } }}
               >
                 {item.label}
                 {item.badge && (
@@ -287,15 +302,6 @@ const TopNavShell = ({ nav, user, route, onNavigate, onLogout, homeRoute: homeRo
                     alignItems: 'center', justifyContent: 'center',
                     lineHeight: 1,
                   }}>{item.badge}</span>
-                )}
-                {isActive && (
-                  <span style={{
-                    position: 'absolute',
-                    left: 10, right: 10, bottom: -1,
-                    height: 2,
-                    background: 'var(--burgundy-800)',
-                    borderRadius: '2px 2px 0 0',
-                  }}/>
                 )}
               </button>
             );
@@ -487,14 +493,19 @@ const Shell = ({ portal, route, onNavigate, onLogout, children }) => {
             display: 'flex', alignItems: 'center', gap: 10,
             padding: 10,
             borderRadius: 8,
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
+            background: route === 'admin-compte' ? 'var(--burgundy-50)' : 'var(--surface)',
+            border: `1px solid ${route === 'admin-compte' ? 'var(--burgundy-200)' : 'var(--border)'}`,
           }}>
-            <div className="avatar avatar-lg">{user.avatar}</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
-              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.role}</div>
-            </div>
+            <button onClick={() => onNavigate('admin-compte')} title="Mon compte" style={{
+              display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0,
+              background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left',
+            }}>
+              <div className="avatar avatar-lg" style={{ background: route === 'admin-compte' ? 'var(--burgundy-800)' : undefined, color: route === 'admin-compte' ? '#fff' : undefined }}>{user.avatar}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: route === 'admin-compte' ? 'var(--burgundy-800)' : 'var(--fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
+                <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Mon compte</div>
+              </div>
+            </button>
             <button onClick={onLogout} className="btn btn-icon btn-sm btn-ghost" title="Se déconnecter">
               <Icon.Logout size={14}/>
             </button>

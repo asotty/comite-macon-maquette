@@ -1,5 +1,11 @@
 // ─── Producteurs : liste + fiche ───────────────────────────────────
 
+const FOURNISSEURS_MEDAILLES = [
+  { id: 'lyon',     nom: 'Médailleur Lyon',     zones: 'ARA, BFC, OCC, PAC, CORS' },
+  { id: 'bordeaux', nom: 'Médailleur Bordeaux', zones: 'NAQ, PDL, BRE, NOR, CVL'  },
+  { id: 'paris',    nom: 'Arthus-Bertrand',     zones: 'IDF, GE, HDF'             },
+];
+
 const PRODUCTEURS_ROWS = [
   ['PROD-0421', 'Domaine de la Chevalière',  'marie@chevaliere.fr',     'Mâconnais (71)',      3, 1, 2, 'or',     'actif'],
   ['PROD-0420', 'Maison Joseph Drouhin',     'contact@drouhin.fr',      'Côte-de-Beaune (21)', 5, 0, 3, 'or',     'actif'],
@@ -23,6 +29,7 @@ const PRODUCTEUR_DETAIL = {
   tva:         'FR 78 412345678',
   membreDepuis:'08/03/2021',
   status:      'actif',
+  fournisseurMedailles: 'lyon',
   raisonSociale: 'EARL Domaine de la Chevalière',
   adresseDomaine: '12 chemin des Vignes, 71960 Solutré-Pouilly',
   contactInsc:   { prenom: 'Marie', nom: 'Dupont', email: 'marie@chevaliere.fr',     tel: '06 12 34 56 78' },
@@ -519,6 +526,12 @@ const AdminProducteurDetail = ({ onBack, onOpenDossier, onOpenDerog }) => {
 
 const ProdTabInfos = ({ P }) => {
   const [editing, setEditing] = React.useState(false);
+  const AUTO_FOURN_ID = P.fournisseurMedailles || 'lyon';
+  const [fournisseurId, setFournisseurId] = React.useState(AUTO_FOURN_ID);
+  const isManual = fournisseurId !== AUTO_FOURN_ID;
+  const currentFourn = FOURNISSEURS_MEDAILLES.find(function(f) { return f.id === fournisseurId; }) || FOURNISSEURS_MEDAILLES[0];
+  const autoFourn    = FOURNISSEURS_MEDAILLES.find(function(f) { return f.id === AUTO_FOURN_ID; }) || FOURNISSEURS_MEDAILLES[0];
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
@@ -551,6 +564,57 @@ const ProdTabInfos = ({ P }) => {
           <InfoKV label="Email"    value={P.contactMkt.email} mono/>
           <InfoKV label="Téléphone" value={P.contactMkt.tel}   mono/>
         </InfoCard>
+
+        {/* Imprimeur médailles — toujours éditable */}
+        <div style={{ gridColumn: '1 / -1' }}>
+          <InfoCard title="Imprimeur médailles" icon={<Icon.Printer size={14}/>}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 180 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg)' }}>{currentFourn.nom}</span>
+                  {isManual ? (
+                    <span style={{ fontSize: 10.5, padding: '1px 8px', borderRadius: 999, background: '#fef3c7', color: '#92400e', fontWeight: 600 }}>Manuel</span>
+                  ) : (
+                    <span style={{ fontSize: 10.5, padding: '1px 8px', borderRadius: 999, background: '#dcfce7', color: '#166534', fontWeight: 600 }}>Auto — région</span>
+                  )}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>
+                  Zones couvertes : <span style={{ fontWeight: 500, color: 'var(--fg)' }}>{currentFourn.zones}</span>
+                </div>
+                {isManual && (
+                  <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 4 }}>
+                    Auto-assigné (région) : <span style={{ color: 'var(--fg)', fontWeight: 500 }}>{autoFourn.nom}</span>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                <select
+                  className="input"
+                  style={{ fontSize: 13, padding: '5px 10px', minWidth: 200 }}
+                  value={fournisseurId}
+                  onChange={function(e) { setFournisseurId(e.target.value); }}
+                >
+                  {FOURNISSEURS_MEDAILLES.map(function(f) {
+                    return (
+                      <option key={f.id} value={f.id}>
+                        {f.nom}{f.id === AUTO_FOURN_ID ? ' (auto — région)' : ''}
+                      </option>
+                    );
+                  })}
+                </select>
+                {isManual && (
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{ color: 'var(--fg-muted)', fontSize: 12, whiteSpace: 'nowrap' }}
+                    onClick={function() { setFournisseurId(AUTO_FOURN_ID); }}
+                  >
+                    <Icon.Refresh size={11}/> Réinitialiser
+                  </button>
+                )}
+              </div>
+            </div>
+          </InfoCard>
+        </div>
       </div>
 
       {editing && (

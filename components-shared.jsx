@@ -345,4 +345,193 @@ const EXPEDITEURS_EMAIL = [
   { id: 'inscriptions',  nom: 'Service des inscriptions',                email: 'inscriptions@comite-macon.fr',  defaut: false },
 ];
 
-Object.assign(window, { Logo, StatusBadge, KpiCard, PageHeader, Empty, Toast, CONCOURS_BRAND, getConcoursBrand, ConcoursLogo, ConcoursPillBrand, EXPEDITEURS_EMAIL });
+// ── Cross-marketing — offres affichées en bas de chaque espace utilisateur ─
+// Gérable depuis AdminMarketing (BO). Chaque offre peut cibler 1-3 portails, avoir un badge promo + date de fin.
+const CROSS_OFFERS = [
+  {
+    id: 'expo-sdv',
+    portals: ['producteur', 'degustateur'],
+    type: 'salon',
+    icon: 'Building',
+    color: 'var(--burgundy-700)',
+    colorLight: 'var(--burgundy-50)',
+    colorBorder: 'var(--burgundy-200)',
+    title: 'Salon des Vins de Mâcon 2026',
+    subtitle: 'Espace exposant · 14–16 nov. 2026',
+    desc: 'Valorisez vos vins auprès de 12 000 visiteurs passionnés. Stands de 9 à 36 m². Candidature avant le 30 sept.',
+    cta: 'Réserver un stand',
+    badge: null,
+    badgeColor: null,
+    endDate: '2026-09-30',
+    active: true,
+  },
+  {
+    id: 'expo-mpg',
+    portals: ['producteur'],
+    type: 'salon',
+    icon: 'ShoppingCart',
+    color: '#92400e',
+    colorLight: '#fef9ec',
+    colorBorder: '#fde68a',
+    title: 'Marché des Plaisirs Gourmands 2026',
+    subtitle: 'Espace exposant artisanal',
+    desc: 'Présentez votre domaine à un public d\'amateurs de gastronomie locale. Stand à partir de 180 €.',
+    cta: 'En savoir plus',
+    badge: 'Tarif early bird',
+    badgeColor: '#d97706',
+    endDate: '2026-07-31',
+    active: true,
+  },
+  {
+    id: 'degust-jury',
+    portals: ['producteur', 'exposant'],
+    type: 'recrutement',
+    icon: 'Award',
+    color: '#0c4a6e',
+    colorLight: '#f0f9ff',
+    colorBorder: '#bae6fd',
+    title: 'Devenir juré au concours',
+    subtitle: 'Concours des Grands Vins de France 2027',
+    desc: 'Vous êtes professionnel de la filière ? Rejoignez nos 300 experts. Candidature en 5 min.',
+    cta: 'Candidater',
+    badge: 'Candidatures ouvertes',
+    badgeColor: '#0284c7',
+    endDate: '2026-08-30',
+    active: true,
+  },
+  {
+    id: 'formation',
+    portals: ['producteur', 'degustateur', 'exposant'],
+    type: 'formation',
+    icon: 'Layers',
+    color: '#166534',
+    colorLight: '#f0fdf4',
+    colorBorder: '#bbf7d0',
+    title: 'Formation dégustation — Niveau 2',
+    subtitle: '3 modules en ligne · 1 journée présentielle',
+    desc: 'Perfectionnez votre analyse sensorielle. 14h certifiantes, éligible OPCO. Sessions juillet & septembre.',
+    cta: 'S\'inscrire',
+    badge: '-20% jusqu\'au 15 juil.',
+    badgeColor: '#15803d',
+    endDate: '2026-07-15',
+    active: true,
+  },
+];
+
+// Bloc cross-marketing — inséré en bas de chaque dashboard utilisateur.
+// Filtre les offres actives pour le portail donné et affiche un compte à rebours si endDate ≤ 30 jours.
+const CrossMarketingBlock = ({ portal }) => {
+  const today = new Date('2026-06-29');
+  const activeOffers = CROSS_OFFERS.filter(o => o.active && o.portals.includes(portal));
+  if (!activeOffers.length) return null;
+
+  const daysLeft = (endDateStr) => {
+    if (!endDateStr) return null;
+    const diff = Math.round((new Date(endDateStr) - today) / 86400000);
+    return diff > 0 ? diff : null;
+  };
+
+  return (
+    <div style={{ padding: '8px 24px 32px' }}>
+      {/* Séparateur section */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+        <div style={{ flex: 1, height: 1, background: 'var(--border)' }}/>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--fg-muted)' }}>
+          <Icon.Sparkles size={12}/>
+          <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            À découvrir aussi
+          </span>
+        </div>
+        <div style={{ flex: 1, height: 1, background: 'var(--border)' }}/>
+      </div>
+
+      {/* Grille */}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${activeOffers.length}, 1fr)`, gap: 12 }}>
+        {activeOffers.map(offer => {
+          const days = daysLeft(offer.endDate);
+          const OfferIcon = Icon[offer.icon] || Icon.Star;
+          return (
+            <div key={offer.id}
+              style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 12,
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                cursor: 'pointer',
+                transition: 'box-shadow .15s, transform .15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--shadow-md)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              {/* En-tête coloré */}
+              <div style={{
+                background: offer.colorLight,
+                borderBottom: `1px solid ${offer.colorBorder}`,
+                padding: '14px 16px',
+                display: 'flex', alignItems: 'flex-start', gap: 12,
+              }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: 9,
+                  background: offer.color, color: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <OfferIcon size={17}/>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {offer.badge && (
+                    <span style={{
+                      display: 'inline-block', fontSize: 10.5, fontWeight: 600,
+                      padding: '2px 7px', borderRadius: 999, marginBottom: 4, marginRight: 4,
+                      background: offer.badgeColor + '1a', color: offer.badgeColor,
+                      border: `1px solid ${offer.badgeColor}33`,
+                    }}>
+                      {offer.badge}
+                    </span>
+                  )}
+                  {days !== null && days <= 30 && (
+                    <span style={{
+                      display: 'inline-block', fontSize: 10.5, fontWeight: 600,
+                      padding: '2px 7px', borderRadius: 999, marginBottom: 4,
+                      background: days <= 7 ? '#fef2f2' : '#fffbeb',
+                      color: days <= 7 ? '#dc2626' : '#d97706',
+                      border: `1px solid ${days <= 7 ? '#fecaca' : '#fde68a'}`,
+                    }}>
+                      J−{days}
+                    </span>
+                  )}
+                  <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--fg)', lineHeight: 1.3 }}>
+                    {offer.title}
+                  </div>
+                </div>
+              </div>
+
+              {/* Corps */}
+              <div style={{ padding: '11px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <div style={{ fontSize: 11.5, color: offer.color, fontWeight: 500 }}>{offer.subtitle}</div>
+                <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', lineHeight: 1.5 }}>{offer.desc}</div>
+              </div>
+
+              {/* CTA */}
+              <div style={{ padding: '4px 16px 14px' }}>
+                <button
+                  className="btn btn-sm"
+                  style={{
+                    width: '100%', background: offer.colorLight,
+                    color: offer.color, border: `1px solid ${offer.colorBorder}`,
+                    fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                  }}
+                >
+                  {offer.cta} <Icon.ArrowRight size={12}/>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+Object.assign(window, { Logo, StatusBadge, KpiCard, PageHeader, Empty, Toast, CONCOURS_BRAND, getConcoursBrand, ConcoursLogo, ConcoursPillBrand, EXPEDITEURS_EMAIL, CROSS_OFFERS, CrossMarketingBlock });
